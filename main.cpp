@@ -447,6 +447,179 @@ void PrintMatrix(number ** aMatrix, char szName[], int n=-1,bool fHex= true)
 
 }
 
+
+#define PI 3.14159265358979323846
+
+#define ROUND(a) 	(((a)<0)?(int)((a)-0.5):(int)((a)+0.5))
+#define NORMALIZE(n) ((n<0) ? 0 : ((n>255) ? 255 : n));
+#define N 8
+
+int Quantum[ N ][ N ];
+float C[ N ][ N ];
+float Ct[ N ][ N ];
+
+struct zigzag {
+    int row;
+    int col;
+} ZigZag[ N * N ] =
+{
+    {0, 0},
+    {0, 1}, {1, 0},
+    {2, 0}, {1, 1}, {0, 2},
+    {0, 3}, {1, 2}, {2, 1}, {3, 0},
+    {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4},
+    {0, 5}, {1, 4}, {2, 3}, {3, 2}, {4, 1}, {5, 0},
+    {6, 0}, {5, 1}, {4, 2}, {3, 3}, {2, 4}, {1, 5}, {0, 6},
+    {0, 7}, {1, 6}, {2, 5}, {3, 4}, {4, 3}, {5, 2}, {6, 1}, {7, 0},
+    {7, 1}, {6, 2}, {5, 3}, {4, 4}, {3, 5}, {2, 6}, {1, 7},
+    {2, 7}, {3, 6}, {4, 5}, {5, 4}, {6, 3}, {7, 2},
+    {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7},
+    {4, 7}, {5, 6}, {6, 5}, {7, 4},
+    {7, 5}, {6, 6}, {5, 7},
+    {6, 7}, {7, 6},
+    {7, 7}
+};
+
+
+
+void Initalise(int quality)
+{
+  int i,j;
+
+//subsampling matrix
+  for (i=0;i<N;i++)
+    for (j=0;j<N;j++)
+      Quantum[i][j] = 16 + ( 1 + i + j ) * quality;
+
+// define DCT and transposed DCT matrix:
+// C(i,j) = 1/sqrt(N), i=0
+// C(i,j) = sqrt(2/N) * cos(((2*j+1)*i*PI)/(2*N)), i<>0
+
+  for(j=0;j<N;j++)
+  {
+    C[0][j]= 1.0 / sqrt((float) N);
+    Ct[j][0]=C[0][j];
+  }
+
+  for (i=1;i<N;i++)
+    for (j=0;j<N;j++)
+          {
+            C[i][j]= sqrt(2.0/N) * cos( ((2*j+1)*i*PI)/(2.0*N) );
+        Ct[j][i]=C[i][j];
+          }
+
+  for (i=0;i<N*N;i++)
+  {
+    ZigZag[i].row = i%N;
+    ZigZag[i].col = i/N;
+  }
+
+}
+
+void MatrixMul(float input[N][N], float output[N][N],
+    float C[N][N],float Ct[N][N])
+{
+  float temp[N][N];
+  float temp1;
+  int i,j,k;
+
+  //output = C * input * Ct;
+
+  for (i=0;i<N;i++)
+    for (j=0;j<N;j++)
+    {
+      temp[i][j]=0.0;
+      for(k=0;k<N;k++)
+        temp[i][j]+=input[i][k] * Ct[k][j];
+    }
+
+  for (i=0;i<N;i++)
+    for (j=0;j<N;j++)
+    {
+      temp1=0.0;
+      for (k=0;k<N;k++)
+        temp1+=C[i][k]*temp[k][j];
+          output[i][j]=temp1;
+    }
+}
+
+void DCT(float input[N][N],float output[N][N])
+{
+  int i,row,col;
+  MatrixMul(input,output,C,Ct);
+
+  for (i=0;i<(N*N);i++)
+  {
+    row=ZigZag[i].row;
+    col=ZigZag[i].col;
+    output[row][col] = ROUND( output[row][col] / Quantum[row][col] );
+  }
+
+}
+
+void idct(float **Matrix, float **DCTMatrix, int _N, int M){
+    int i, j, u, v;
+
+    for (u = 0; u < _N; ++u) {
+        for (v = 0; v < M; ++v) {
+          Matrix[u][v] = 1/4.*DCTMatrix[0][0];
+          for(i = 1; i < _N; i++){
+          Matrix[u][v] += 1/2.*DCTMatrix[i][0];
+           }
+           for(j = 1; j < M; j++){
+          Matrix[u][v] += 1/2.*DCTMatrix[0][j];
+           }
+
+           for (i = 1; i < _N; i++) {
+                for (j = 1; j < M; j++) {
+                    Matrix[u][v] += DCTMatrix[i][j] * cos(M_PI/((float)_N)*(u+1./2.)*i)*cos(M_PI/((float)M)*(v+1./2.)*j);
+                }
+            }
+        Matrix[u][v] *= 2./((float)_N)*2./((float)M);
+        }
+    }
+ }
+
+void iDCT(float input[N][N],float output[N][N])
+{
+  int i,j,row,col;
+  float result;
+  for (i=0;i<(N*N);i++)
+  {
+    row=ZigZag[i].row;
+    col=ZigZag[i].col;
+    input[row][col] = (signed char)input[row][col] * Quantum[row][col];
+  }
+
+  MatrixMul(input,output,Ct,C);
+
+  for (i=0;i<N;i++)
+    for (j=0;j<N;j++)
+      output[i][j]=NORMALIZE(output[i][j]);
+
+}
+
+float **calloc_mat(int dimX, int dimY){
+    float **m = (float**) calloc(dimX, sizeof(float*));
+    float *p = (float*) calloc(dimX*dimY, sizeof(float));
+    int i;
+    for(i=0; i <dimX;i++){
+    m[i] = &p[i*dimY];
+
+    }
+   return m;
+}
+
+
+
+void free_mat(float **m){
+  free(m[0]);
+  free(m);
+}
+
+
+
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
@@ -769,8 +942,6 @@ int main(int argc, char *argv[])
                     } while (!inImage.eof());
 #else
 
-                    streamsize lol;
-
                     byte bNext=0;
 
                     unsigned short **** pPixels = 0;
@@ -784,6 +955,9 @@ int main(int argc, char *argv[])
                     }
                     vector<byte> vecBitArray;
                     int nBitRead=8;
+
+                    Initalise(24);
+
                     do
                     {
 
@@ -804,12 +978,15 @@ int main(int argc, char *argv[])
                         for (int cx=0,ix=0;ix<dct.m_bUnitsCount;ix++) // nComponents
                         {
                             int nx=cx;
+                            unsigned short ** aMatrix;
+                            number dx=0;
 
                             for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;cx++,iy++)
                             {
+
                                 pPixels[nPixelCount-1] = (unsigned short ***) realloc(pPixels[nPixelCount-1],sizeof(unsigned short **)*(cx+1));
 
-                                unsigned short ** aMatrix=new unsigned short *[8];
+                                aMatrix=new unsigned short *[8];
                                 for (int ex=0;ex<8;ex++)
                                 {
                                     aMatrix[ex]=new unsigned short[8];
@@ -934,6 +1111,100 @@ int main(int argc, char *argv[])
 
                                 }while(++nPos < 64);
 
+                                dx= aMatrix[0][0]= aMatrix[0][0]+dx;
+
+                                PrintMatrix(aMatrix,"DQT");
+
+                                float **aMatrix1 = calloc_mat(N,N);
+                                float **aMatrix2 = calloc_mat(N, N);
+                                //float **testiDCT = calloc_mat(dimX, dimY);
+
+                                for (int i = 0; i < 8; ++i) {
+                                  for (int j = 0; j < 8; ++j) {
+                                    aMatrix[i][j]*= 0xFF&paQuantTables[dct.m_puComponents[ix].m_bDQTId][i][j];
+                                    cout << aMatrix[i][j] << ' ';
+                                    signed iz = (signed)((short)aMatrix[i][j]);
+                                    aMatrix1[i][j]= (float)(iz);
+                                  }
+                                  cout << endl;
+                                }
+
+
+
+
+//                                double S[8][8];
+//                                memset(S,0.0,sizeof(double)*64);
+
+//                                for (int y = 0; y < 8; ++y) {
+//                                  for (int x = 0; x < 8; ++x) {
+//                                    for (int u = 0; u < 8; ++u) {
+//                                      for (int v = 0; v < 8; ++v) {
+
+//                                        double Cu=(u!=0)?1.0:1.0/sqrt(2.0);
+//                                        double Cv=(v!=0)?1.0/sqrt(2.0):1.0;
+
+//                                        signed iz = (signed)((short)aMatrix[v][u]);
+
+//                                        double cos1=cos((2.0*(double)x+1)*u*M_PI/16.0);
+//                                        double cos2=cos((2.0*(double)y+1)*v*M_PI/16.0);
+//                                        S[y][x]+=Cu*Cv*((double)(iz))*cos1*cos2;
+//                                      }
+//                                    }
+
+//                                    S[y][x]*=1/4;
+
+//                                    cout << '\t' << S[y][x];
+//                                  }
+//                                }
+
+
+
+
+//                                cout << endl << "AFTER DCT" << endl;
+//                                for (int ix = 0; ix < 8; ++ix) {
+//                                  for (int ax = 0; ax < 8; ++ax) {
+//                                    cout << '\t' << S[ix][ax];
+//                                  }
+//                                  cout << endl;
+//                                }
+//                                cout << "FIN";
+
+                              //  float aMatrix2[8][8];
+
+//                                iDCT(aMatrix1,aMatrix2);
+
+                                idct(aMatrix2,aMatrix1,N,N);
+
+                                cout << endl << "AFTER DCT" << endl;
+                                for (int ix = 0; ix < 8; ++ix) {
+                                  for (int ax = 0; ax < 8; ++ax) {
+                                    //cout << '\t' << aMatrix2[ix][ax];
+                                    aMatrix[ix][ax]= (number) aMatrix2[ix][ax];
+                                    cout << '\t' << aMatrix[ix][ax];
+                                  }
+                                  cout << endl;
+                                }
+                                cout << "FIN";
+
+//                                for (nx++; nx  < cx; ++nx)
+//                                {
+//                                    dx= pPixels[nPixelCount-1][nx][0][0]= pPixels[nPixelCount-1][nx][0][0]+dx;
+
+//                                    cout << "FixedMatrix#" << cx << endl;
+//                                    for (int kx = 0; kx < 8; ++kx)
+//                                    {
+
+//                                        for (int vx = 0; vx < 8; ++vx) {
+//                                            //
+//                                          pPixels[nPixelCount-1][nx][kx][vx]*= paQuantTables[dct.m_puComponents[ix].m_bDQTId][kx][vx];
+//                                          cout << " " << dec  << (signed) pPixels[nPixelCount-1][nx][ix][vx];
+//                                        }
+
+//                                        cout << endl;
+//                                    }
+//                                }
+
+
                                 cout << "Matrix#" << cx << endl;
                                 for (int ix = 0; ix < 8; ++ix) {
 
@@ -946,30 +1217,106 @@ int main(int argc, char *argv[])
 qDebug()<< "end";
                             }
 
-                            short unsigned int dx= pPixels[nPixelCount-1][nx][0][0];
+//                            short unsigned int dx= pPixels[nPixelCount-1][nx][0][0];
 
-                            for (nx++; nx  < cx; ++nx)
-                            {
-                                dx= pPixels[nPixelCount-1][nx][0][0]= pPixels[nPixelCount-1][nx][0][0]+dx;
+//                            for (nx++; nx  < cx; ++nx)
+//                            {
+//                                dx= pPixels[nPixelCount-1][nx][0][0]= pPixels[nPixelCount-1][nx][0][0]+dx;
 
-                                cout << "FixedMatrix#" << cx << endl;
-                                for (int kx = 0; kx < 8; ++kx) {
+//                                cout << "FixedMatrix#" << cx << endl;
+//                                for (int kx = 0; kx < 8; ++kx)
+//                                {
 
-                                    for (int vx = 0; vx < 8; ++vx) {
-                                        //
-                                      pPixels[nPixelCount-1][nx][kx][vx]*= paQuantTables[dct.m_puComponents[ix].m_bDQTId][kx][vx];
-                                      cout << " " << dec  << (signed) pPixels[nPixelCount-1][nx][ix][vx];
-                                    }
+//                                    for (int vx = 0; vx < 8; ++vx) {
+//                                        //
+//                                      pPixels[nPixelCount-1][nx][kx][vx]*= paQuantTables[dct.m_puComponents[ix].m_bDQTId][kx][vx];
+//                                      cout << " " << dec  << (signed) pPixels[nPixelCount-1][nx][ix][vx];
+//                                    }
 
-                                    cout << endl;
-                                }
-                            }
+//                                    cout << endl;
+//                                }
+//                            }
 
 
                         }
 
 
                     } while (!inImage.eof());
+
+                    number* pImage=0;
+                    number* pLast=pImage;
+                    int nSize=0;
+
+                    for (int ix = 0; ix < nPixelCount; ++ix) {
+
+                      struct
+                      {
+                        number** m_pY;
+                        number** m_pCb;
+                        number** m_pCr;
+                      }Conv;
+
+                      Conv.m_pY=pPixels[ix][0];
+                      Conv.m_pCb=pPixels[ix][4];
+                      Conv.m_pCr=pPixels[ix][5];
+
+                      ofstream stream;
+                      stream.open("Pic.dat",ios::out| ios::binary);
+
+                      char R,G,B;
+
+                      for (int c = 0; c <dct.m_puComponents[0].m_H*dct.m_puComponents[0].m_V ; ++c) {
+
+                        for (int i = 0; i < 8; ++i) {
+                          for (int j = 0; j < 8; ++j) {
+                            R=Conv.m_pY[i][j] + 1.402 *(Conv.m_pCr[i][j]-128);
+                            G=Conv.m_pY[i][j] - 0.34414*(Conv.m_pCb[i][j]-128) - 0.71414*(Conv.m_pCr[i][j] - 128);
+                            B=Conv.m_pY[i][j] + 1.772 * (Conv.m_pCb[i][j]-128);
+
+                            nSize+=    sizeof(int)*3;
+
+
+
+                            ///for (int ix = 0; ix < nSize; ++ix) {
+                            ///
+                            stream.put(G);
+                            stream.put(B);
+                             stream.put(R);
+
+
+
+                            ///}
+
+
+                            //pImage=(number*) realloc(pImage,nSize);
+                           // if (pLast==0)pLast=pImage;
+
+//                            pLast[0]= R;
+//                            pLast[1]= G;
+//                            pLast[2]= B;
+
+                           // pLast+= sizeof(int)*3;
+                          }
+                        }
+
+
+
+
+
+                      }
+
+                      stream.close();
+
+
+//                      ofstream stream;
+//                      stream.open("Pic.dat",ios::out| ios::binary);
+
+//                      for (int ix = 0; ix < nSize; ++ix) {
+//                        stream.put(pImage[ix]);
+
+//                      }
+
+                    }
 
 
 #endif
@@ -1006,7 +1353,7 @@ qDebug()<< "end";
             }
 
         }
-    //    cout << inImage;
+        //cout << inImage;
     }
 
     return a.exec();
