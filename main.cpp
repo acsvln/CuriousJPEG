@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <clocale>
+#include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -200,7 +202,7 @@ struct CHuffNode
     signed int m_iLayer;
 };
 
-typedef CHuffNode * CHuffNodeIterator;
+typedef CHuffNode * CHuffNodePointer;
 
 
 struct CHuffTree
@@ -217,7 +219,7 @@ struct CHuffTable
     CHuffTable * next;
 };
 
-typedef CHuffTable * CHuffTableIterator;
+typedef CHuffTable * CHuffTablePointer;
 
 struct CDCTTable
 {
@@ -846,7 +848,7 @@ int main(int argc, char *argv[])
                     }
 
                     const int cnByteSize=8;//Число бит в байте
-
+#ifdef HACKY_TRICKY_SOLUTION
                     union OutNumber
                     {
                         byte b;
@@ -869,7 +871,7 @@ int main(int argc, char *argv[])
                         int nOutNumberSize; // Реальный размер выходного числа
                         int nOutAlign=cnByteSize-(nInBitCount-(nInBitCount/cnByteSize)*cnByteSize); // Смещение от начаint ла выходного числа
 //nInBitCount-
-                        int nInCurrPos/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
+                        int nInCurrPos= nReadBits/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
                         byte bInRaw=bT, bInSlice, bOutSlice; // Только что считаный байт, нужный нам кусочек
 
                         int nInSliceSize, nOutSliceSize;
@@ -886,7 +888,15 @@ int main(int argc, char *argv[])
                             //fPutIn=true;
                         }
                         pOutNumber = (union OutNumber *) malloc(nOutNumberSize);
-                        ::memchr((void *)pOutNumber,0,nOutNumberSize);
+//                        ::memchr((void *)pOutNumber,0,nOutNumberSize);
+//                        ZeroMemory(pOutNumber,nOutNumberSize);
+
+                        for (int cx=0;cx< nOutNumberSize; cx++)
+                        {
+                            pOutNumber->data[cx]='\0';
+                        }
+
+                        nOutNumberSize--;
 
                         while (nInBitCount>0)
                         {
@@ -897,7 +907,8 @@ int main(int argc, char *argv[])
                             else
                                 nInSliceSize=nInBitCount; // в прот. случае устанавливаем в чило бит поданых на чтение
 
-                            if (nReadBits==0) // Вслучае если количество считанных битов в байте равно нулю, читаем новый байт
+                            // nReadBits==0
+                            if (nInCurrPos%cnByteSize==0) // Вслучае если количество считанных битов в байте равно нулю, читаем новый байт
                             {
                                 inImage.get(bInRaw);
                             }
@@ -906,40 +917,287 @@ int main(int argc, char *argv[])
                             bInSlice = ((unsigned char) bInRaw) >> (cnByteSize-nInSliceSize);
                             bInRaw = ((unsigned char) bInRaw) << (nInSliceSize);
 
-                            bInSlice = ((unsigned char) bInSlice) << (cnByteSize-nInSliceSize-nOutAlign);
-                            if (nOutAlign+nInSliceSize>= cnByteSize)
+                            if (0!=nOutAlign)
                             {
-                                nOutSliceSize= cnByteSize-nOutAlign;
-                                bOutSlice= ((unsigned char)bInSlice ) >> ((cnByteSize - nOutSliceSize));
-                                bInSlice= ((unsigned char)bInSlice ) << cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
-                                bInSlice= ((unsigned char)bInSlice ) >> cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
+                                if (nOutAlign+nInSliceSize>= cnByteSize)
+                                {
+                                    nOutSliceSize= cnByteSize-nOutAlign;
+                                    bOutSlice= ((unsigned char)bInSlice ) >>nInSliceSize- abs(nInSliceSize - nOutAlign);  //   nOutAlign
+                                    pOutNumber->data[nOutNumberSize]=bOutSlice;
+                                    nOutNumberSize--;
+                                    bInSlice= ((unsigned char)bInSlice ) << nOutSliceSize + (cnByteSize - nInSliceSize);//  cnByteSize - nInSliceSize - (cnByteSize - );
+                                    bInSlice= ((unsigned char)bInSlice ) >> nOutSliceSize + (cnByteSize - nInSliceSize);;// cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
+                                    nInSliceSize-= nOutSliceSize;
+                                    nInCurrPos+= nOutSliceSize;
+                                    nInBitCount-= nOutSliceSize;
+                                    nReadBits=0;
+                                    nOutAlign=0;
+                                    //bInSlice= ((unsigned char)bInSlice ) << cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
+                                   //
 
-                                pOutNumber->data[nOutNumberSize]=bOutSlice;
-                                nOutNumberSize--;
-                                nInSliceSize-=nOutSliceSize;
-
-
-
+                                    //bOutSlice= ((unsigned char)bInSlice ) >> ((cnByteSize - nOutSliceSize));
+                                }
                             }
 
-                            bOutSlice= ((unsigned char)bInSlice ) << ((cnByteSize - nInSliceSize));
-                            pOutNumber->data[nOutNumberSize]=bOutSlice;
+                            //bInSlice = ((unsigned char) bInSlice) << (cnByteSize-nInSliceSize);
+
+
+                            bOutSlice= ((unsigned char)bInSlice ) << abs(nReadBits-(cnByteSize-nInSliceSize));
+                            pOutNumber->data[nOutNumberSize]|=bOutSlice;
+                            nReadBits+=nInSliceSize;
+                            nInCurrPos+=nInSliceSize;
+                            nInBitCount-=nInSliceSize;
+                            nInSliceSize=0;
 
                             //nOutCurrPos=nOutAlign+nInSliceSize;
-                            nInBitCount-=nInSliceSize;
+
                             //pOutNumber->data[nOutNumberSize]=bInSlice;
-                            nOutNumberSize--;
 
-                            if (nReadBits+nInSliceSize>=cnByteSize)
+
+                            if (nReadBits>=cnByteSize)
+                            {
                                 nReadBits=0;
-                            else
-                                nReadBits+=nInSliceSize;
-
+                                nOutNumberSize--;
+                            };
                         }
 
                         free(pOutNumber);
                     } while (!inImage.eof());
+#else
 
+//                    struct CPixel
+//                    {
+//                        short *** m_
+//                    };
+
+
+//                    short ** aMatrix=new short *[8];
+//                    for (ix;ix<8;ix++)
+//                    {
+//                        aMatrix[ix]=new short[8];
+//                    }
+                    unsigned short **** pPixels = 0;
+                    int nPixelCount=0;
+
+                    vector<byte> vecBitArray;
+                    int nBitRead=8;
+                    do
+                    {
+                        ++nPixelCount;
+                        pPixels= (unsigned short ****) realloc(pPixels,sizeof(unsigned short ***)*nPixelCount);
+                        pPixels[nPixelCount-1]=0;
+
+                        for (int cx=0,ix=0;ix<dct.m_bUnitsCount;cx++,ix++) // nComponents
+                        {
+                            for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;cx++,iy++)
+                            {
+                                pPixels[nPixelCount-1] = (unsigned short ***) realloc(pPixels[nPixelCount-1],sizeof(unsigned short **)*cx);
+
+                                unsigned short ** aMatrix=new unsigned short *[8];
+                                for (int ex=0;ex<8;ex++)
+                                {
+                                    aMatrix[ex]=new unsigned short[8];
+                                    memchr(aMatrix[ex],'\0',sizeof(unsigned short)*8);
+                                }
+
+//                                for (int ex = 0;ex<8;ex++)
+//                                {
+//                                    pPixels[nPixelCount-1][ex]=new short[8];
+//                                    memchr(pPixels[nPixelCount-1][ex],'\0',sizeof(short));
+//                                }
+
+                                pPixels[nPixelCount-1][cx]=aMatrix;
+
+                                int nPos=0;
+
+                                do
+                                {
+                                    byte bT1;
+                                    byte bValue;
+
+                                    CHuffTablePointer it = phtList;
+
+
+
+                                    if (nPos==0)
+                                        while ((it->m_nTableClass!= HuffClassDC)
+                                               ||
+                                               (pwComponents[ix].m_DC!= it->m_nTableIndex))
+                                            it=it->next;
+                                    else
+                                        while ((it->m_nTableClass!=HuffClassAC)
+                                               ||
+                                               (pwComponents[ix].m_AC!= it->m_nTableIndex))
+                                            it=it->next;
+
+                                    CHuffNodePointer it1=it->m_htTree.m_phnRoot;
+
+                                    do
+                                    {
+                                        if (nBitRead==8){ inImage.get(bT); nBitRead=0; };
+
+                                        bT1=((unsigned char)bT)&0x80;
+                                        bT1=((unsigned char)bT1)>>7;
+                                        bT= bT << 1;
+                                        nBitRead++;
+
+                                        if (bT1==0)
+                                        {
+                                            cout << "left";
+                                            it1=it1->m_phnLeft;
+                                        }
+                                        if (bT1==1)
+                                        {
+                                            cout << "right";
+                                            it1=it1->m_phnRight;
+                                        }
+
+                                    } while(!it1->m_bIsLeaf);
+
+                                    cout << "leaf data" << dec << it1->m_iData;
+
+                                    if (it1->m_iData==0) bValue=0;
+                                    else
+                                    {
+                                        int bx=0;
+                                        int nData= it1->m_iData;
+                                        if (nPos!=0)
+                                        {
+                                            bT1= it1->m_iData&0xF0;
+                                            bT1 = bT1 >> 0xF;
+                                            for (int bx=0; bx<bT1 ;bx++)
+                                            {
+                                                AddToZigZagMatrix(aMatrix,0);
+                                            }
+
+                                            nData= it1->m_iData&0xF;
+                                        }
+
+                                        while (bx< nData)
+                                        {
+                                            if (nBitRead==8){ inImage.get(bT);nBitRead=0; };
+                                            bT1=((unsigned char)bT)&0x80;
+                                            bT1=((unsigned char)bT1)>>7;
+                                            bT= bT << 1;
+                                            nBitRead++;
+                                            vecBitArray.push_back(bT1);
+                                            bx++;
+                                        }
+
+                                        bValue= 0;
+                                        for (int vx=0;vx<vecBitArray.size();vx++)
+                                        {
+                                            bValue=bValue<<1;
+                                            bValue|=vecBitArray[vx];
+                                        }
+                                    }
+
+                                    //byte bX= ;
+
+                                    if ((0 != bValue) && (0==((bValue << (cnByteSize-it1->m_iData))&0x80)))
+                                        bValue=bValue-pow(2,it1->m_iData)+1;
+
+
+                                    AddToZigZagMatrix(aMatrix,bValue);
+
+                                    vecBitArray.clear();
+
+                                    if (nPos!=0 && 0 == bValue) break;
+
+                                    if  (nPos==0)
+                                    {
+                                        int x=0;
+                                        x++;
+
+                                        x=8;
+                                    }
+
+                                }while(++nPos < 64);
+                            }
+                        }
+
+
+                    } while (!inImage.eof());
+
+                    //                                //bT1
+                    //                                bT=bT<<1;
+                    //                            } while (++ix<8);
+
+
+
+                //                        for (int ix=0;ix<cnByteSize; ix++)
+                //                        {
+                //                            bT2= bT&0x80;
+                //                            vecBitArray.push_back(bT2);
+                //                            bT= bT << 1;
+                //                        }
+#if 0
+                    for (ix=0;ix<dct.m_bUnitsCount;ix++)
+                    {
+                        for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
+                        {
+
+                            CHuffTablePointer it = phtList;
+                            while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
+                            //pwComponents[ix].m_DC=
+                            //dct.m_puComponents[ix].
+                            //pwComponents[ix].m_AC
+                            CHuffNodePointer it1=it->m_htTree.m_phnRoot;
+
+                            /*
+                            while (inImage.get(bT))
+                            {
+                                do
+                                {
+                                    cout << ix;
+                                    bT1=((unsigned char)bT)&0x80;
+                                    bT1=((unsigned char)bT1)>>7;
+                                    if (bT1==0)
+                                    {
+                                        cout << "left";
+                                        it1=it1->m_phnLeft;
+                                    }
+                                    if (bT1==1)
+                                    {
+                                        cout << "right";
+                                        it1=it1->m_phnRight;
+                                    }
+                                    if (it1->m_bIsLeaf)
+                                    {
+                                        cout << "leaf data" << dec << it1->m_iData;
+                                        if (it1->m_iData==0) WTF(0);
+                                        else
+                                        {
+                                            if (it1->m_iData==8)
+                                                inImage.get(bT);
+                                            else if (it1->m_iData<8)
+                                            {
+                                                do
+                                                {
+                                                    bT1=bT&0x80;
+                                                    bT=bT<<1;
+                                                } while (++ix<8);
+                                                bT=
+                                                    }
+                                            else if (it1->m_iData>8)
+                                            {
+
+                                            }
+
+
+                                            WTF(bT);
+                                        }
+                                    }
+                                    //bT1
+                                    bT=bT<<1;
+                                } while (++ix<8);
+                            }
+                            */
+                        }
+                    }
+
+#endif
+#endif
 
 //                    do
 //                    {
@@ -1220,21 +1478,12 @@ int main(int argc, char *argv[])
                     {
                         for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
                         {
-
-
-
-
-
-
-
-
-
-                            CHuffTableIterator it = phtList;
+                            CHuffTablePointer it = phtList;
                             while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
                             //pwComponents[ix].m_DC=
                             //dct.m_puComponents[ix].
                             //pwComponents[ix].m_AC
-                            CHuffNodeIterator it1=it->m_htTree.m_phnRoot;
+                            CHuffNodePointer it1=it->m_htTree.m_phnRoot;
 
                             /*
                             while (inImage.get(bT))
