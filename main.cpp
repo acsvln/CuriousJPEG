@@ -1,4 +1,5 @@
 #include <QtCore/QCoreApplication>
+#include "cstdlib"
 #include <iostream>
 #include <fstream>
 #include <clocale>
@@ -6,7 +7,7 @@
 using namespace std;
 
 template <typename T>
-T swap_endian(T u)
+        T swap_endian(T u)
 {
     union
     {
@@ -136,7 +137,7 @@ enum JpegMarkers
     ArithTemp = 0xFF01,
     ReservedStart = 0xFF02,
     ReservedEnd = 0xFFBF
-};
+              };
 
 enum JpegHuffTableClass {HuffClassDC,HuffClassAC};
 
@@ -185,11 +186,9 @@ void zig_zag()
         cout<<"\n";
     }
     for(int i=0;i<siz;i++)
-    delete[] mat[i];
+        delete[] mat[i];
     delete[] mat;
 }
-
-struct CHuffTable;
 
 struct CHuffNode
 {
@@ -202,7 +201,7 @@ struct CHuffNode
 };
 
 typedef CHuffNode * CHuffNodeIterator;
-typedef CHuffTable * CHuffTableIterator;
+
 
 struct CHuffTree
 {
@@ -217,6 +216,8 @@ struct CHuffTable
     CHuffTree m_htTree;
     CHuffTable * next;
 };
+
+typedef CHuffTable * CHuffTableIterator;
 
 struct CDCTTable
 {
@@ -253,7 +254,7 @@ CHuffNode * SetNode(CHuffNode * phnParent,int iVal, int iLayer)
 CHuffNode * GoUpNode(CHuffNode ** phn)
 {
     if ((*phn)->m_phnUp!=NULL)
-    return (*phn)=(*phn)->m_phnUp;
+        return (*phn)=(*phn)->m_phnUp;
     else return NULL;
 }
 
@@ -283,7 +284,7 @@ CHuffNode * FindRightUpFreeBranch(CHuffNode * phn)
 {
     if (phn->m_phnRight==NULL || phn->m_phnUp==NULL)
     {
-            return phn;
+        return phn;
     }
     else return FindRightUpFreeBranch(phn->m_phnUp);
 }
@@ -467,9 +468,9 @@ CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
             phnTemp->m_phnUp=phn;
             phnTemp->m_iLayer=phn->m_iLayer+1;
             if (phn->m_phnLeft!=NULL)
-            phn->m_phnRight=phnTemp;
-                else
-            phn->m_phnLeft=phnTemp;
+                phn->m_phnRight=phnTemp;
+            else
+                phn->m_phnLeft=phnTemp;
             phn=phnTemp;
             htTree->m_iCount++;
         } while (iLayer!=phn->m_iLayer);
@@ -497,7 +498,29 @@ CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
 
 }
 
-bool WTF(short unsigned ** aTable, int iRowsCount, int iColsCount, byte bT)
+
+/*
+    //Using ZigZag Matrix example
+    short unsigned **  aQTable=new short unsigned  * [8];
+    for (int x=0;x<8;x++)
+    {
+        aQTable[x]=new short unsigned  [8];
+    }
+    for (int x=1;x<65;x++)
+    {
+        AddToZigZagMatrix(aQTable,x);
+    }
+    for(int x=0;x<8;x++)  // loop 3 times for three lines
+    {
+        for(int y=0;y<8;y++)  // loop for the three elements on the line
+        {
+            cout<< dec << (short unsigned) aQTable[x][y] << " ";  // display the current element out of the array
+        }
+        cout<<endl;  // when the inner loop is done, go to a new line
+    }
+*/
+
+bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
 {
 #define nTableRows 8
 #define cbElements 64
@@ -512,7 +535,7 @@ bool WTF(short unsigned ** aTable, int iRowsCount, int iColsCount, byte bT)
     static int state=0;
     switch (state) {
     case 0: setQuantTableItem(bT,aTable,ix,iy,iT);/* начало функции */
-    //return true;
+        //return true;
         while (iT<cbElements-2)
         {
             if (fDirection==Down)
@@ -523,7 +546,7 @@ bool WTF(short unsigned ** aTable, int iRowsCount, int iColsCount, byte bT)
 
                     state = 1;/* возвратиться к "case 1" */
                     return false;
-                    case 1: setQuantTableItem(bT,aTable,ix,iy,iT);/* продолжить выполнения после точки возврата */;/* возвратиться к "case 1" */
+                case 1: setQuantTableItem(bT,aTable,ix,iy,iT);/* продолжить выполнения после точки возврата */;/* возвратиться к "case 1" */
                 }
                 ix++;
                 iy--;
@@ -536,7 +559,7 @@ bool WTF(short unsigned ** aTable, int iRowsCount, int iColsCount, byte bT)
                 {
                     state = 2;/* возвратиться к "case 1" */
                     return false;
-                    case 2: setQuantTableItem(bT,aTable,ix,iy,iT);
+                case 2: setQuantTableItem(bT,aTable,ix,iy,iT);
                 }
                 ix--;
                 iy++;
@@ -566,7 +589,9 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     //zig_zag();
-    char * szImagePath="dd85adf7.jpg";//="webcam.jpg";
+    char * szImagePath="F:\\Documents\\Computing\\Programming\\Projects\\QtCreator\\jpg2bmp-build-desktop\\debug\\dd85adf7.jpg";//="webcam.jpg";
+
+    //char * szImagePath="x_fb7a21a4.jpg";
     ifstream inImage;
     //setlocale(LC_ALL, "Russian");
     inImage.open(szImagePath,ios::in| ios::binary);
@@ -674,12 +699,13 @@ int main(int argc, char *argv[])
                     }
                     ix++;
                     setQuantTableItem(inImage,bT,aQuantTable,ix,iy,iT);
-
+                    //cout.precision(2);
+                    //cout.width(2);
                     for(int x=0;x<8;x++)  // loop 3 times for three lines
                     {
                         for(int y=0;y<8;y++)  // loop for the three elements on the line
                         {
-                            cout<< dec << (int) aQuantTable[x][y] << " ";  // display the current element out of the array
+                            cout<< hex << (short int) aQuantTable[x][y] << " ";  // display the current element out of the array
                         }
                         cout<<endl;  // when the inner loop is done, go to a new line
                     }
@@ -695,7 +721,7 @@ int main(int argc, char *argv[])
             case HuffBaselineDCT:
                 {
                     cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;                    
+                    cout << "Segment size:" << wSegmentSize<< endl;
                     inImage.get(dct.m_bPrecision);
                     inImage.read((char*)&(dct.m_iHeight),sizeof(word));
                     SwapEndianWord(dct.m_iHeight);
@@ -712,7 +738,7 @@ int main(int argc, char *argv[])
                         if (dct.m_puComponents[ix].m_V>dct.m_iVmax)dct.m_iVmax=dct.m_puComponents[ix].m_V;
                         //aUnits[ix]=swap_endian<CUnit>(aUnits[ix]);
                     }
-    
+
                     cout << "lol";
                 }
                 break;
@@ -736,15 +762,15 @@ int main(int argc, char *argv[])
                     inImage.get(bT);
                     phtCurrent->m_nTableClass=static_cast<JpegHuffTableClass>(bT>>4);
                     phtCurrent->m_nTableIndex=bT&0xF;
-//                    if (!((nTableClass==HuffClassAC)&&(nTableIndex==1)))
-//                    {
-//                        pbSegment=new byte[wSegmentSize];
-//                        inImage.read((char*)pbSegment,sizeof(byte)*(wSegmentSize-3));
-//                        cout << "Marker:" << hex  << wMarker << endl;
-//                        cout << "Segment size:" << wSegmentSize<< endl;
-//                        delete [] pbSegment;
-//                        break;
-//                    }
+                    //                    if (!((nTableClass==HuffClassAC)&&(nTableIndex==1)))
+                    //                    {
+                    //                        pbSegment=new byte[wSegmentSize];
+                    //                        inImage.read((char*)pbSegment,sizeof(byte)*(wSegmentSize-3));
+                    //                        cout << "Marker:" << hex  << wMarker << endl;
+                    //                        cout << "Segment size:" << wSegmentSize<< endl;
+                    //                        delete [] pbSegment;
+                    //                        break;
+                    //                    }
 #define cbHuffCodes 16
 
                     streampos spCodeCount;
@@ -792,6 +818,7 @@ int main(int argc, char *argv[])
                 break;
             case StartOfScan:
                 {
+
                     cout << "Marker:" << hex  << wMarker << endl;
                     cout << "Segment size:" << wSegmentSize<< endl;
                     cout << "Pedo" << sizeof(CComponent) << endl;
@@ -810,76 +837,460 @@ int main(int argc, char *argv[])
                     inImage.get(bT);
                     inImage.get(bT);
                     inImage.get(bT);
-                    byte bT1;
-                    short ix=0;
-                    //CHuffNodeIterator it=phtList[];
 
+                    short ix=0; // Счетчик цикла
                     short ** aMatrix=new short *[8];
                     for (ix;ix<8;ix++)
                     {
                         aMatrix[ix]=new short[8];
                     }
 
+                    const int cnByteSize=8;//Число бит в байте
 
-//                        __asm
-//                        (
-//                                "movl 4,%eax\n"
-//                                "movl 5,%ebx"
-//                        );
-                        for (ix=0;ix<dct.m_bUnitsCount;ix++)
+                    union OutNumber
+                    {
+                        byte b;
+                        short s;
+                        int i;
+                        long l;
+                        char data[];
+                    };
+                    union OutNumber * pOutNumber; // "Выходное" число
+
+                    do
+                    {
+                        int nReadBits=2;
+                        inImage.get(bT);
+                        bT= bT<<nReadBits;
+
+                        short nInBitCount = 25; // Число битов для чтения
+
+                        int nTest = (nInBitCount)/cnByteSize;
+                        int nOutNumberSize; // Реальный размер выходного числа
+                        int nOutAlign=cnByteSize-(nInBitCount-(nInBitCount/cnByteSize)*cnByteSize); // Смещение от начаint ла выходного числа
+//nInBitCount-
+                        int nInCurrPos/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
+                        byte bInRaw=bT, bInSlice, bOutSlice; // Только что считаный байт, нужный нам кусочек
+
+                        int nInSliceSize, nOutSliceSize;
+
+                        if ((nInBitCount)%cnByteSize!=0) // Если текущая позиция + количество бит для чтения
+                            // не кратно размеру байта ix????
                         {
-                            for (short iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
+                            nOutNumberSize=(nInBitCount)/cnByteSize+1; // то создаём число с размером + дополнительным байтом
+                            //fPutIn=false;
+                        }
+                        else
+                        {
+                            nOutNumberSize=(nInBitCount)/cnByteSize; // иначе, умещаем число в размер
+                            //fPutIn=true;
+                        }
+                        pOutNumber = (union OutNumber *) malloc(nOutNumberSize);
+                        ::memchr((void *)pOutNumber,0,nOutNumberSize);
+
+                        while (nInBitCount>0)
+                        {
+                            if ((nReadBits+nInBitCount)>=cnByteSize) // Проверяем переполнение байта
                             {
-                                /*
-                                CHuffTableIterator it = phtList;
-                                while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
-                                //pwComponents[ix].m_DC=
-                                //dct.m_puComponents[ix].
-                                //pwComponents[ix].m_AC
-                                CHuffNodeIterator it1=it->m_htTree->mphn_Root;
-                                while (inImage.get(bT))
-                                {
-                                    do
-                                    {
-                                        cout << ix;
-                                        bT1=bT&0x80;
-                                        if (bT1==0)it1=it1->m_phnLeft;
-                                        if (bT1==1)it1=it1->m_phnRight;
-                                        if (it1->m_bIsLeaf)
-                                        {
-                                            if (it1->m_iData==0) WTF(0);
-                                            else
-                                            {
-                                                if (it1->m_iData==8)
-                                                inImage.get(bT);
-                                                else if (it1->m_iData<8)
-                                                {
-                                                    do
-                                                    {
-                                                        bT1=bT&0x80;
-                                                        bT=bT<<1;
-                                                    } while (++ix<8);
-                                                    bT=
-                                                }
-                                                else if (it1->m_iData>8)
-                                                {
-
-                                                }
-
-
-                                                WTF(bT);
-                                            }
-                                        }
-                                        //bT1
-                                        bT=bT<<1;
-                                    } while (++ix<8);
-                                }
-                                */
+                                nInSliceSize=cnByteSize-nReadBits; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
                             }
+                            else
+                                nInSliceSize=nInBitCount; // в прот. случае устанавливаем в чило бит поданых на чтение
+
+                            if (nReadBits==0) // Вслучае если количество считанных битов в байте равно нулю, читаем новый байт
+                            {
+                                inImage.get(bInRaw);
+                            }
+
+                            //bT1=bT;
+                            bInSlice = ((unsigned char) bInRaw) >> (cnByteSize-nInSliceSize);
+                            bInRaw = ((unsigned char) bInRaw) << (nInSliceSize);
+
+                            bInSlice = ((unsigned char) bInSlice) << (cnByteSize-nInSliceSize-nOutAlign);
+                            if (nOutAlign+nInSliceSize>= cnByteSize)
+                            {
+                                nOutSliceSize= cnByteSize-nOutAlign;
+                                bOutSlice= ((unsigned char)bInSlice ) >> ((cnByteSize - nOutSliceSize));
+                                bInSlice= ((unsigned char)bInSlice ) << cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
+                                bInSlice= ((unsigned char)bInSlice ) >> cnByteSize - nInSliceSize - (cnByteSize - nOutSliceSize);
+
+                                pOutNumber->data[nOutNumberSize]=bOutSlice;
+                                nOutNumberSize--;
+                                nInSliceSize-=nOutSliceSize;
+
+
+
+                            }
+
+                            bOutSlice= ((unsigned char)bInSlice ) << ((cnByteSize - nInSliceSize));
+                            pOutNumber->data[nOutNumberSize]=bOutSlice;
+
+                            //nOutCurrPos=nOutAlign+nInSliceSize;
+                            nInBitCount-=nInSliceSize;
+                            //pOutNumber->data[nOutNumberSize]=bInSlice;
+                            nOutNumberSize--;
+
+                            if (nReadBits+nInSliceSize>=cnByteSize)
+                                nReadBits=0;
+                            else
+                                nReadBits+=nInSliceSize;
+
+                        }
+
+                        free(pOutNumber);
+                    } while (!inImage.eof());
+
+
+//                    do
+//                    {
+//                        int nDummy=2;
+//                        inImage.get(bT);
+//                        bT= bT<<nDummy;
+
+//                        short nInBitCount = 5; // Число битов для чтения
+
+//                        int nOutNumberSize; // Реальный размер выходного числа
+//                        int nOutAlign=(nInBitCount)%cnByteSize; // Смещение от начаint ла выходного числа
+
+//                        int nInCurrPos/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
+//                        byte bInRaw=bT, bInSlice; // Только что считаный байт, нужный нам кусочек
+
+//                        int nInSliceSize;
+
+//                        if (nOutAlign!=0) // Если текущая позиция + количество бит для чтения
+//                            // не кратно размеру байта ix????
+//                        {
+//                            nOutNumberSize=(nInBitCount)/cnByteSize+1; // то создаём число с размером + дополнительным байтом
+//                            //fPutIn=false;
+//                        }
+//                        else
+//                        {
+//                            nOutNumberSize=(nInBitCount)/cnByteSize; // иначе, умещаем число в размер
+//                            //fPutIn=true;
+//                        }
+//                        pOutNumber = (union OutNumber *) malloc(nOutNumberSize);
+//                        ::memchr((void *)pOutNumber,0,nOutNumberSize);
+
+//                        while (nInBitCount>0)
+//                        {
+//                            if ((nInCurrPos+nInBitCount)>=cnByteSize) // Проверяем переполнение байта
+//                            {
+//                                nInSliceSize=cnByteSize-nInCurrPos; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
+//                            }
+//                            else
+//                                nInSliceSize=nInBitCount; // в прот. случае устанавливаем в чило бит поданых на чтение
+
+//                            if (nInCurrPos==0)
+//                            {
+//                                inImage.get(bInRaw);
+//                            }
+
+
+//                            //bT1=bT;
+//                            bInSlice = ((unsigned char) bInRaw) >> (cnByteSize-nInSliceSize);
+//                            bInRaw = ((unsigned char) bInRaw) << (nInSliceSize);
+
+//                            bInSlice = ((unsigned char) bInSlice) << (cnByteSize-nInSliceSize-nOutAlign);
+//                            nOutCurrPos=nOutAlign+nInSliceSize;
+//                            nInBitCount-=nInSliceSize;
+//                            //pOutNumber->data[nOutNumberSize]=bInSlice;
+//                            nOutNumberSize--;
+
+//                            if (nInCurrPos+nInSliceSize>=cnByteSize)
+//                                nInCurrPos=0;
+//                            else
+//                                nInCurrPos+=nInSliceSize;
+
+//                        }
+
+//                        free(pOutNumber);
+//                    } while (!inImage.eof());
+
+
+
+
+//                    byte bT1;
+//                    //                        int nLast=cCurrPos+ix;
+//                    //                        bool fPutIn;
+//                    //                        int nCurrBitsCount;
+//                    //                        int ic=0;
+
+//                    //CHuffNodeIterator it=phtList[];
+
+
+//                    // offset = 277
+//                    //inImage.get(bT);
+//                    /*
+//                    ix=5;
+//                    int max=8;
+//                    short cx=0;// текущая позиция
+//                    int ic=0;
+//                    short ab; // Число бит до конца чтения или байта
+//                    union UNI
+//                    {
+//                        byte b;
+//                        short s;
+//                        int i;
+//                        long l;
+//                        char data[];
+//                    };
+//                    union UNI * pUni;
+//                    ix=5;
+//*/
+//                    ix=5;// Начальное значение, сколько бит считать
+
+//                    short nBitUntilByteLeft; // Число бит до конца байта
+//                    short cCurrPos=0;//Текущая позиция
+
+//                    do
+//                    {
+//                        /*
+//                        bT1=0;
+//                        int nSize;
+
+//                        if ((cx+ix)%8!=0)
+//                            nSize=(cx+ix)/8+1;
+//                        else
+//                            nSize=(cx+ix)/8;
+//                        pUni = (union UNI *) malloc(nSize);
+//                        //pUni->l=500000;
+//                        // 0 0 0 0 0 1 1 1 0 1 0 1 1 ...
+//                        // 0 1 2 3 4 5 6 7 0 1 2 3 4 ...
+//                        // . . . . ^ . . ^ . . . ^ . ...
+//                        // . . . . | . . | . . . | . ...
+//                        // . . . . cx. .max. . .cx+ix...
+//                        while (ix>0) // В ix - количество бит для чтения
+//                        {
+//                            if ((cx+ix)>=8) // Проверяем переполнение байта
+//                            {
+//                                ab=8-cx; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
+//                            }
+//                            else
+//                                ab=ix; // в прот. случае устанавливаем в чило бит поданых на чтение
+//                            if (cx==0)
+//                            {
+//                                inImage.get(bT);
+//                            }
+//                            nSize--;
+
+//                            //pUni[ic]
+//                            bT1 = ((unsigned char) bT) >> (8-ab);
+//                            bT = ((unsigned char) bT) << (ab);
+//                            pUni->data[nSize]=bT1;
+
+//                            //bT1=bT1 << ab;
+//                            //bT1 |= ((unsigned char) bT) >> (8-ab);
+//                            //bT = ((unsigned char) bT) << (ab);
+
+//                            ix-=ab;
+//                            if (cx+ab>=8)
+//                                cx=0;
+//                            else
+//                                cx+=ab;
+//                            ic++;
+//                        }
+//                        ix=7;
+//                        // Функциональный блок
+
+//                        //if (cx<8)
+//                        //{
+//                        //    bT1= ((unsigned char) bT) >> (8-ix);
+//                        //    bT = ((unsigned char) bT) << (ix);
+//                        //    cx+=ix;
+//                        //}
+//                        //else
+//                        //{
+//                        //    inImage.get(bT);
+//                        //    cx=0;
+//                        //}
+//                        // обработка фала
+//                        cout << hex << bT1;
+//                        ix=4;
+
+//                        free(pUni);
+//                        cout << "blabla";
+//                        */
+//                        bT1=0;
+//                        int nLargeNumberSize;
+//                        int nLast=cCurrPos+ix;
+//                        bool fPutIn;
+//                        int nCurrBitsCount;
+//                        int ic=0;
+//                        if ((ix)%nByteSize!=0) // Если текущая позиция + количество бит для чтения
+//                                               // не кратно размеру байта ix????
+//                        {
+//                            nLargeNumberSize=(ix)/nByteSize+1; // то создаём число с размером + дополнительным байтом
+//                            fPutIn=false;
+//                        }
+//                        else
+//                        {
+//                            nLargeNumberSize=(ix)/nByteSize; // иначе, умещаем число в размер
+//                            fPutIn=true;
+//                        }
+//                        pNumber = (union OutNumber *) malloc(nLargeNumberSize);
+//                        ::memchr((void *)pNumber,0,nLargeNumberSize);
+//                        // 0 0 0 0 0 1 1 1 0 1 0 1 1 1 0 1 0
+//                        // 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
+//                        // . . . . ^ . . ^ . . . ^ . ..^
+//                        // . . . . | . . | . . . | . ..|
+//                        // .cCurrPos.nByteSize.nLast...nLast(^2)
+
+//                        while (ix>0) // В ix - количество бит для чтения
+//                        {
+//                            if ((cCurrPos+ix)>=nByteSize) // Проверяем переполнение байта
+//                            {
+//                                nCurrBitsCount=nByteSize-cCurrPos; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
+//                            }
+//                            else
+//                                nCurrBitsCount=ix; // в прот. случае устанавливаем в чило бит поданых на чтение
+
+//                            if (cCurrPos==0)
+//                            {
+//                                inImage.get(bT);
+//                            }
+
+//                            //bT1=bT;
+//                            bT1 = ((unsigned char) bT) >> (nByteSize-nCurrBitsCount);
+//                            bT = ((unsigned char) bT) << (nCurrBitsCount);
+
+//                            nLargeNumberSize--;
+
+
+//                            if (cCurrPos!=0)
+//                            {
+
+//                            }
+//                            pNumber->data[nLargeNumberSize]=bT1;
+//                            //pUni[ic]
+//                            //if (currPos!=0) then blabla bla
+//                            /*
+//                            if (fPutIn)
+//                            {
+//                                pNumber->data[nLargeNumberSize]=bT1;
+//                            }
+//                            else
+//                            {
+//                                pNumber->data[nLargeNumberSize]=bT1;
+//                            }
+//                            */
+
+
+//                            //bT1=bT1 << ab;
+//                            //bT1 |= ((unsigned char) bT) >> (8-ab);
+//                            //bT = ((unsigned char) bT) << (ab);
+
+//                            ix-=nCurrBitsCount;
+//                            if (cCurrPos+nCurrBitsCount>=nByteSize)
+//                                cCurrPos=0;
+//                            else
+//                                cCurrPos+=nCurrBitsCount;
+//                            ic++;
+//                        }
+//                        ix=7;
+//                        // Функциональный блок
+
+//                        //if (cx<8)
+//                        //{
+//                        //    bT1= ((unsigned char) bT) >> (8-ix);
+//                        //    bT = ((unsigned char) bT) << (ix);
+//                        //    cx+=ix;
+//                        //}
+//                        //else
+//                        //{
+//                        //    inImage.get(bT);
+//                        //    cx=0;
+//                        //}
+//                        // обработка фала
+//                        cout << hex << bT1;
+//                        //ix=4;
+
+//                        free(pNumber);
+//                        cout << "blabla";
+//                    } while (!inImage.eof());
+                    //for (int cx=0;cx<8;cx++)
+                    //{
+
+                    //}
+                    /*bT1=((unsigned char)bT)&0x80;
+                    bT1=((unsigned char)bT1)>>7;
+
+                    bT=bT<<1;
+                    */
+                    for (ix=0;ix<dct.m_bUnitsCount;ix++)
+                    {
+                        for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
+                        {
+
+
+
+
+
+
+
+
+
+                            CHuffTableIterator it = phtList;
+                            while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
+                            //pwComponents[ix].m_DC=
+                            //dct.m_puComponents[ix].
+                            //pwComponents[ix].m_AC
+                            CHuffNodeIterator it1=it->m_htTree.m_phnRoot;
+
+                            /*
+                            while (inImage.get(bT))
+                            {
+                                do
+                                {
+                                    cout << ix;
+                                    bT1=((unsigned char)bT)&0x80;
+                                    bT1=((unsigned char)bT1)>>7;
+                                    if (bT1==0)
+                                    {
+                                        cout << "left";
+                                        it1=it1->m_phnLeft;
+                                    }
+                                    if (bT1==1)
+                                    {
+                                        cout << "right";
+                                        it1=it1->m_phnRight;
+                                    }
+                                    if (it1->m_bIsLeaf)
+                                    {
+                                        cout << "leaf data" << dec << it1->m_iData;
+                                        if (it1->m_iData==0) WTF(0);
+                                        else
+                                        {
+                                            if (it1->m_iData==8)
+                                                inImage.get(bT);
+                                            else if (it1->m_iData<8)
+                                            {
+                                                do
+                                                {
+                                                    bT1=bT&0x80;
+                                                    bT=bT<<1;
+                                                } while (++ix<8);
+                                                bT=
+                                                    }
+                                            else if (it1->m_iData>8)
+                                            {
+
+                                            }
+
+
+                                            WTF(bT);
+                                        }
+                                    }
+                                    //bT1
+                                    bT=bT<<1;
+                                } while (++ix<8);
+                            }
+                            */
                         }
                     }
 
-           // }
+                }
+
+                //}
                 break;
             default:
                 {
@@ -892,9 +1303,9 @@ int main(int argc, char *argv[])
             }
 
         }
-        // cout << inImage;
+//        cout << inImage;
     }
 
-    lblFinish:
+    //lblFinish:
     return a.exec();
 }
