@@ -10,6 +10,61 @@
 
 using namespace std;
 
+#define ZIG_ZAG_TEST 0
+#undef ZIG_ZAG_TEST
+#ifndef QT_NO_DEBUG
+
+void zig_zag()
+{
+    int siz = 5,k=0;
+    cout<<"Please enter the size of the matrix"<<endl;
+    cin>>siz;
+    int **mat = new int*[siz];
+    for(int i = 0; i<siz; i++)
+    {
+        mat[i] = new int[siz];
+        for(int j=0; j<siz; j++)
+        {
+            mat[i][j] = ++k;
+            cout<<mat[i][j]<<" ";
+        }
+        cout << endl;
+    }
+
+    int x,y ,z;
+    for(z = 0 ; z <siz ; z++)
+    {
+        x = 0;
+        y = z;
+        while(x<=z && y>=0)
+        {
+            if(z%2)
+                cout<<mat[y--][x++]<<" ";
+            else
+                cout<<mat[x++][y--]<<" ";
+        }
+        cout<<"\n";
+    }
+    for(z = 1 ; z<siz ; z++)
+    {
+        x = z;
+        y = siz -1;
+        while(x<siz && y>=z)
+        {
+            if((siz+z)%2)
+                cout<<mat[x++][y--]<<" ";
+            else
+                cout<<mat[y--][x++]<<" ";
+        }
+        cout<<"\n";
+    }
+    for(int i=0;i<siz;i++)
+        delete[] mat[i];
+    delete[] mat;
+}
+
+#endif
+
 template <typename T>
         T swap_endian(T u)
 {
@@ -30,31 +85,6 @@ template <typename T>
 
 
 #define SwapEndianWord(wM) (wM=swap_endian<word>(wM))
-
-typedef unsigned short int word;
-typedef char byte;
-
-struct CUnit
-{
-    byte m_bId:8;
-    byte m_H:4;
-    byte m_V:4;
-    byte m_bDQTId:8;
-
-};
-
-
-#pragma pack(push,1)
-
-struct CComponent
-{
-    unsigned m_bId:8;
-    unsigned m_DC:4;
-    unsigned m_AC:4;
-    //unsigned lol:12;
-};
-
-#pragma pack(pop)
 
 enum JpegMarkers
 {
@@ -141,58 +171,38 @@ enum JpegMarkers
     ArithTemp = 0xFF01,
     ReservedStart = 0xFF02,
     ReservedEnd = 0xFFBF
-              };
+};
 
 enum JpegHuffTableClass {HuffClassDC,HuffClassAC};
 
-void zig_zag()
-{
-    int siz = 5,k=0;
-    cout<<"Please enter the size of the matrix"<<endl;
-    cin>>siz;
-    int **mat = new int*[siz];
-    for(int i = 0; i<siz; i++)
-    {
-        mat[i] = new int[siz];
-        for(int j=0; j<siz; j++)
-        {
-            mat[i][j] = ++k;
-            cout<<mat[i][j]<<" ";
-        }
-        cout << endl;
-    }
+typedef unsigned short int word;
+typedef char byte;
 
-    int x,y ,z;
-    for(z = 0 ; z <siz ; z++)
-    {
-        x = 0;
-        y = z;
-        while(x<=z && y>=0)
-        {
-            if(z%2)
-                cout<<mat[y--][x++]<<" ";
-            else
-                cout<<mat[x++][y--]<<" ";
-        }
-        cout<<"\n";
-    }
-    for(z = 1 ; z<siz ; z++)
-    {
-        x = z;
-        y = siz -1;
-        while(x<siz && y>=z)
-        {
-            if((siz+z)%2)
-                cout<<mat[x++][y--]<<" ";
-            else
-                cout<<mat[y--][x++]<<" ";
-        }
-        cout<<"\n";
-    }
-    for(int i=0;i<siz;i++)
-        delete[] mat[i];
-    delete[] mat;
-}
+typedef unsigned short int number;
+
+const int cnMatrixSide = 8;
+const int cnMatrixDimension = cnMatrixSide*cnMatrixSide; // 64
+
+
+struct CUnit
+{
+    byte m_bId:8;
+    byte m_H:4;
+    byte m_V:4;
+    byte m_bDQTId:8;
+};
+
+#pragma pack(push,1)
+
+struct CComponent
+{
+    unsigned m_bId:8;
+    unsigned m_DC:4;
+    unsigned m_AC:4;
+};
+
+#pragma pack(pop)
+
 
 struct CHuffNode
 {
@@ -203,9 +213,6 @@ struct CHuffNode
     bool m_bIsLeaf;
     signed int m_iLayer;
 };
-
-typedef CHuffNode * CHuffNodePointer;
-
 
 struct CHuffTree
 {
@@ -222,6 +229,8 @@ struct CHuffTable
 };
 
 typedef CHuffTable * CHuffTablePointer;
+
+typedef CHuffNode * CHuffNodePointer;
 
 struct CDCTTable
 {
@@ -262,28 +271,6 @@ CHuffNode * GoUpNode(CHuffNode ** phn)
     else return NULL;
 }
 
-//void AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
-//{
-//
-//    CHuffNode * phnNewNode=SetNode(phn,iVal);
-//    if (phnNewNode!=NULL)
-//    {
-//
-//    }
-//    else
-//    {
-//        if (GoUpNode(&phn)==NULL)
-//        {
-//            CHuffNode * phnTemp=new CHuffNode;
-//            phn->m_bIsLeaf=false;
-//            phn->m_phnLeft=phn;
-//            phn->m_phnRight=NULL;
-//            phn->m_phnUp=NULL;
-//            SetNode(phnTemp,iVal);
-//        }
-//    }
-//}
-
 CHuffNode * FindRightUpFreeBranch(CHuffNode * phn)
 {
     if (phn->m_phnRight==NULL || phn->m_phnUp==NULL)
@@ -292,158 +279,6 @@ CHuffNode * FindRightUpFreeBranch(CHuffNode * phn)
     }
     else return FindRightUpFreeBranch(phn->m_phnUp);
 }
-
-//CHuffNode * WTF_WTF(CHuffNode * phn,int iLayer,bool bIsUp=true)
-//{
-//    if (bIsUp)
-//    {
-//        if (phn->m_phnRight==NULL)
-//        {
-//            return WTF_WTF(phn,);
-//        }
-//        else return WTF_WTF(phn,,false);
-//    }
-////    if (iLayer==phn->m_iLayer)
-////    {
-////        if (phn->m_phnLeft!=NULL)
-////        {
-////
-////        }
-////        else if (phn->m_phnRight!=NULL)
-////        {
-////
-////        }
-////        else
-////        {
-////
-////        }
-////    }
-//    return phn;
-//}
-
-//        if (phn->m_phnLeft!=NULL)
-//        {
-//
-//        }
-//        else if (phn->m_phnRight!=NULL)
-//        {
-//
-//        }
-//        else
-//        {
-//
-//        }
-//
-
-
-
-//CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
-//{
-//    if (iLayer==phn->m_iLayer)
-//    {
-//        if (SetNode(phn,iVal,iLayer)!=NULL)
-//        {
-//            htTree->m_iCount++;
-//            return phn;
-//        }
-//    }
-//    CHuffNode * phnTemp;
-//    if (htTree->m_iCount!=1)
-//    {
-//
-//        phn=FindRightUpFreeBranch(phn);
-//        if (phn->m_phnUp==NULL)
-//        {
-//            phnTemp=new CHuffNode;
-//            phnTemp->m_bIsLeaf=false;
-//            phnTemp->m_phnLeft=phn;
-//            phnTemp->m_phnRight=NULL;
-//            phnTemp->m_phnUp=NULL;
-//            phnTemp->m_iLayer=phn->m_iLayer+1;
-//            phn=phnTemp;
-//            htTree->m_phnRoot=phn;
-//            htTree->m_iCount++;
-//        }
-//    }
-//        if (phn->m_phnRight==NULL)
-//        {
-//            do
-//            {
-//                phnTemp=new CHuffNode;
-//                phnTemp->m_bIsLeaf=false;
-//                phnTemp->m_phnLeft=NULL;
-//                phnTemp->m_phnRight=NULL;
-//                phnTemp->m_phnUp=phn;
-//                phnTemp->m_iLayer=phn->m_iLayer+1;
-//                phn->m_phnRight=phnTemp;
-//                phn=phnTemp;
-//                htTree->m_iCount++;
-//            } while (iLayer!=phn->m_iLayer);
-//            if (SetNode(phn,iVal,iLayer)!=NULL)
-//            {
-//                htTree->m_iCount++;
-//                return phn;
-//            }
-//            else cout << "WHY???";
-//        }
-//        else cout << "Motherf";
-//}
-
-
-
-
-
-
-//CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
-//{
-//    if (iLayer==phn->m_iLayer)
-//    {
-//        if (SetNode(phn,iVal,iLayer)!=NULL)
-//        {
-//            htTree->m_iCount++;
-//            return phn;
-//        }
-//    }
-//    CHuffNode * phnTemp;
-//    if (htTree->m_iCount!=1)
-//    {
-//        phn=FindRightUpFreeBranch(phn);
-//        if (phn->m_phnRight==NULL)
-//        {
-//            do
-//            {
-//                phnTemp=new CHuffNode;
-//                phnTemp->m_bIsLeaf=false;
-//                phnTemp->m_phnLeft=NULL;
-//                phnTemp->m_phnRight=NULL;
-//                phnTemp->m_phnUp=phn;
-//                phnTemp->m_iLayer=phn->m_iLayer+1;
-//                phn->m_phnRight=phnTemp;
-//                phn=phnTemp;
-//                htTree->m_iCount++;
-//            } while (iLayer!=phn->m_iLayer);
-//            if (SetNode(phn,iVal,iLayer)!=NULL)
-//            {
-//                htTree->m_iCount++;
-//                return phn;
-//            }
-//            else cout << "WHY???";
-//        }
-//        else cout << "Motherf";
-//        if (phn->m_phnUp==NULL)
-//        {
-//            phnTemp=new CHuffNode;
-//            phnTemp->m_bIsLeaf=false;
-//            phnTemp->m_phnLeft=phn;
-//            phnTemp->m_phnRight=NULL;
-//            phnTemp->m_phnUp=NULL;
-//            phnTemp->m_iLayer=phn->m_iLayer+1;
-//            phn=phnTemp;
-//            htTree->m_phnRoot=phn;
-//            htTree->m_iCount++;
-//        }
-//    }
-//}
 
 CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
 {
@@ -526,8 +361,6 @@ CHuffNode * AddNode(CHuffTree * htTree,CHuffNode * phn,int iVal, int iLayer)
 
 bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
 {
-#define nTableRows 8
-#define cbElements 64
 #define Up true
 #define Down false
 #define setQuantTableItem(bT,aT,ix,iy,iT) ({aT[iy][ix]=bT;iT++;})
@@ -540,12 +373,12 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
     switch (state) {
     case 0: setQuantTableItem(bT,aTable,ix,iy,iT);/* начало функции */
         //return true;
-        while (iT<cbElements-2)
+        while (iT<cnMatrixDimension-2)
         {
             if (fDirection==Down)
             {
-                if (ix<nTableRows-1)++ix;else iy++;
-                for (ix,iy;ix>=0&&iy<nTableRows;ix--,iy++)
+                if (ix<cnMatrixSide-1)++ix;else iy++;
+                for (ix,iy;ix>=0&&iy<cnMatrixSide;ix--,iy++)
                 {
 
                     state = 1;/* возвратиться к "case 1" */
@@ -558,8 +391,8 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
             }
             else
             {
-                if (iy<nTableRows-1)++iy;else ++ix;
-                for (ix,iy;ix<nTableRows&&iy>=0;ix++,iy--)
+                if (iy<cnMatrixSide-1)++iy;else ++ix;
+                for (ix,iy;ix<cnMatrixSide&&iy>=0;ix++,iy--)
                 {
                     state = 2;/* возвратиться к "case 1" */
                     return false;
@@ -583,149 +416,129 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
     return true;
 #undef Up
 #undef Down
-#undef cbElements
-#undef nTableRows
 #undef setQuantTableItem
 }
 
+void PrintMatrix(number ** aMatrix, char szName[], int n=-1,bool fHex= true)
+{
+    cout << "Matrix\t" << szName;
+
+    if (n!= -1)
+    {
+        cout << "\t" << n;
+    }
+    cout << ":";
+
+    //cout.precision(2);
+    //cout.width(2);
+
+     //cout.setf(ios::hex);
+    for(int x=0;x<cnMatrixSide;x++)  // loop 3 times for three lines
+    {
+        for(int y=0;y<cnMatrixSide;y++)  // loop for the three elements on the line
+        {
+            if (fHex)
+                cout<< hex;
+
+            cout << (short int) aMatrix[x][y] << " ";// display the current element out of the array
+        }
+        cout<<endl;  // when the inner loop is done, go to a new line
+    }
+
+}
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    //zig_zag();
-    char * szImagePath="F:\\Documents\\Computing\\Programming\\Projects\\QtCreator\\jpg2bmp-build-desktop\\debug\\dd85adf7.jpg";//="webcam.jpg";
-
+#ifndef QT_NO_DEBUG
+#ifdef ZIG_ZAG_TEST
+    zig_zag();
+    return false;
+#endif
+#endif
+    char * szImagePath="M:\\Documents\\Computing\\Programming\\Projects\\QtCreator\\jpg2bmp-build-desktop\\debug\\dd85adf7.jpg";//="webcam.jpg";
     //char * szImagePath="x_fb7a21a4.jpg";
-    ifstream inImage;
     //setlocale(LC_ALL, "Russian");
+
+    ifstream inImage;    
     inImage.open(szImagePath,ios::in| ios::binary);
     if (!inImage)
     {
         cout << "Невозможно открыть файл";
         return false;
     }
-    //cout << "Файл открыт";
+    cout << "Файл открыт";
+
+    word wMarker;
+    word wSegmentSize;
+
     //    cout.setf(ios::hex, ios::basefield);
     //    cout.setf(ios::hex, ios::basefield);
     //    cout.setf(ios::showbase);
     //    cout.setf(ios::hex|ios::showbase);
     //cout.width(3);
-    word wMarker;
-    word wSegmentSize;
-    unsigned short int *** paQuantTables=0;
-    unsigned short int ** aQuantTable=0;
+
+
+    number *** paQuantTables=0;
     CHuffTable * phtList=0;
     CDCTTable dct;
+
     while  (inImage)
     {
         byte * pbSegment;
         inImage.read((char*)&wMarker,sizeof(word));
         wMarker=swap_endian<word>(wMarker);
-        //        switch (wMarker)
-        //        {
-        //        case StartOfImage:
-        //            continue;
-        //        case EndOfImage:
-        //            goto lblFinish;
-        //        case App0:
-        //        case QuantTableDef:
-        //        default:
-        //            inImage.read((char*)&wSegmentSize,sizeof(word));
-        //            wSegmentSize=swap_endian<>(wSegmentSize);
-        //            break;
-        //        }
+
         if (wMarker==StartOfImage)continue;
         else if (wMarker==EndOfImage)break;
         else
         {
+          byte bT;
+
             inImage.read((char*)&wSegmentSize,sizeof(word));
             wSegmentSize=swap_endian<word>(wSegmentSize);
+
+            cout << "Marker:" << hex  << wMarker << endl;
+            cout << "Segment size:" << wSegmentSize<< endl;
+
             switch  (wMarker)
             {
             case QuantTableDef:
                 {
-                    cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;
-#define nTableRows 8
-#define cbElements 64
-                    typedef bool Direction;
-#define Up true
-#define Down false
-#define setQuantTableItem(is,bT,aT,ix,iy,iT) ({is.get(bT);/* cout << "char " << hex << (int) bT << endl*/;aT[iy][ix]=bT;iT++;})
+                    number ** aQuantTable=0;
                     byte nTableElementSize=0;
                     byte nTableIndex=0;
                     byte bT;
+
                     inImage.get(bT);
-                    nTableElementSize=bT>>4;
-                    nTableIndex=bT&0xF;
+
+                    nTableElementSize= bT>>4;
+                    nTableIndex= bT&0xF;
+
                     if (nTableElementSize==0) bT=8;
                     else bT=16;
-                    unsigned short * aQuantTableRow;
-                    //aQuantTableLim
-                    //64*(nTableElementSize+1)
-                    aQuantTable=new unsigned short *[nTableRows];
-                    for (int ix=0;ix<nTableRows;ix++)
+
+                    aQuantTable=new unsigned short *[cnMatrixSide];
+                    for (int ix=0;ix<cnMatrixSide;ix++)
                     {
-                        aQuantTableRow=new unsigned short [bT];
+                        number * aQuantTableRow=new unsigned short [bT];
                         aQuantTable[ix]=aQuantTableRow;
                     }
-                    int iT=0;
-                    Direction fDirection=Down;
-                    int ix=0,iy=0;
-                    setQuantTableItem(inImage,bT,aQuantTable,ix,iy,iT);
-                    while (iT<cbElements-2)
-                    {
-                        if (fDirection==Down)
-                        {
-                            if (ix<nTableRows-1)++ix;else iy++;
-                            for (ix,iy;ix>=0&&iy<nTableRows;ix--,iy++)
-                            {
-                                setQuantTableItem(inImage,bT,aQuantTable,ix,iy,iT);
-                            }
-                            ix++;
-                            iy--;
-                            fDirection=Up;
-                        }
-                        else
-                        {
-                            if (iy<nTableRows-1)++iy;else ++ix;
-                            for (ix,iy;ix<nTableRows&&iy>=0;ix++,iy--)
-                            {
-                                setQuantTableItem(inImage,bT,aQuantTable,ix,iy,iT);
-                                //                            inImage.get(&bT);
-                                //                            aQuantTable[ix][iy]=bT;
-                                //                            iT++;
-                            }
-                            ix--;
-                            iy++;
-                            fDirection=Down;
-                        }
-                    }
-                    ix++;
-                    setQuantTableItem(inImage,bT,aQuantTable,ix,iy,iT);
-                    //cout.precision(2);
-                    //cout.width(2);
-                    for(int x=0;x<8;x++)  // loop 3 times for three lines
-                    {
-                        for(int y=0;y<8;y++)  // loop for the three elements on the line
-                        {
-                            cout<< hex << (short int) aQuantTable[x][y] << " ";  // display the current element out of the array
-                        }
-                        cout<<endl;  // when the inner loop is done, go to a new line
-                    }
 
-                    paQuantTables=(unsigned short ***)realloc((void *)paQuantTables,sizeof(unsigned short ***)*(nTableIndex+1));
-#undef Up
-#undef Down
-#undef cbElements
-#undef nTableRows
-                    //cout.setf(ios::hex);
+                    do
+                        inImage.get(bT);
+                    while (!AddToZigZagMatrix(aQuantTable,bT));
+
+                    PrintMatrix(aQuantTable,"Data Quant Table",nTableIndex);
+
+                    paQuantTables=(number ***)realloc((void *)paQuantTables,sizeof(number ***)*(nTableIndex+1));
+                    paQuantTables[nTableIndex]= aQuantTable;
+
+
                 }
                 break;
             case HuffBaselineDCT:
                 {
-                    cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;
                     inImage.get(dct.m_bPrecision);
                     inImage.read((char*)&(dct.m_iHeight),sizeof(word));
                     SwapEndianWord(dct.m_iHeight);
@@ -742,14 +555,10 @@ int main(int argc, char *argv[])
                         if (dct.m_puComponents[ix].m_V>dct.m_iVmax)dct.m_iVmax=dct.m_puComponents[ix].m_V;
                         //aUnits[ix]=swap_endian<CUnit>(aUnits[ix]);
                     }
-
-                    cout << "lol";
                 }
                 break;
             case HuffmanTableDef:
                 {
-                    cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;
                     CHuffTable * phtCurrent=new CHuffTable;
                     phtCurrent->next=0;
                     if (phtList!=0)
@@ -762,69 +571,62 @@ int main(int argc, char *argv[])
                     {
                         phtList=phtCurrent;
                     }
-                    byte bT;
+
                     inImage.get(bT);
                     phtCurrent->m_nTableClass=static_cast<JpegHuffTableClass>(bT>>4);
                     phtCurrent->m_nTableIndex=bT&0xF;
-                    //                    if (!((nTableClass==HuffClassAC)&&(nTableIndex==1)))
-                    //                    {
-                    //                        pbSegment=new byte[wSegmentSize];
-                    //                        inImage.read((char*)pbSegment,sizeof(byte)*(wSegmentSize-3));
-                    //                        cout << "Marker:" << hex  << wMarker << endl;
-                    //                        cout << "Segment size:" << wSegmentSize<< endl;
-                    //                        delete [] pbSegment;
-                    //                        break;
-                    //                    }
-#define cbHuffCodes 16
 
-                    streampos spCodeCount;
+                    const int cnHuffCodes = 16;
+
+                    streampos spNextCode;
                     byte * pbHuffCodes;
                     CHuffNode * phn=new CHuffNode;
+
+//                    phn->m_phnUp=NULL;
+//                    phn->m_phnLeft=NULL;
+//                    phn->m_phnRight=NULL;
+//                    phn->m_iLayer=0;
+//                    phn->m_iData=0;
+
+                    memset (phn,'\0',sizeof(CHuffNode));
+
                     phn->m_bIsLeaf=false;
-                    phn->m_phnUp=NULL;
-                    phn->m_phnLeft=NULL;
-                    phn->m_phnRight=NULL;
-                    phn->m_iLayer=0;
-                    phn->m_iData=0;
+
                     phtCurrent->m_htTree.m_phnRoot=phn;
                     phtCurrent->m_htTree.m_iCount=1;
                     int iOffset=0;
                     int iBaseOffset;
-                    for (int ix=0;ix<cbHuffCodes;ix++)
+
+                    for (int ix=0;ix<cnHuffCodes;ix++)
                     {
                         inImage.get(bT);
                         if (bT>0)
                         {
-
-                            spCodeCount=inImage.tellg();
-                            iBaseOffset=cbHuffCodes-ix-1;
+                            spNextCode=inImage.tellg();
+                            iBaseOffset=cnHuffCodes-ix-1;
                             inImage.seekg((streamoff)iBaseOffset+iOffset,ios_base::cur);
                             //streampos spTemp=inImage.tellg();
                             pbHuffCodes=new byte[bT+1];
                             pbHuffCodes[bT]='\0';
                             inImage.read(pbHuffCodes,sizeof(byte)*bT);
-                            cout << "Line: "<< ix << "Length: " << (int) bT << endl;
+                            cout << "Length: "<< ix << "Count: " << (int) bT << endl;
                             for (int iy=0;iy<bT;iy++)
                             {
-                                cout << "Val: " <<  (int) pbHuffCodes[iy] << endl;
+                                cout << "Value: " <<  (int) pbHuffCodes[iy] << endl;
                                 phn=AddNode(&(phtCurrent->m_htTree),phn,pbHuffCodes[iy],ix);
                             }
                             iOffset+=bT;
-                            inImage.seekg(spCodeCount);
+                            inImage.seekg(spNextCode);
                             delete [] pbHuffCodes;
                         }
                     }
                     inImage.seekg((streamoff)iOffset,ios_base::cur);
-                    streampos spTemp=inImage.tellg();
-#undef cbHuffCodes
+
 
                 }
                 break;
             case StartOfScan:
                 {
-
-                    cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;
                     cout << "Pedo" << sizeof(CComponent) << endl;
                     byte nComponents;
                     inImage.get(nComponents);
@@ -974,20 +776,16 @@ int main(int argc, char *argv[])
                     unsigned short **** pPixels = 0;
                     int nPixelCount=0;
 
+                    int nDataUnitCount= 0;
+
+                    for (int ix = 0; ix < dct.m_bUnitsCount; ++ix) {
+                        nDataUnitCount+= dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;
+
+                    }
                     vector<byte> vecBitArray;
                     int nBitRead=8;
                     do
                     {
-//                        //wMarker = wMarker << 8;
-//                        wMarker=0;
-//                        //wMarker |= bT;
-//                        wMarker|=bT;
-//                        wMarker&= 0x00FF;
-
-//                        wMarker|= bNext << 8;
-//                        if (wMarker==EndOfImage) goto lblFinish;
-//                        //lol = inImage.gcount();
-//                        //inImage.peek()
 
                         if (bNext==-1)//0xFF
                         {
@@ -1005,6 +803,8 @@ int main(int argc, char *argv[])
 
                         for (int cx=0,ix=0;ix<dct.m_bUnitsCount;ix++) // nComponents
                         {
+                            int nx=cx;
+
                             for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;cx++,iy++)
                             {
                                 pPixels[nPixelCount-1] = (unsigned short ***) realloc(pPixels[nPixelCount-1],sizeof(unsigned short **)*(cx+1));
@@ -1049,13 +849,6 @@ int main(int argc, char *argv[])
 
                                     do
                                     {
-//                                        if (nBitRead==8)
-//                                        {
-//                                            inImage.get(bT); nBitRead=0;
-//                                            wMarker = wMarker << 8;
-//                                            wMarker |= bT;
-//                                            if (wMarker==EndOfImage) goto lblFinish;
-//                                        };
 
                                         if (nBitRead==8){
                                             inImage.get(bT);nBitRead=0;
@@ -1110,17 +903,6 @@ int main(int argc, char *argv[])
                                         while (bx< nData)
                                         {
                                             if (nBitRead==8){
-//                                                inImage.get(bT);nBitRead=0;
-//                                                //wMarker = wMarker << 8;
-//                                                wMarker=0;
-//                                                //wMarker |= bT;
-//                                                wMarker|=bT;
-//                                                wMarker&= 0x00FF;
-//                                                word wNext= inImage.peek();
-//                                                wMarker|= wNext << 8;
-//                                                if (wMarker==EndOfImage) goto lblFinish;
-                                                //lol = inImage.gcount();
-                                                //inImage.peek()
                                                 inImage.get(bT);nBitRead=0;
                                                 bNext= inImage.peek();
                                             };
@@ -1163,435 +945,69 @@ int main(int argc, char *argv[])
                                 }
 qDebug()<< "end";
                             }
+
+                            short unsigned int dx= pPixels[nPixelCount-1][nx][0][0];
+
+                            for (nx++; nx  < cx; ++nx)
+                            {
+                                dx= pPixels[nPixelCount-1][nx][0][0]= pPixels[nPixelCount-1][nx][0][0]+dx;
+
+                                cout << "FixedMatrix#" << cx << endl;
+                                for (int kx = 0; kx < 8; ++kx) {
+
+                                    for (int vx = 0; vx < 8; ++vx) {
+                                        //
+                                      pPixels[nPixelCount-1][nx][kx][vx]*= paQuantTables[dct.m_puComponents[ix].m_bDQTId][kx][vx];
+                                      cout << " " << dec  << (signed) pPixels[nPixelCount-1][nx][ix][vx];
+                                    }
+
+                                    cout << endl;
+                                }
+                            }
+
+
                         }
 
 
                     } while (!inImage.eof());
 
-#if 0
-                    for (ix=0;ix<dct.m_bUnitsCount;ix++)
-                    {
-                        for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
-                        {
-
-                            CHuffTablePointer it = phtList;
-                            while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
-                            //pwComponents[ix].m_DC=
-                            //dct.m_puComponents[ix].
-                            //pwComponents[ix].m_AC
-                            CHuffNodePointer it1=it->m_htTree.m_phnRoot;
-
-                            /*
-                            while (inImage.get(bT))
-                            {
-                                do
-                                {
-                                    cout << ix;
-                                    bT1=((unsigned char)bT)&0x80;
-                                    bT1=((unsigned char)bT1)>>7;
-                                    if (bT1==0)
-                                    {
-                                        cout << "left";
-                                        it1=it1->m_phnLeft;
-                                    }
-                                    if (bT1==1)
-                                    {
-                                        cout << "right";
-                                        it1=it1->m_phnRight;
-                                    }
-                                    if (it1->m_bIsLeaf)
-                                    {
-                                        cout << "leaf data" << dec << it1->m_iData;
-                                        if (it1->m_iData==0) WTF(0);
-                                        else
-                                        {
-                                            if (it1->m_iData==8)
-                                                inImage.get(bT);
-                                            else if (it1->m_iData<8)
-                                            {
-                                                do
-                                                {
-                                                    bT1=bT&0x80;
-                                                    bT=bT<<1;
-                                                } while (++ix<8);
-                                                bT=
-                                                    }
-                                            else if (it1->m_iData>8)
-                                            {
-
-                                            }
-
-
-                                            WTF(bT);
-                                        }
-                                    }
-                                    //bT1
-                                    bT=bT<<1;
-                                } while (++ix<8);
-                            }
-                            */
-                        }
-                    }
 
 #endif
-#endif
 
-//                    do
-//                    {
-//                        int nDummy=2;
-//                        inImage.get(bT);
-//                        bT= bT<<nDummy;
 
-//                        short nInBitCount = 5; // Число битов для чтения
+//                    for (int px = 0; px < nPixelCount; ++px) {
+//                        for (int cx = 0; cx < nDataUnitCount; ++cx) {
+//                            for (int ix = 0; ix < 8; ++ix) {
+//                                for (int jx = 0; jx < 8; ++jx) {
+//                                    if (cx>=0&&cx<=4) {
+//                                        pPixels[px][cx][ix][jx]*= paQuantTables[dct.m_puComponents[0].m_bDQTId][ix][jx];
+//                                    } else if (cx==5) {
+//                                        pPixels[px][cx][ix][jx]*= paQuantTables[dct.m_puComponents[1].m_bDQTId][ix][jx];
+//                                    }
+//                                    else {
+//                                        pPixels[px][cx][ix][jx]*= paQuantTables[dct.m_puComponents[2].m_bDQTId][ix][jx];
+//                                    }
 
-//                        int nOutNumberSize; // Реальный размер выходного числа
-//                        int nOutAlign=(nInBitCount)%cnByteSize; // Смещение от начаint ла выходного числа
 
-//                        int nInCurrPos/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
-//                        byte bInRaw=bT, bInSlice; // Только что считаный байт, нужный нам кусочек
-
-//                        int nInSliceSize;
-
-//                        if (nOutAlign!=0) // Если текущая позиция + количество бит для чтения
-//                            // не кратно размеру байта ix????
-//                        {
-//                            nOutNumberSize=(nInBitCount)/cnByteSize+1; // то создаём число с размером + дополнительным байтом
-//                            //fPutIn=false;
-//                        }
-//                        else
-//                        {
-//                            nOutNumberSize=(nInBitCount)/cnByteSize; // иначе, умещаем число в размер
-//                            //fPutIn=true;
-//                        }
-//                        pOutNumber = (union OutNumber *) malloc(nOutNumberSize);
-//                        ::memchr((void *)pOutNumber,0,nOutNumberSize);
-
-//                        while (nInBitCount>0)
-//                        {
-//                            if ((nInCurrPos+nInBitCount)>=cnByteSize) // Проверяем переполнение байта
-//                            {
-//                                nInSliceSize=cnByteSize-nInCurrPos; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
+//                                }
 //                            }
-//                            else
-//                                nInSliceSize=nInBitCount; // в прот. случае устанавливаем в чило бит поданых на чтение
-
-//                            if (nInCurrPos==0)
-//                            {
-//                                inImage.get(bInRaw);
-//                            }
-
-
-//                            //bT1=bT;
-//                            bInSlice = ((unsigned char) bInRaw) >> (cnByteSize-nInSliceSize);
-//                            bInRaw = ((unsigned char) bInRaw) << (nInSliceSize);
-
-//                            bInSlice = ((unsigned char) bInSlice) << (cnByteSize-nInSliceSize-nOutAlign);
-//                            nOutCurrPos=nOutAlign+nInSliceSize;
-//                            nInBitCount-=nInSliceSize;
-//                            //pOutNumber->data[nOutNumberSize]=bInSlice;
-//                            nOutNumberSize--;
-
-//                            if (nInCurrPos+nInSliceSize>=cnByteSize)
-//                                nInCurrPos=0;
-//                            else
-//                                nInCurrPos+=nInSliceSize;
 
 //                        }
-
-//                        free(pOutNumber);
-//                    } while (!inImage.eof());
-
-
-
-
-//                    byte bT1;
-//                    //                        int nLast=cCurrPos+ix;
-//                    //                        bool fPutIn;
-//                    //                        int nCurrBitsCount;
-//                    //                        int ic=0;
-
-//                    //CHuffNodeIterator it=phtList[];
-
-
-//                    // offset = 277
-//                    //inImage.get(bT);
-//                    /*
-//                    ix=5;
-//                    int max=8;
-//                    short cx=0;// текущая позиция
-//                    int ic=0;
-//                    short ab; // Число бит до конца чтения или байта
-//                    union UNI
-//                    {
-//                        byte b;
-//                        short s;
-//                        int i;
-//                        long l;
-//                        char data[];
-//                    };
-//                    union UNI * pUni;
-//                    ix=5;
-//*/
-//                    ix=5;// Начальное значение, сколько бит считать
-
-//                    short nBitUntilByteLeft; // Число бит до конца байта
-//                    short cCurrPos=0;//Текущая позиция
-
-//                    do
-//                    {
-//                        /*
-//                        bT1=0;
-//                        int nSize;
-
-//                        if ((cx+ix)%8!=0)
-//                            nSize=(cx+ix)/8+1;
-//                        else
-//                            nSize=(cx+ix)/8;
-//                        pUni = (union UNI *) malloc(nSize);
-//                        //pUni->l=500000;
-//                        // 0 0 0 0 0 1 1 1 0 1 0 1 1 ...
-//                        // 0 1 2 3 4 5 6 7 0 1 2 3 4 ...
-//                        // . . . . ^ . . ^ . . . ^ . ...
-//                        // . . . . | . . | . . . | . ...
-//                        // . . . . cx. .max. . .cx+ix...
-//                        while (ix>0) // В ix - количество бит для чтения
-//                        {
-//                            if ((cx+ix)>=8) // Проверяем переполнение байта
-//                            {
-//                                ab=8-cx; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
-//                            }
-//                            else
-//                                ab=ix; // в прот. случае устанавливаем в чило бит поданых на чтение
-//                            if (cx==0)
-//                            {
-//                                inImage.get(bT);
-//                            }
-//                            nSize--;
-
-//                            //pUni[ic]
-//                            bT1 = ((unsigned char) bT) >> (8-ab);
-//                            bT = ((unsigned char) bT) << (ab);
-//                            pUni->data[nSize]=bT1;
-
-//                            //bT1=bT1 << ab;
-//                            //bT1 |= ((unsigned char) bT) >> (8-ab);
-//                            //bT = ((unsigned char) bT) << (ab);
-
-//                            ix-=ab;
-//                            if (cx+ab>=8)
-//                                cx=0;
-//                            else
-//                                cx+=ab;
-//                            ic++;
-//                        }
-//                        ix=7;
-//                        // Функциональный блок
-
-//                        //if (cx<8)
-//                        //{
-//                        //    bT1= ((unsigned char) bT) >> (8-ix);
-//                        //    bT = ((unsigned char) bT) << (ix);
-//                        //    cx+=ix;
-//                        //}
-//                        //else
-//                        //{
-//                        //    inImage.get(bT);
-//                        //    cx=0;
-//                        //}
-//                        // обработка фала
-//                        cout << hex << bT1;
-//                        ix=4;
-
-//                        free(pUni);
-//                        cout << "blabla";
-//                        */
-//                        bT1=0;
-//                        int nLargeNumberSize;
-//                        int nLast=cCurrPos+ix;
-//                        bool fPutIn;
-//                        int nCurrBitsCount;
-//                        int ic=0;
-//                        if ((ix)%nByteSize!=0) // Если текущая позиция + количество бит для чтения
-//                                               // не кратно размеру байта ix????
-//                        {
-//                            nLargeNumberSize=(ix)/nByteSize+1; // то создаём число с размером + дополнительным байтом
-//                            fPutIn=false;
-//                        }
-//                        else
-//                        {
-//                            nLargeNumberSize=(ix)/nByteSize; // иначе, умещаем число в размер
-//                            fPutIn=true;
-//                        }
-//                        pNumber = (union OutNumber *) malloc(nLargeNumberSize);
-//                        ::memchr((void *)pNumber,0,nLargeNumberSize);
-//                        // 0 0 0 0 0 1 1 1 0 1 0 1 1 1 0 1 0
-//                        // 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
-//                        // . . . . ^ . . ^ . . . ^ . ..^
-//                        // . . . . | . . | . . . | . ..|
-//                        // .cCurrPos.nByteSize.nLast...nLast(^2)
-
-//                        while (ix>0) // В ix - количество бит для чтения
-//                        {
-//                            if ((cCurrPos+ix)>=nByteSize) // Проверяем переполнение байта
-//                            {
-//                                nCurrBitsCount=nByteSize-cCurrPos; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
-//                            }
-//                            else
-//                                nCurrBitsCount=ix; // в прот. случае устанавливаем в чило бит поданых на чтение
-
-//                            if (cCurrPos==0)
-//                            {
-//                                inImage.get(bT);
-//                            }
-
-//                            //bT1=bT;
-//                            bT1 = ((unsigned char) bT) >> (nByteSize-nCurrBitsCount);
-//                            bT = ((unsigned char) bT) << (nCurrBitsCount);
-
-//                            nLargeNumberSize--;
-
-
-//                            if (cCurrPos!=0)
-//                            {
-
-//                            }
-//                            pNumber->data[nLargeNumberSize]=bT1;
-//                            //pUni[ic]
-//                            //if (currPos!=0) then blabla bla
-//                            /*
-//                            if (fPutIn)
-//                            {
-//                                pNumber->data[nLargeNumberSize]=bT1;
-//                            }
-//                            else
-//                            {
-//                                pNumber->data[nLargeNumberSize]=bT1;
-//                            }
-//                            */
-
-
-//                            //bT1=bT1 << ab;
-//                            //bT1 |= ((unsigned char) bT) >> (8-ab);
-//                            //bT = ((unsigned char) bT) << (ab);
-
-//                            ix-=nCurrBitsCount;
-//                            if (cCurrPos+nCurrBitsCount>=nByteSize)
-//                                cCurrPos=0;
-//                            else
-//                                cCurrPos+=nCurrBitsCount;
-//                            ic++;
-//                        }
-//                        ix=7;
-//                        // Функциональный блок
-
-//                        //if (cx<8)
-//                        //{
-//                        //    bT1= ((unsigned char) bT) >> (8-ix);
-//                        //    bT = ((unsigned char) bT) << (ix);
-//                        //    cx+=ix;
-//                        //}
-//                        //else
-//                        //{
-//                        //    inImage.get(bT);
-//                        //    cx=0;
-//                        //}
-//                        // обработка фала
-//                        cout << hex << bT1;
-//                        //ix=4;
-
-//                        free(pNumber);
-//                        cout << "blabla";
-//                    } while (!inImage.eof());
-                    //for (int cx=0;cx<8;cx++)
-                    //{
-
-                    //}
-                    /*bT1=((unsigned char)bT)&0x80;
-                    bT1=((unsigned char)bT1)>>7;
-
-                    bT=bT<<1;
-                    */
-                    for (ix=0;ix<dct.m_bUnitsCount;ix++)
-                    {
-                        for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;iy++)
-                        {
-                            CHuffTablePointer it = phtList;
-                            while (it->m_nTableClass!=HuffClassDC&&pwComponents[ix].m_DC!=it->m_nTableIndex)it=it->next;
-                            //pwComponents[ix].m_DC=
-                            //dct.m_puComponents[ix].
-                            //pwComponents[ix].m_AC
-                            CHuffNodePointer it1=it->m_htTree.m_phnRoot;
-
-                            /*
-                            while (inImage.get(bT))
-                            {
-                                do
-                                {
-                                    cout << ix;
-                                    bT1=((unsigned char)bT)&0x80;
-                                    bT1=((unsigned char)bT1)>>7;
-                                    if (bT1==0)
-                                    {
-                                        cout << "left";
-                                        it1=it1->m_phnLeft;
-                                    }
-                                    if (bT1==1)
-                                    {
-                                        cout << "right";
-                                        it1=it1->m_phnRight;
-                                    }
-                                    if (it1->m_bIsLeaf)
-                                    {
-                                        cout << "leaf data" << dec << it1->m_iData;
-                                        if (it1->m_iData==0) WTF(0);
-                                        else
-                                        {
-                                            if (it1->m_iData==8)
-                                                inImage.get(bT);
-                                            else if (it1->m_iData<8)
-                                            {
-                                                do
-                                                {
-                                                    bT1=bT&0x80;
-                                                    bT=bT<<1;
-                                                } while (++ix<8);
-                                                bT=
-                                                    }
-                                            else if (it1->m_iData>8)
-                                            {
-
-                                            }
-
-
-                                            WTF(bT);
-                                        }
-                                    }
-                                    //bT1
-                                    bT=bT<<1;
-                                } while (++ix<8);
-                            }
-                            */
-                        }
-                    }
-
+//                    }
                 }
 
-                //}
                 break;
             default:
                 {
                     pbSegment=new byte[wSegmentSize];
                     inImage.read((char*)pbSegment,sizeof(byte)*(wSegmentSize-2));
-                    cout << "Marker:" << hex  << wMarker << endl;
-                    cout << "Segment size:" << wSegmentSize<< endl;
                     delete [] pbSegment;
                 }
             }
 
         }
-//        cout << inImage;
+    //    cout << inImage;
     }
 
-    lblFinish:
     return a.exec();
 }
