@@ -2,9 +2,11 @@
 #include "cstdlib"
 #include <iostream>
 #include <fstream>
+#include <istream>
 #include <clocale>
 #include <vector>
 #include <math.h>
+#include <QDebug>
 
 using namespace std;
 
@@ -965,17 +967,10 @@ int main(int argc, char *argv[])
                     } while (!inImage.eof());
 #else
 
-//                    struct CPixel
-//                    {
-//                        short *** m_
-//                    };
+                    streamsize lol;
 
+                    byte bNext=0;
 
-//                    short ** aMatrix=new short *[8];
-//                    for (ix;ix<8;ix++)
-//                    {
-//                        aMatrix[ix]=new short[8];
-//                    }
                     unsigned short **** pPixels = 0;
                     int nPixelCount=0;
 
@@ -983,28 +978,47 @@ int main(int argc, char *argv[])
                     int nBitRead=8;
                     do
                     {
+//                        //wMarker = wMarker << 8;
+//                        wMarker=0;
+//                        //wMarker |= bT;
+//                        wMarker|=bT;
+//                        wMarker&= 0x00FF;
+
+//                        wMarker|= bNext << 8;
+//                        if (wMarker==EndOfImage) goto lblFinish;
+//                        //lol = inImage.gcount();
+//                        //inImage.peek()
+
+                        if (bNext==-1)//0xFF
+                        {
+                            int pos= inImage.tellg();
+                            inImage.seekg(1,inImage.ios_base::cur);
+                            inImage.read((char*)&wMarker,sizeof(word));
+                            //wMarker=swap_endian<word>(wMarker);
+                            if (wMarker==EndOfImage) break;
+                            inImage.seekg(pos);
+                        }
+
                         ++nPixelCount;
                         pPixels= (unsigned short ****) realloc(pPixels,sizeof(unsigned short ***)*nPixelCount);
                         pPixels[nPixelCount-1]=0;
 
-                        for (int cx=0,ix=0;ix<dct.m_bUnitsCount;cx++,ix++) // nComponents
+                        for (int cx=0,ix=0;ix<dct.m_bUnitsCount;ix++) // nComponents
                         {
                             for (int iy=0;iy<dct.m_puComponents[ix].m_H*dct.m_puComponents[ix].m_V;cx++,iy++)
                             {
-                                pPixels[nPixelCount-1] = (unsigned short ***) realloc(pPixels[nPixelCount-1],sizeof(unsigned short **)*cx);
+                                pPixels[nPixelCount-1] = (unsigned short ***) realloc(pPixels[nPixelCount-1],sizeof(unsigned short **)*(cx+1));
 
                                 unsigned short ** aMatrix=new unsigned short *[8];
                                 for (int ex=0;ex<8;ex++)
                                 {
                                     aMatrix[ex]=new unsigned short[8];
                                     memchr(aMatrix[ex],'\0',sizeof(unsigned short)*8);
-                                }
 
-//                                for (int ex = 0;ex<8;ex++)
-//                                {
-//                                    pPixels[nPixelCount-1][ex]=new short[8];
-//                                    memchr(pPixels[nPixelCount-1][ex],'\0',sizeof(short));
-//                                }
+                                    for (int ix = 0; ix < 8; ++ix) {
+                                        aMatrix[ex][ix]=99;
+                                    }
+                                }
 
                                 pPixels[nPixelCount-1][cx]=aMatrix;
 
@@ -1012,11 +1026,12 @@ int main(int argc, char *argv[])
 
                                 do
                                 {
+                                    int nData;
+
                                     byte bT1;
                                     byte bValue;
 
                                     CHuffTablePointer it = phtList;
-
 
 
                                     if (nPos==0)
@@ -1034,7 +1049,18 @@ int main(int argc, char *argv[])
 
                                     do
                                     {
-                                        if (nBitRead==8){ inImage.get(bT); nBitRead=0; };
+//                                        if (nBitRead==8)
+//                                        {
+//                                            inImage.get(bT); nBitRead=0;
+//                                            wMarker = wMarker << 8;
+//                                            wMarker |= bT;
+//                                            if (wMarker==EndOfImage) goto lblFinish;
+//                                        };
+
+                                        if (nBitRead==8){
+                                            inImage.get(bT);nBitRead=0;
+                                            bNext= inImage.peek();
+                                        };
 
                                         bT1=((unsigned char)bT)&0x80;
                                         bT1=((unsigned char)bT1)>>7;
@@ -1056,18 +1082,26 @@ int main(int argc, char *argv[])
 
                                     cout << "leaf data" << dec << it1->m_iData;
 
-                                    if (it1->m_iData==0) bValue=0;
+                                    nData= it1->m_iData;
+
+                                    if (nPos!=0 && 0 == nData)
+                                    {
+                                        for (int ix = 0; ix < 64-nPos; ++ix) {
+                                             AddToZigZagMatrix(aMatrix,0);
+                                        }
+                                        break;
+                                    }
                                     else
                                     {
                                         int bx=0;
-                                        int nData= it1->m_iData;
                                         if (nPos!=0)
                                         {
                                             bT1= it1->m_iData&0xF0;
-                                            bT1 = bT1 >> 0xF;
+                                            bT1 = bT1 >> 4;
                                             for (int bx=0; bx<bT1 ;bx++)
                                             {
                                                 AddToZigZagMatrix(aMatrix,0);
+                                                ++nPos;
                                             }
 
                                             nData= it1->m_iData&0xF;
@@ -1075,7 +1109,21 @@ int main(int argc, char *argv[])
 
                                         while (bx< nData)
                                         {
-                                            if (nBitRead==8){ inImage.get(bT);nBitRead=0; };
+                                            if (nBitRead==8){
+//                                                inImage.get(bT);nBitRead=0;
+//                                                //wMarker = wMarker << 8;
+//                                                wMarker=0;
+//                                                //wMarker |= bT;
+//                                                wMarker|=bT;
+//                                                wMarker&= 0x00FF;
+//                                                word wNext= inImage.peek();
+//                                                wMarker|= wNext << 8;
+//                                                if (wMarker==EndOfImage) goto lblFinish;
+                                                //lol = inImage.gcount();
+                                                //inImage.peek()
+                                                inImage.get(bT);nBitRead=0;
+                                                bNext= inImage.peek();
+                                            };
                                             bT1=((unsigned char)bT)&0x80;
                                             bT1=((unsigned char)bT1)>>7;
                                             bT= bT << 1;
@@ -1092,45 +1140,34 @@ int main(int argc, char *argv[])
                                         }
                                     }
 
-                                    //byte bX= ;
-
-                                    if ((0 != bValue) && (0==((bValue << (cnByteSize-it1->m_iData))&0x80)))
-                                        bValue=bValue-pow(2,it1->m_iData)+1;
+                                    if (/*(0 != bValue) &&*/ (0==((bValue << (cnByteSize-nData))&0x80)))
+                                        bValue=bValue-pow(2,nData)+1;
 
 
                                     AddToZigZagMatrix(aMatrix,bValue);
 
                                     vecBitArray.clear();
 
-                                    if (nPos!=0 && 0 == bValue) break;
 
-                                    if  (nPos==0)
-                                    {
-                                        int x=0;
-                                        x++;
-
-                                        x=8;
-                                    }
 
                                 }while(++nPos < 64);
+
+                                cout << "Matrix#" << cx << endl;
+                                for (int ix = 0; ix < 8; ++ix) {
+
+                                    for (int vx = 0; vx < 8; ++vx) {
+                                        cout << " " << dec  << (signed) aMatrix[ix][vx];
+                                    }
+
+                                    cout << endl;
+                                }
+qDebug()<< "end";
                             }
                         }
 
 
                     } while (!inImage.eof());
 
-                    //                                //bT1
-                    //                                bT=bT<<1;
-                    //                            } while (++ix<8);
-
-
-
-                //                        for (int ix=0;ix<cnByteSize; ix++)
-                //                        {
-                //                            bT2= bT&0x80;
-                //                            vecBitArray.push_back(bT2);
-                //                            bT= bT << 1;
-                //                        }
 #if 0
                     for (ix=0;ix<dct.m_bUnitsCount;ix++)
                     {
@@ -1555,6 +1592,6 @@ int main(int argc, char *argv[])
 //        cout << inImage;
     }
 
-    //lblFinish:
+    lblFinish:
     return a.exec();
 }
