@@ -1,8 +1,10 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2012-12-15T16:18:23
+# Project created by QtCreator 2014-08-20T19:18:21
 #
 #-------------------------------------------------
+
+QT       += core
 
 QT       -= gui
 
@@ -14,3 +16,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp
+
+RESOURCES += \
+    Resources.qrc
