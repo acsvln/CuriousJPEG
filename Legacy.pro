@@ -8,19 +8,10 @@ QT       += core
 
 QT       -= gui
 
-TARGET = jpg2bmp
+TARGET = Legacy
 CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-
-SOURCES += main.cpp \
-    registeralgorithm.cpp \
-    decor.cpp
-
-RESOURCES += \
-    Resources.qrc
-
-HEADERS += \
-    union.h
+SOURCES += legacy.cpp
