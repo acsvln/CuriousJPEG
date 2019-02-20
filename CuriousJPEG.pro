@@ -20,7 +20,8 @@ TEMPLATE = app
 SOURCES += main.cpp \
     processor.cpp \
     sof0_decoder.cpp \
-    dqt_decoder.cpp
+    dqt_decoder.cpp \
+    utility.cpp
 
 HEADERS += \
     context.hpp \
@@ -28,7 +29,8 @@ HEADERS += \
     processor.hpp \
     sof0_decoder.hpp \
     dqt_decoder.hpp \
-    definition.hpp
+    definition.hpp \
+    utility.hpp
 
 RESOURCES += \
     Resources.qrc
