@@ -10,7 +10,7 @@ public:
 
     // IDecoder interface
 public:
-    void Invoke(Context &aContext) override;
+    void Invoke(Context &aContext) final;
 };
 
 #endif // DQT_DECODER_HPP
