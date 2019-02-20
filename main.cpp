@@ -5,7 +5,7 @@
 #include <istream>
 #include <clocale>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <QDebug>
 
 using namespace std;
@@ -371,7 +371,7 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
     static int ix=0,iy=0;
     static int state=0;
     switch (state) {
-    case 0: setQuantTableItem(bT,aTable,ix,iy,iT);/* начало функции */
+    case 0: setQuantTableItem(bT,aTable,ix,iy,iT);/* РЅР°С‡Р°Р»Рѕ С„СѓРЅРєС†РёРё */
         //return true;
         while (iT<cnMatrixDimension-2)
         {
@@ -381,9 +381,9 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
                 for (ix,iy;ix>=0&&iy<cnMatrixSide;ix--,iy++)
                 {
 
-                    state = 1;/* возвратиться к "case 1" */
+                    state = 1;/* РІРѕР·РІСЂР°С‚РёС‚СЊСЃСЏ Рє "case 1" */
                     return false;
-                case 1: setQuantTableItem(bT,aTable,ix,iy,iT);/* продолжить выполнения после точки возврата */;/* возвратиться к "case 1" */
+                case 1: setQuantTableItem(bT,aTable,ix,iy,iT);/* РїСЂРѕРґРѕР»Р¶РёС‚СЊ РІС‹РїРѕР»РЅРµРЅРёСЏ РїРѕСЃР»Рµ С‚РѕС‡РєРё РІРѕР·РІСЂР°С‚Р° */;/* РІРѕР·РІСЂР°С‚РёС‚СЊСЃСЏ Рє "case 1" */
                 }
                 ix++;
                 iy--;
@@ -394,7 +394,7 @@ bool AddToZigZagMatrix(short unsigned ** aTable, byte bT)
                 if (iy<cnMatrixSide-1)++iy;else ++ix;
                 for (ix,iy;ix<cnMatrixSide&&iy>=0;ix++,iy--)
                 {
-                    state = 2;/* возвратиться к "case 1" */
+                    state = 2;/* РІРѕР·РІСЂР°С‚РёС‚СЊСЃСЏ Рє "case 1" */
                     return false;
                 case 2: setQuantTableItem(bT,aTable,ix,iy,iT);
                 }
@@ -629,7 +629,7 @@ int main(int argc, char *argv[])
     return false;
 #endif
 #endif
-    char * szImagePath="M:\\Documents\\Computing\\Programming\\Projects\\QtCreator\\jpg2bmp-build-desktop\\debug\\dd85adf7.jpg";//="webcam.jpg";
+    char * szImagePath="D:\git\CuriousJPEG";//="webcam.jpg";
     //char * szImagePath="x_fb7a21a4.jpg";
     //setlocale(LC_ALL, "Russian");
 
@@ -637,10 +637,10 @@ int main(int argc, char *argv[])
     inImage.open(szImagePath,ios::in| ios::binary);
     if (!inImage)
     {
-        cout << "Невозможно открыть файл";
+        cout << "РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р»";
         return false;
     }
-    cout << "Файл открыт";
+    cout << "Р¤Р°Р№Р» РѕС‚РєСЂС‹С‚";
 
     word wMarker;
     word wSegmentSize;
@@ -817,14 +817,14 @@ int main(int argc, char *argv[])
                     inImage.get(bT);
                     inImage.get(bT);
 
-                    short ix=0; // Счетчик цикла
+                    short ix=0; // РЎС‡РµС‚С‡РёРє С†РёРєР»Р°
                     short ** aMatrix=new short *[8];
                     for (ix;ix<8;ix++)
                     {
                         aMatrix[ix]=new short[8];
                     }
 
-                    const int cnByteSize=8;//Число бит в байте
+                    const int cnByteSize=8;//Р§РёСЃР»Рѕ Р±РёС‚ РІ Р±Р°Р№С‚Рµ
 #ifdef HACKY_TRICKY_SOLUTION
                     union OutNumber
                     {
@@ -834,7 +834,7 @@ int main(int argc, char *argv[])
                         long l;
                         char data[];
                     };
-                    union OutNumber * pOutNumber; // "Выходное" число
+                    union OutNumber * pOutNumber; // "Р’С‹С…РѕРґРЅРѕРµ" С‡РёСЃР»Рѕ
 
                     do
                     {
@@ -842,26 +842,26 @@ int main(int argc, char *argv[])
                         inImage.get(bT);
                         bT= bT<<nReadBits;
 
-                        short nInBitCount = 25; // Число битов для чтения
+                        short nInBitCount = 25; // Р§РёСЃР»Рѕ Р±РёС‚РѕРІ РґР»СЏ С‡С‚РµРЅРёСЏ
 
                         int nTest = (nInBitCount)/cnByteSize;
-                        int nOutNumberSize; // Реальный размер выходного числа
-                        int nOutAlign=cnByteSize-(nInBitCount-(nInBitCount/cnByteSize)*cnByteSize); // Смещение от начаint ла выходного числа
+                        int nOutNumberSize; // Р РµР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РІС‹С…РѕРґРЅРѕРіРѕ С‡РёСЃР»Р°
+                        int nOutAlign=cnByteSize-(nInBitCount-(nInBitCount/cnByteSize)*cnByteSize); // РЎРјРµС‰РµРЅРёРµ РѕС‚ РЅР°С‡Р°int Р»Р° РІС‹С…РѕРґРЅРѕРіРѕ С‡РёСЃР»Р°
 //nInBitCount-
-                        int nInCurrPos= nReadBits/*=nDummy*/, nOutCurrPos=0; // Текущая позиция в числах
-                        byte bInRaw=bT, bInSlice, bOutSlice; // Только что считаный байт, нужный нам кусочек
+                        int nInCurrPos= nReadBits/*=nDummy*/, nOutCurrPos=0; // РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ С‡РёСЃР»Р°С…
+                        byte bInRaw=bT, bInSlice, bOutSlice; // РўРѕР»СЊРєРѕ С‡С‚Рѕ СЃС‡РёС‚Р°РЅС‹Р№ Р±Р°Р№С‚, РЅСѓР¶РЅС‹Р№ РЅР°Рј РєСѓСЃРѕС‡РµРє
 
                         int nInSliceSize, nOutSliceSize;
 
-                        if ((nInBitCount)%cnByteSize!=0) // Если текущая позиция + количество бит для чтения
-                            // не кратно размеру байта ix????
+                        if ((nInBitCount)%cnByteSize!=0) // Р•СЃР»Рё С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ + РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёС‚ РґР»СЏ С‡С‚РµРЅРёСЏ
+                            // РЅРµ РєСЂР°С‚РЅРѕ СЂР°Р·РјРµСЂСѓ Р±Р°Р№С‚Р° ix????
                         {
-                            nOutNumberSize=(nInBitCount)/cnByteSize+1; // то создаём число с размером + дополнительным байтом
+                            nOutNumberSize=(nInBitCount)/cnByteSize+1; // С‚Рѕ СЃРѕР·РґР°С‘Рј С‡РёСЃР»Рѕ СЃ СЂР°Р·РјРµСЂРѕРј + РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј Р±Р°Р№С‚РѕРј
                             //fPutIn=false;
                         }
                         else
                         {
-                            nOutNumberSize=(nInBitCount)/cnByteSize; // иначе, умещаем число в размер
+                            nOutNumberSize=(nInBitCount)/cnByteSize; // РёРЅР°С‡Рµ, СѓРјРµС‰Р°РµРј С‡РёСЃР»Рѕ РІ СЂР°Р·РјРµСЂ
                             //fPutIn=true;
                         }
                         pOutNumber = (union OutNumber *) malloc(nOutNumberSize);
@@ -877,15 +877,15 @@ int main(int argc, char *argv[])
 
                         while (nInBitCount>0)
                         {
-                            if ((nReadBits+nInBitCount)>=cnByteSize) // Проверяем переполнение байта
+                            if ((nReadBits+nInBitCount)>=cnByteSize) // РџСЂРѕРІРµСЂСЏРµРј РїРµСЂРµРїРѕР»РЅРµРЅРёРµ Р±Р°Р№С‚Р°
                             {
-                                nInSliceSize=cnByteSize-nReadBits; // Если переполнение - устанавливаем счетчик бит равным числу бит от cx до конца байта
+                                nInSliceSize=cnByteSize-nReadBits; // Р•СЃР»Рё РїРµСЂРµРїРѕР»РЅРµРЅРёРµ - СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј СЃС‡РµС‚С‡РёРє Р±РёС‚ СЂР°РІРЅС‹Рј С‡РёСЃР»Сѓ Р±РёС‚ РѕС‚ cx РґРѕ РєРѕРЅС†Р° Р±Р°Р№С‚Р°
                             }
                             else
-                                nInSliceSize=nInBitCount; // в прот. случае устанавливаем в чило бит поданых на чтение
+                                nInSliceSize=nInBitCount; // РІ РїСЂРѕС‚. СЃР»СѓС‡Р°Рµ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РІ С‡РёР»Рѕ Р±РёС‚ РїРѕРґР°РЅС‹С… РЅР° С‡С‚РµРЅРёРµ
 
                             // nReadBits==0
-                            if (nInCurrPos%cnByteSize==0) // Вслучае если количество считанных битов в байте равно нулю, читаем новый байт
+                            if (nInCurrPos%cnByteSize==0) // Р’СЃР»СѓС‡Р°Рµ РµСЃР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‡РёС‚Р°РЅРЅС‹С… Р±РёС‚РѕРІ РІ Р±Р°Р№С‚Рµ СЂР°РІРЅРѕ РЅСѓР»СЋ, С‡РёС‚Р°РµРј РЅРѕРІС‹Р№ Р±Р°Р№С‚
                             {
                                 inImage.get(bInRaw);
                             }
