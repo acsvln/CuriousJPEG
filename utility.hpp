@@ -2,6 +2,8 @@
 #define UTILITY_HPP
 
 #include <cstddef>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <experimental/optional>
 
 // TODO: remove that helper
 template <typename T>
@@ -20,6 +22,8 @@ template <typename T>
 
     return dest.u;
 }
+
+std::experimental::optional<std::pair<unsigned,unsigned>> AddToZigZagMatrix(boost::numeric::ublas::matrix<uint16_t> matrix, std::pair<unsigned,unsigned> position, uint16_t value);
 
 
 #endif // UTILITY_HPP

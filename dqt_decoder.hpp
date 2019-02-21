@@ -10,7 +10,7 @@ public:
 
     // IDecoder interface
 public:
-    void Invoke(Context &aContext) final;
+    void Invoke(std::ifstream& aStream, Context& aContext) final;
 };
 
 #endif // DQT_DECODER_HPP

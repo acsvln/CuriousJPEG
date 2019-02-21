@@ -26,7 +26,6 @@ void Processor::Execute(const std::string& path)
     // TODO: remove creepy swap_endians
     while (in) {
         uint16_t tag;
-        uint16_t size;
 
         // TODO: Here must be
         // in >> tag;
@@ -46,15 +45,17 @@ void Processor::Execute(const std::string& path)
             break;
         }
 
-        in.read(reinterpret_cast<char*>(&size),sizeof(uint16_t));
-
-        size = swap_endian(size);
-
-        std::cout << "Segment size:" << size << std::endl;
-
         if (mDecoders.count(tag) > 0) {
-            mDecoders[tag]->Invoke(context);
+            mDecoders[tag]->Invoke(in, context);
         } else {
+            uint16_t size;
+
+            in.read(reinterpret_cast<char*>(&size),sizeof(uint16_t));
+
+            size = swap_endian(size);
+
+            std::cout << "Segment size:" << size << std::endl;
+
             std::cout << "Unknown tag!" << std::endl;
             in.ignore(size - 2); // WATT? 2????
         }
