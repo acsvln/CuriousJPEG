@@ -17,6 +17,8 @@ CONFIG   += c++1z
 
 TEMPLATE = app
 
+include(conanbuildinfo.pri)
+
 SOURCES += main.cpp \
     processor.cpp \
     sof0_decoder.cpp \
@@ -34,3 +36,7 @@ HEADERS += \
 
 RESOURCES += \
     Resources.qrc
+
+DISTFILES += \
+    conanfile.txt \
+    .gitignore
