@@ -1,4 +1,4 @@
-#ifndef CONTEXT_HPP
+﻿#ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 
 #include <boost/numeric/ublas/matrix.hpp>
