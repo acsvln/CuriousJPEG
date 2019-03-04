@@ -6,6 +6,8 @@
 #include "sof0_decoder.hpp"
 #include "processor.hpp"
 
+#if 0
+
 int main(int argc, char* argv[])
 {
     try {
@@ -37,3 +39,5 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+
+#endif

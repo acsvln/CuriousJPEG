@@ -10,20 +10,19 @@ QT       -= core
 TARGET = CuriousJPEG
 
 CONFIG   -= app_bundle
-CONFIG   += console
+CONFIG   += console conan_basic_setup
 
 # C++17
 CONFIG   += c++1z
 
 TEMPLATE = app
 
-include(conanbuildinfo.pri)
-
 SOURCES += main.cpp \
     processor.cpp \
     sof0_decoder.cpp \
     dqt_decoder.cpp \
-    utility.cpp
+    utility.cpp \
+    zigzag_task.cpp
 
 HEADERS += \
     context.hpp \
@@ -40,3 +39,6 @@ RESOURCES += \
 DISTFILES += \
     conanfile.txt \
     .gitignore
+# INCLUDEPATH +=  D:\git\acsvln\CuriousJPEG\ublas\include\
+
+include(conanbuildinfo.pri)
