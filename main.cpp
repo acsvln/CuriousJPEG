@@ -6,6 +6,10 @@
 #include "sof0_decoder.hpp"
 #include "processor.hpp"
 
+int test (){
+
+    return 0;
+}
 #if 0
 
 int main(int argc, char* argv[])
