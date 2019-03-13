@@ -9,8 +9,12 @@ using std::cout;
 using std::endl;
 using std::array;
 using namespace std;
+
+
+
+static int x;
 static const int SIZE = 10;
-boost::numeric::ublas::matrix<int> A(SIZE,SIZE);
+static boost::numeric::ublas::matrix<int> A(SIZE,SIZE);
 
 const array<int,101> num = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,
 14,15,16,17,18,19,20,21,22,
@@ -19,17 +23,9 @@ const array<int,101> num = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,
 70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100};
 
 
-class ArrZigzag
-{
-private:
-    static const int SIZE = 10;
-    int arr[SIZE][SIZE];
-    int x;
-public:
-    ArrZigzag()
+ int   ArrZigzag()
     {
         int count = 0;
-        const int maxtrix = SIZE * SIZE;
         for (int i = 0; i < SIZE; i++)
         {
             x = i;
@@ -46,9 +42,10 @@ public:
                     A(SIZE - 1 - j,SIZE - 1 - x) = (num[100] - count + 1);
                 }
         }
+        return  0;
     }
 
-    void Show() const
+    void Show()
     {
         for (int i = 0; i < SIZE; i++)
         {
@@ -57,14 +54,10 @@ public:
             cout << endl;
         }
     }
-};
-int test(int argc, char* argv[])
-//int main(int argc, char** argv)
-{
 
-    setlocale(LC_ALL, "rus");
-    ArrZigzag arrZ;
-    arrZ.Show();
-    //END//
-    return 0;
+int output_zigzag(int argc, char* argv[])
+{    
+ ArrZigzag();
+ Show();
+ return 0;
 }
