@@ -23,7 +23,7 @@ SOURCES += main.cpp \
     dqt_decoder.cpp \
     utility.cpp \
     zigzag_task.cpp \
-    test.cpp
+
 
 HEADERS += \
     context.hpp \
