@@ -22,7 +22,6 @@ SOURCES += main.cpp \
     sof0_decoder.cpp \
     dqt_decoder.cpp \
     utility.cpp \
-    zigzag_task.cpp \
 
 
 HEADERS += \
