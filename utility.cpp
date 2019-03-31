@@ -4,10 +4,7 @@
 #include<iomanip>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <array>
- using std::cout;
- using std::endl;
- using std::array;
- using namespace std;
+using std::array;
 
 
  static uint16_t x;
@@ -38,12 +35,7 @@
                     }
             }
 
-            for (uint16_t i = 0; i < SIZE; i++)
-            {
-                for (uint16_t j = 0; j < SIZE; j++)
-                    cout << setw(4) << matrix(i, j);
-                cout << endl;
-            }
+            
 
 
         return matrix;
