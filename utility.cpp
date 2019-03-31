@@ -1,6 +1,6 @@
 ﻿//#include "pch.h"
 #include<iostream>
-#include<conio.h>
+
 #include<iomanip>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <array>

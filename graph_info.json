@@ -1,91 +1,31 @@
 {
- "profile": "[settings]\narch=x86_64\narch_build=x86_64\nbuild_type=Release\ncompiler=Visual Studio\ncompiler.runtime=MD\ncompiler.version=15\nos=Windows\nos_build=Windows\n[options]\n[build_requires]\n[env]\n",
+ "profile": "[settings]\narch=x86_64\narch_build=x86_64\nbuild_type=Release\ncompiler=gcc\ncompiler.libcxx=libstdc++\ncompiler.version=5\nos=Linux\nos_build=Linux\n[options]\n[build_requires]\n[env]\n", 
+ "root": {
+  "version": null, 
+  "name": null, 
+  "channel": null, 
+  "user": null
+ }, 
  "options": [
   [
-   "boost_atomic:shared",
+   "boost_chrono:shared", 
    "False"
-  ],
+  ], 
   [
-   "boost_chrono:shared",
+   "boost_exception:shared", 
    "False"
-  ],
+  ], 
   [
-   "boost_container:shared",
+   "boost_system:shared", 
    "False"
-  ],
+  ], 
   [
-   "boost_exception:shared",
+   "boost_test:shared", 
    "False"
-  ],
+  ], 
   [
-   "boost_filesystem:shared",
-   "False"
-  ],
-  [
-   "boost_iostreams:shared",
-   "False"
-  ],
-  [
-   "boost_iostreams:use_bzip2",
-   "True"
-  ],
-  [
-   "boost_iostreams:use_lzma",
-   "True"
-  ],
-  [
-   "boost_iostreams:use_zlib",
-   "True"
-  ],
-  [
-   "boost_level11group:shared",
-   "False"
-  ],
-  [
-   "boost_level11group:use_icu",
-   "False"
-  ],
-  [
-   "boost_level8group:shared",
-   "False"
-  ],
-  [
-   "boost_random:shared",
-   "False"
-  ],
-  [
-   "boost_regex:shared",
-   "False"
-  ],
-  [
-   "boost_regex:use_icu",
-   "False"
-  ],
-  [
-   "boost_system:shared",
-   "False"
-  ],
-  [
-   "bzip2:shared",
-   "False"
-  ],
-  [
-   "lzma:shared",
-   "False"
-  ],
-  [
-   "zlib:minizip",
-   "False"
-  ],
-  [
-   "zlib:shared",
+   "boost_timer:shared", 
    "False"
   ]
- ],
- "root": {
-  "name": null,
-  "version": null,
-  "user": null,
-  "channel": null
- }
+ ]
 }
