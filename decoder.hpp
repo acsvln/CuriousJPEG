@@ -10,7 +10,7 @@ class IDecoder
 public:
     virtual ~IDecoder() = default;
 
-    virtual void Invoke(std::ifstream& aStream, Context& aContext) = 0;
+    virtual void Invoke(std::istream& aStream, Context& aContext) = 0;
 };
 
 #endif // DECODER_HPP
