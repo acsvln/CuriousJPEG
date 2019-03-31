@@ -7,7 +7,6 @@
 #include "processor.hpp"
 
 
-#if 0
 
 int main(int argc, char* argv[])
 {
@@ -41,4 +40,3 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-#endif

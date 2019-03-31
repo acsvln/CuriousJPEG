@@ -3,7 +3,7 @@
 #include <fstream>
 #include "utility.hpp"
 
-void DQTDecoder::Invoke(std::ifstream& aStream, Context& aContext)
+void DQTDecoder::Invoke(std::istream& aStream, Context& aContext)
 {
     std::cout << "Invoking DQTDecoder" << std::endl;
 
