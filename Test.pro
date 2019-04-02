@@ -19,7 +19,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main_t.cpp \
     sof0_decoder_t.cpp \
-    sof0_decoder.cpp
+    sof0_decoder.cpp \
+    utility.cpp \
+    utility_t.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -35,4 +37,5 @@ include(conanbuildinfo.pri)
 HEADERS += \
     sof0_decoder.hpp \
     decoder.hpp \
-    context.hpp
+    context.hpp \
+    utility.hpp
