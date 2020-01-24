@@ -1,6 +1,6 @@
-#include "dhtdecoder.h"
+#include "dht_decoder.h"
 
-DHTDecoder::DHTDecoder()
+void DHTDecoder::Invoke(Context &aContext)
 {
 
 }

@@ -1,11 +1,16 @@
-#ifndef DHTDECODER_H
-#define DHTDECODER_H
+#ifndef DHT_DECODER_H
+#define DHT_DECODER_H
 
+#include "decoder.hpp"
 
 class DHTDecoder : public IDecoder
 {
 public:
-    DHTDecoder();
+    ~DHTDecoder() final = default;
+
+    // IDecoder interface
+public:
+    void Invoke(Context &aContext) final;
 };
 
-#endif // DHTDECODER_H
+#endif // DHT_DECODER_H
