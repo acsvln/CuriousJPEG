@@ -3,22 +3,16 @@
 
 #include <cstddef>
 
-// TODO: remove that helper
-template <typename T>
-        T swap_endian(T u)
+#include <boost/endian/conversion.hpp>
+
+template<class NumberType, class StreamType>
+NumberType ReadNumberFromStream( StreamType& aStream )
 {
-    union
-    {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
+    namespace be = boost::endian;
 
-    source.u = u;
-
-    for (std::size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
+    NumberType buffer;
+    aStream.read(reinterpret_cast<char*>(&buffer),sizeof(buffer));
+    return be::native_to_big(buffer);
 }
 
 
