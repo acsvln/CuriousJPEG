@@ -1,5 +1,6 @@
 [requires]
 boost_numeric_ublas/1.66.0@bincrafters/stable
+boost_endian/1.66.0@bincrafters/stable
 
 [generators]
 qmake

@@ -13,7 +13,7 @@ public:
     using DecoderPtr = std::unique_ptr<IDecoder>;
 
     void RegisterDecoder(uint16_t aTag, DecoderPtr aDecoder);
-    void Execute(const std::string& path);
+    void Execute(const std::string& aPath);
 
 private:
     std::map<uint16_t, DecoderPtr> mDecoders;
