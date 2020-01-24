@@ -36,4 +36,5 @@ HEADERS += \
 
 DISTFILES += \
     conanfile.txt \
-    .gitignore
+    .gitignore \
+    README.md
