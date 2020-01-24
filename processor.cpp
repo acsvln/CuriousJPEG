@@ -3,25 +3,12 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <boost/endian/conversion.hpp>
 
 #include "decoder.hpp"
 #include "definition.hpp"
 #include "utility.hpp"
 
-namespace {
-
-namespace be = boost::endian;
-
-template<class NumberType, class StreamType>
-NumberType ReadNumberFromStream( StreamType& aStream )
-{
-    NumberType buffer;
-    aStream.read(reinterpret_cast<char*>(&buffer),sizeof(buffer));
-    return be::native_to_big(buffer);
-}
-
-}
+//             std::cout << "Segment size: " << size << " bytes" << std::endl;
 
 void Processor::RegisterDecoder(uint16_t aTag, Processor::DecoderPtr aDecoder)
 {
@@ -54,13 +41,10 @@ void Processor::Execute(const std::string& aPath)
             break;
         }
 
-        const auto size = ReadNumberFromStream<uint16_t>(in);
-
-        std::cout << "Segment size: " << size << " bytes" << std::endl;
-
         if (mDecoders.count(tag) > 0) {
-            mDecoders[tag]->Invoke(context);
+            mDecoders[tag]->Invoke(in, context);
         } else {
+            const auto size = ReadNumberFromStream<uint16_t>(in);
             std::streamsize skipByteCount = size - sizeof(size);
 
             std::cout << "Unknown tag!" << std::endl;
