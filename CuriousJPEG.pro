@@ -10,7 +10,7 @@ QT       -= core
 TARGET = CuriousJPEG
 
 CONFIG   -= app_bundle
-CONFIG   += console
+CONFIG   += console conan_basic_setup
 
 # C++17
 CONFIG   += c++1z
@@ -34,9 +34,7 @@ HEADERS += \
     definition.hpp \
     utility.hpp
 
-RESOURCES += \
-    Resources.qrc
-
 DISTFILES += \
     conanfile.txt \
-    .gitignore
+    .gitignore \
+    README.md
