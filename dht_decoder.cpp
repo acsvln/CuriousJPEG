@@ -90,10 +90,6 @@ std::shared_ptr<DHTNode> PushHuffValueImplementation(std::shared_ptr<DHTNode> pa
 
 }
 
-
-
-
-
 void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
 {
     static constexpr std::size_t HuffCodeCount = 16;
@@ -101,12 +97,12 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
     static constexpr uint8_t HuffClassAC = 1u;
 
     const auto extractHuffTableVector = [&](const uint8_t tableClass)
-            -> std::vector<DHTNode>& {
+            -> std::vector<std::shared_ptr<DHTNode>>& {
         switch (tableClass) {
         case HuffClassDC:
-            return aContext.AC_HuffmanTables;
-        case HuffClassAC:
             return aContext.DC_HuffmanTables;
+        case HuffClassAC:
+            return aContext.AC_HuffmanTables;
         }
 
         std::stringstream ss;
@@ -121,10 +117,10 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
     const uint8_t tableClass = description >> 4;
     const uint8_t tableIndex = description & 0xF;
 
-    auto huffVector = extractHuffTableVector(tableClass);
+    auto& huffVector = extractHuffTableVector(tableClass);
 
-    if (huffVector.size() < tableIndex ) {
-        huffVector.resize(tableIndex);
+    if (huffVector.size() <= tableIndex ) {
+        huffVector.resize(tableIndex + 1);
     }
 
     const auto root = std::make_shared<DHTNode>();
@@ -133,7 +129,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
 
     static_assert( sizeof(std::istream::char_type) == sizeof(std::array<uint8_t, HuffCodeCount>::value_type) );
     static_assert( sizeof(std::istream::char_type*) == sizeof(std::array<uint8_t, HuffCodeCount>::pointer) );
-    aStream.read(reinterpret_cast<std::istream::char_type*>(huffCodes.data()),HuffCodeCount);
+    aStream.read(reinterpret_cast<std::istream::char_type*>(huffCodes.data()),sizeof(huffCodes));
 
     for (std::size_t index = 0; index<huffCodes.size(); ++index) {
         uint8_t count = huffCodes[index];
@@ -141,14 +137,16 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
             continue;
         }
 
-        std::vector<uint8_t> huffData{ count };
-        aStream.read(reinterpret_cast<std::istream::char_type*>(huffData.data()),count);
+        std::vector<uint8_t> huffData;
+        huffData.resize(count);
+        aStream.read(reinterpret_cast<std::istream::char_type*>(huffData.data()),huffData.size()* sizeof (uint8_t));
 
         for (uint8_t code : huffData) {
             PushHuffValueImplementation(root, index, code, 0);
         }
     }
-   //  huffVector[tableIndex] = root;
+
+    huffVector[tableIndex] = root;
 }
 
 std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value)
