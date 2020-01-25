@@ -19,8 +19,8 @@ struct DHTNode
 
 struct Context
 {
-    std::vector<DHTNode> AC_HuffmanTables;
-    std::vector<DHTNode> DC_HuffmanTables;
+    std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables;
+    std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables;
 };
 
 #endif // CONTEXT_HPP
