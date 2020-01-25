@@ -29,7 +29,7 @@ SOURCES += main.cpp \
 HEADERS += \
     context.hpp \
     decoder.hpp \
-    dht_decoder.h \
+    dht_decoder.hpp \
     processor.hpp \
     sof0_decoder.hpp \
     dqt_decoder.hpp \
