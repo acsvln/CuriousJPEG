@@ -8,8 +8,6 @@
 #include "definition.hpp"
 #include "utility.hpp"
 
-//             std::cout << "Segment size: " << size << " bytes" << std::endl;
-
 void Processor::RegisterDecoder(uint16_t aTag, Processor::DecoderPtr aDecoder)
 {
     mDecoders.emplace(aTag, std::move(aDecoder));
