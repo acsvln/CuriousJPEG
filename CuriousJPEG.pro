@@ -20,6 +20,7 @@ TEMPLATE = app
 include(conanbuildinfo.pri)
 
 SOURCES += main.cpp \
+    dht_decoder.cpp \
     processor.cpp \
     sof0_decoder.cpp \
     dqt_decoder.cpp \
@@ -28,6 +29,7 @@ SOURCES += main.cpp \
 HEADERS += \
     context.hpp \
     decoder.hpp \
+    dht_decoder.hpp \
     processor.hpp \
     sof0_decoder.hpp \
     dqt_decoder.hpp \
