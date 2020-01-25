@@ -6,30 +6,18 @@
 
 void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
 {
-    std::cout << "Invoking SOF0Decoder" << std::endl;
+    const auto size = ReadNumberFromStream<uint16_t>(aStream);
+    printSectionDescription("Baseline DCT", size);
 
-    uint16_t size;
-    aStream.read(reinterpret_cast<char*>(&size),sizeof(uint16_t));
-    size = swap_endian(size);
-
-    uint8_t precision;
-    uint16_t height;
-    uint16_t width;
-
-    aStream.read(reinterpret_cast<char*>(&precision),sizeof(uint8_t));
-    aStream.read(reinterpret_cast<char*>(&height),sizeof(uint16_t));
-    aStream.read(reinterpret_cast<char*>(&width),sizeof(uint16_t));
-
-    height = swap_endian(height);
-    width = swap_endian(width);
+    const auto precision = ReadNumberFromStream<uint8_t>(aStream);
+    const auto height = ReadNumberFromStream<uint16_t>(aStream);
+    const auto width = ReadNumberFromStream<uint16_t>(aStream);
 
     aContext.dct.precision = precision;
     aContext.dct.height = height;
     aContext.dct.width = width;
 
-    uint8_t unitsCount = 0x00;
-
-    aStream.read(reinterpret_cast<char*>(&unitsCount),sizeof(unitsCount));
+    const auto unitsCount = ReadNumberFromStream<uint8_t>(aStream);
     aContext.dct.components.resize(unitsCount);
 
     uint32_t maxH = 0, maxV = 0;
@@ -38,7 +26,8 @@ void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
     {
         DCTComponent component;
 
-        aStream.read((char*)&component,sizeof(DCTComponent)); // TODO: Remove that shit
+        // TODO: Remove that shit
+        aStream.read((char*)&component,sizeof(DCTComponent));
 
         if (component.h > maxH) {
             aContext.dct.maxH = component.h;
