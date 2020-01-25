@@ -25,10 +25,10 @@ void Processor::Execute(const std::string& aPath)
 
     Context context;
 
+    bool startOfScan = false;
+
     while (in) {
         const auto tag = ReadNumberFromStream<uint16_t>(in);
-
-        std::cout << "Tag with code 0x" << std::hex << std::uppercase << tag << " was readed" << std::endl;
 
         if (kJpgTagStartOfImage == tag) {
             std::cout << "Start of image" << std::endl;
@@ -37,6 +37,18 @@ void Processor::Execute(const std::string& aPath)
         if (kJpgTagEndOfImage == tag) {
             std::cout << "End of image" << std::endl;
             break;
+        }
+
+        if (startOfScan)
+        {
+            continue;
+        }
+
+        std::cout << "Tag with code 0x" << std::hex << std::uppercase << tag << " was readed" << std::endl;
+
+        if (kJpgTagStartOfScan == tag) {
+            startOfScan = true;
+            continue;
         }
 
         if (mDecoders.count(tag) > 0) {
