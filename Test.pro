@@ -17,22 +17,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    dht_decoder_t.cpp \
         main_t.cpp \
-    sof0_decoder_t.cpp \
-    sof0_decoder.cpp
+    dht_decoder.cpp \
+utility.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES += \
-    conanfile.txt \
-    .gitignore
-
 include(conanbuildinfo.pri)
 
 HEADERS += \
-    sof0_decoder.hpp \
+    dht_decoder.hpp \
     decoder.hpp \
-    context.hpp
+    context.hpp \
+utility.hpp
+
