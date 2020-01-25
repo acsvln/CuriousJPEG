@@ -3,8 +3,11 @@
 
 #include "definition.hpp"
 #include "dqt_decoder.hpp"
+#include "dht_decoder.hpp"
 #include "sof0_decoder.hpp"
 #include "processor.hpp"
+
+
 
 int main(int argc, char* argv[])
 {
@@ -18,7 +21,8 @@ int main(int argc, char* argv[])
 
         Processor processor;
 
-        processor.RegisterDecoder(kJpgTagQuantTableDef, std::make_unique<DQTDecoder>());
+        // processor.RegisterDecoder(kJpgTagQuantTableDef, std::make_unique<DQTDecoder>());
+        processor.RegisterDecoder(kJpgTagHuffmanTableDef, std::make_unique<DHTDecoder>());
         processor.RegisterDecoder(kJpgTagHuffBaselineDCT, std::make_unique<SOF0Decoder>());
 
         processor.Execute(path);
@@ -37,3 +41,4 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+
