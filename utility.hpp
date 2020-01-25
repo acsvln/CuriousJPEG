@@ -2,6 +2,7 @@
 #define UTILITY_HPP
 
 #include <cstddef>
+#include <string>
 
 #include <boost/endian/conversion.hpp>
 
@@ -15,5 +16,6 @@ NumberType ReadNumberFromStream( StreamType& aStream )
     return be::native_to_big(buffer);
 }
 
+void printSectionDescription(const std::string& name, std::size_t size);
 
 #endif // UTILITY_HPP
