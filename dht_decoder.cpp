@@ -2,7 +2,9 @@
 
 #include <iostream>
 
-std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value, uint8_t currentLevel, bool direction)
+namespace {
+
+std::shared_ptr<DHTNode> PushHuffValueImplementation(std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value, uint8_t currentLevel  = 0, bool direction = false)
 {
     // when reach correct level - try to create leaf
     if (level == currentLevel) {
@@ -53,7 +55,7 @@ std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent, uint8_t 
         node = parent->parent.lock();
         nextLevel = currentLevel - 1;
         return false;
-    };  
+    };
 
     if ( !direction ) {
         bool checked = checkChild(parent->left);
@@ -76,18 +78,21 @@ std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent, uint8_t 
         }
     }
 
-    auto inserted = PushHuffValue(node, level, value, nextLevel, toUp);
+    auto inserted = PushHuffValueImplementation(node, level, value, nextLevel, toUp);
 
     if ( (inserted != nullptr) || ( currentLevel == 0) ) {
         return inserted;
     }
 
     toUp = true;
-    return PushHuffValue(node, level, value, nextLevel, toUp);
+    return PushHuffValueImplementation(node, level, value, nextLevel, toUp);
 }
 
-namespace {
 }
+
+
+
+
 
 void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
 {
@@ -140,8 +145,13 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext)
         aStream.read(reinterpret_cast<std::istream::char_type*>(huffData.data()),count);
 
         for (uint8_t code : huffData) {
-            PushHuffValue(root, index, code, 0);
+            PushHuffValueImplementation(root, index, code, 0);
         }
     }
    //  huffVector[tableIndex] = root;
+}
+
+std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value)
+{
+    return PushHuffValueImplementation(parent, level, value);
 }
