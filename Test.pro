@@ -24,7 +24,8 @@ SOURCES += \
     sof0_decoder_t.cpp \
     dht_decoder.cpp \
     sof0_decoder.cpp \
-    utility.cpp
+    utility.cpp \
+    utility_t.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
