@@ -22,39 +22,6 @@ std::ostream& boost_test_print_type(std::ostream& ostr, std::array<uint16_t, 64>
 
 }
 
-namespace boost::numeric::ublas {
-
-std::ostream& boost_test_print_type(std::ostream& ostr, boost::numeric::ublas::matrix<uint16_t> const& right) {
-    ostr << right;
-    return ostr;
-}
-
-bool operator==( const boost::numeric::ublas::matrix<uint16_t>& left, const boost::numeric::ublas::matrix<uint16_t>& right ) {
-    using size_type = boost::numeric::ublas::matrix<uint16_t>::size_type;
-
-    if (left.size1() != right.size1()) {
-        return false;
-    }
-
-    if (left.size2() != right.size2()){
-        return false;
-    }
-
-    for(size_type i=0;i< left.size1();++i)
-    {
-        for (size_type j=0;j<left.size2();++j)
-        {
-            if (left(i,j) != right(i,j)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-}
-
 BOOST_AUTO_TEST_SUITE(UtilityTests)
 
 BOOST_AUTO_TEST_CASE(CreateZigZagMatrix_DQT) {
