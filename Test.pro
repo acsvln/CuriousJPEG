@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(conanbuildinfo.pri)
 
 SOURCES += \
+    dqt_decoder_t.cpp \
     main_t.cpp \
     dht_decoder_t.cpp \
     sof0_decoder_t.cpp \
