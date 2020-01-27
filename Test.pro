@@ -24,6 +24,7 @@ SOURCES += \
     dht_decoder_t.cpp \
     sof0_decoder_t.cpp \
     dht_decoder.cpp \
+    dqt_decoder.cpp \
     sof0_decoder.cpp \
     utility.cpp \
     utility_t.cpp

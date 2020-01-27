@@ -5,6 +5,10 @@
 #include <optional>
 #include <vector>
 
+#include <boost/numeric/ublas/matrix.hpp>
+
+using DQTMatrix = boost::numeric::ublas::matrix<uint16_t>;
+
 struct DCTComponent
 {
     uint8_t id:8;
@@ -38,6 +42,7 @@ struct DHTNode
 
 struct Context
 {
+    std::vector<DQTMatrix> DQT_Vector;
     std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables;
     std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables;
     DCTTable dct;
