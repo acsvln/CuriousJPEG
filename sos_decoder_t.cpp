@@ -65,6 +65,25 @@ BOOST_AUTO_TEST_CASE(BitExtractor) {
     BOOST_REQUIRE(extractor.nextNumber() == 1);
 }
 
+BOOST_AUTO_TEST_CASE(BitExtractor_WithLength) {
+    const std::array<char, 4> data = {
+        (char)0b10101001, 0b01111011, 0b01100101, 0b00000001
+    };
+
+    basic_array_source<char> input_source(data.data(), data.size());
+    stream<basic_array_source<char>> input_stream(input_source);
+
+    SOSDecoder::BitExtractor extractor{ input_stream };
+
+    //-------------------------------------
+    BOOST_REQUIRE(extractor.nextNumber( 6 ) == 0b101010);
+    BOOST_REQUIRE(extractor.nextNumber( 7 ) == 0b0101111);
+    BOOST_REQUIRE(extractor.nextNumber( 8 ) == 0b01101100);
+    BOOST_REQUIRE(extractor.nextNumber( 5 ) == 0b10100);
+    BOOST_REQUIRE(extractor.nextNumber( 2 ) == 0b00);
+    BOOST_REQUIRE(extractor.nextNumber( 4 ) == 0b0001);
+}
+
 BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
     boost::numeric::ublas::matrix<char> expected(8, 8);
     expected <<=    2,  0,  3, 0, 0, 0, 0, 0,

@@ -13,22 +13,24 @@ SOSDecoder::BitExtractor::BitExtractor( std::istream &aStream )
     : mStream{ aStream }
 {}
 
-uint8_t SOSDecoder::BitExtractor::nextNumber() {
-    if ( 0 == mCounter ) {
-        mbits = static_cast<unsigned>( mStream.get() );
-        mCounter = mbits.size();
+uint8_t SOSDecoder::BitExtractor::nextNumber( std::size_t bit_cnt ) {
+    if ( 0 == bit_cnt || bit_cnt > 8) {
+        // TODO: ASSERT
+        throw "wtf";
     }
-    mCounter--;
-    return mbits.test( mCounter ) ? 1 : 0;
-}
 
-uint8_t SOSDecoder::BitExtractor::readBits(std::size_t cnt)
-{
-    std::bitset<8> buffer;
-    for ( std::size_t i = 0; i < cnt; i++ ) {
-        buffer[i] = nextNumber();
+    std::bitset<8> result;
+
+    for ( int i = bit_cnt - 1; i >= 0; --i ) {
+        if ( 0 == mCounter ) {
+            mbits = static_cast<unsigned>( mStream.get() );
+            mCounter = mbits.size();
+        }
+        mCounter--;
+        result[i] = mbits[mCounter];
     }
-    return buffer.to_ulong();
+
+    return result.to_ulong();
 }
 
 boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
@@ -60,7 +62,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     if ( DC_value == 0 ) {
         buffer[0] = 0;
     } else {
-        buffer[0] = extractor.readBits( DC_value );
+        buffer[0] = extractor.nextNumber( DC_value );
         // tODO: пофиксить цифру
     }
 
@@ -78,7 +80,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
         auto null_cnt = ( AC_value & 0xF0 ) >> 4;
         const auto coeff_len = AC_value & 0xF;
         const auto coeff =   (coeff_len != 0)
-                            ? extractor.readBits( coeff_len )
+                            ? extractor.nextNumber( coeff_len )
                             : 0;
 
         while ( null_cnt > 0 ) {
@@ -170,31 +172,3 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
 //        aContext.Image.push_back(rgb);
 //    }
 }
-
-
-
-#if 0
-
-//        uint8_t nextNumber();
-
-//-------------------------------------
-// uint8_t mNumber;
-//        static_assert((sizeof(std::istream::char_type) == sizeof(uint8_t)));
-
-
-uint8_t SOSDecoder::BitExtractor::nextNumber() {
-    if ( 0 == mCounter ) {
-        mNumber = static_cast<uint8_t>(mStream.get());
-        mCounter = 8;
-    }
-
-    std::cout << std::bitset<8>(mNumber) << std::endl;
-
-    uint8_t const result = (0x80 & mNumber) >> 7;
-
-    mNumber <<= 1;
-    mCounter--;
-    return result;
-}
-
-#endif

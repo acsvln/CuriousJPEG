@@ -12,10 +12,10 @@ public:
     public:
         explicit
         BitExtractor( std::istream &aStream );
-        uint8_t nextNumber();
-        uint8_t readBits( std::size_t cnt );
+        uint8_t nextNumber( std::size_t bit_cnt = 1 );
 
     private:
+
         std::bitset<8> mbits;
         std::size_t mCounter = 0;
         std::istream &mStream;
