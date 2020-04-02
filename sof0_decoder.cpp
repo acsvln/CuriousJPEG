@@ -29,14 +29,19 @@ void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
         // TODO: Remove that shit
         aStream.read((char*)&component,sizeof(DCTComponent));
 
+        // TODO: For max/min write test
+
         if (component.h > maxH) {
-            aContext.dct.maxH = component.h;
+            maxH = component.h;
         }
 
         if (component.v > maxV) {
-            aContext.dct.maxV = component.v;
-        }
+            maxV = component.v;
+        }        
 
         aContext.dct.components[cx] = component;
     }
+
+    aContext.dct.maxH = maxH;
+    aContext.dct.maxV = maxV;
 }
