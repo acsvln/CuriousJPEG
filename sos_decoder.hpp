@@ -22,6 +22,11 @@ public:
     };
 
     static
+    std::shared_ptr<DHTNode> LocateNodeInTree(
+        BitExtractor& extractor,
+        const std::shared_ptr<DHTNode>& AC_Table );
+
+    static
     boost::numeric::ublas::matrix<uint8_t> ReadMatrix(
         BitExtractor&,
         const std::shared_ptr<DHTNode>& AC_Table,

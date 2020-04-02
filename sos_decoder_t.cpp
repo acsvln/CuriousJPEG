@@ -12,6 +12,35 @@ using namespace std;
 
 #include "sos_decoder.hpp"
 
+//// TODO: в общий модуль
+//namespace boost::numeric::ublas {
+
+//bool operator==(const boost::numeric::ublas::matrix<char> &left, const boost::numeric::ublas::matrix<char> &right) {
+//    using size_type = boost::numeric::ublas::matrix<char>::size_type;
+
+//    if (left.size1() != right.size1()) {
+//        return false;
+//    }
+
+//    if (left.size2() != right.size2()){
+//        return false;
+//    }
+
+//    for(size_type i=0;i< left.size1();++i)
+//    {
+//        for (size_type j=0;j<left.size2();++j)
+//        {
+//            if (left(i,j) != right(i,j)) {
+//                return false;
+//            }
+//        }
+//    }
+
+//    return true;
+//}
+
+//}
+
 BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
 
 BOOST_AUTO_TEST_CASE(BitExtractor) {
@@ -84,8 +113,202 @@ BOOST_AUTO_TEST_CASE(BitExtractor_WithLength) {
     BOOST_REQUIRE(extractor.nextNumber( 4 ) == 0b0001);
 }
 
+BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_0) {
+    const std::array<char, 1> data = { (char)0b10000000 };
+
+    basic_array_source<char> input_source(data.data(), data.size());
+    stream<basic_array_source<char>> input_stream(input_source);
+
+    SOSDecoder::BitExtractor extractor{ input_stream };
+
+    std::shared_ptr<DHTNode> root = std::make_shared<DHTNode>();
+    root->left = std::make_shared<DHTNode>();
+    root->left->data = 0x03;
+
+    root->right = std::make_shared<DHTNode>();
+    root->right->left = std::make_shared<DHTNode>();
+    root->right->left->data = 0x02;
+
+    const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+    BOOST_CHECK_EQUAL(located, root->right->left);
+}
+
+BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_0) {
+    const auto root = std::make_shared<DHTNode>();
+
+//  const auto node_0_1 = PushHuffValue(root, 0, 0x01);
+//  BOOST_REQUIRE(root->left == node_0_1);
+    root->left = std::make_shared<DHTNode>();
+    root->left->data = 0x01;
+
+//  const auto node_2_1 = PushHuffValue(root, 2, 0x00);
+//  const auto node_2_2 = PushHuffValue(root, 2, 0x12);
+//  BOOST_REQUIRE(root->right->left->left == node_2_1);
+//  BOOST_REQUIRE(root->right->left->right == node_2_2);
+    root->right = std::make_shared<DHTNode>();
+    root->right->left = std::make_shared<DHTNode>();
+    root->right->left->left = std::make_shared<DHTNode>();
+    root->right->left->left->data = 0x00;
+    root->right->left->right = std::make_shared<DHTNode>();
+    root->right->left->right->data = 0x12;
+
+//  const auto node_3_1 = PushHuffValue(root, 3, 0x02);
+//  const auto node_3_2 = PushHuffValue(root, 3, 0x11);
+//  const auto node_3_3 = PushHuffValue(root, 3, 0x31);
+//  BOOST_REQUIRE(root->right->right->left->left == node_3_1);
+//  BOOST_REQUIRE(root->right->right->left->right == node_3_2);
+//  BOOST_REQUIRE(root->right->right->right->left == node_3_3);
+    root->right->right = std::make_shared<DHTNode>();
+    root->right->right->left = std::make_shared<DHTNode>();
+    root->right->right->left->left = std::make_shared<DHTNode>();
+    root->right->right->left->left->data = 0x02;
+    root->right->right->left->right = std::make_shared<DHTNode>();
+    root->right->right->left->right->data = 0x11;
+    root->right->right->right = std::make_shared<DHTNode>();
+    root->right->right->right->left = std::make_shared<DHTNode>();
+    root->right->right->right->left->data = 0x31;
+
+//  const auto node_4_31= PushHuffValue(root, 4, 0x21);
+//  BOOST_REQUIRE(root->right->right->right->right->left == node_4_31);
+    root->right->right->right->right = std::make_shared<DHTNode>();
+    root->right->right->right->right->left = std::make_shared<DHTNode>();
+    root->right->right->right->right->left->data = 0x21;
+
+    {
+        const std::array<char, 1> data = { (char)0b11100000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->right->right->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b11000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->right->left->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b10100000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->left->right);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b00000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b00000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b11110000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->right->right->right->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b10000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->left->left);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_1) {
+    const std::array<char, 1> data = { (char)0b10000000 };
+
+    basic_array_source<char> input_source(data.data(), data.size());
+    stream<basic_array_source<char>> input_stream(input_source);
+
+    SOSDecoder::BitExtractor extractor{ input_stream };
+
+    std::shared_ptr<DHTNode> root = std::make_shared<DHTNode>();
+    root->left = std::make_shared<DHTNode>();
+    root->left->data = 0x00;
+
+    root->right = std::make_shared<DHTNode>();
+    root->right->left = std::make_shared<DHTNode>();
+    root->right->left->data = 0x01;
+
+    const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+    BOOST_CHECK_EQUAL(located, root->right->left);
+}
+
+BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_1) {
+    const auto root = std::make_shared<DHTNode>();
+
+//  const auto node_0_1 = PushHuffValue(root, 0, 0x11 );
+//  BOOST_REQUIRE(root->left == node_0_1);
+    root->left = std::make_shared<DHTNode>();
+    root->left->data = 0x11;
+
+//  const auto node_1_1 = PushHuffValue(root, 1, 0x00);
+//  BOOST_REQUIRE(root->right->left == node_1_1);
+    root->right = std::make_shared<DHTNode>();
+    root->right->left = std::make_shared<DHTNode>();
+    root->right->left->data = 0x00;
+
+//  const auto node_3_1 = PushHuffValue(root, 2, 0x01);
+//  BOOST_REQUIRE(root->right->right->left == node_3_1);
+    root->right->right = std::make_shared<DHTNode>();
+    root->right->right->left = std::make_shared<DHTNode>();
+    root->right->right->left->data = 0x01;
+
+    {
+        const std::array<char, 1> data = { (char)0b00000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b10000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->left);
+    }
+
+    {
+        const std::array<char, 1> data = { (char)0b11000000 };
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+        SOSDecoder::BitExtractor extractor{ input_stream };
+        const auto located = SOSDecoder::LocateNodeInTree( extractor, root );
+        BOOST_CHECK_EQUAL(located, root->right->right->left);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
-    boost::numeric::ublas::matrix<char> expected(8, 8);
+#ifdef NOT_WORKING
+    boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<=    2,  0,  3, 0, 0, 0, 0, 0,
                     0,  1,  2, 0, 0, 0, 0, 0,
                     0, -1, -1, 0, 0, 0, 0, 0,
@@ -114,7 +337,9 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
     };
 
     //-------------------------------------
-
+    const auto matrix = SOSDecoder::ReadMatrix( extractor, AC_HuffmanTables, DC_HuffmanTables );
+    BOOST_CHECK_EQUAL(expected, matrix);s
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(Invoke) {

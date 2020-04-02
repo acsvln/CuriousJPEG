@@ -33,6 +33,25 @@ uint8_t SOSDecoder::BitExtractor::nextNumber( std::size_t bit_cnt ) {
     return result.to_ulong();
 }
 
+
+//-------------------------------------
+std::shared_ptr<DHTNode> SOSDecoder::LocateNodeInTree(
+          BitExtractor& extractor
+        , const std::shared_ptr<DHTNode>& tree ){
+    std::shared_ptr<DHTNode> node = tree;
+    do {
+        const auto next_number = extractor.nextNumber();
+        if ( 0 == next_number ) {
+            node = node->left;
+        } else if (  1 == next_number ) {
+            node = node->right;
+        } else {
+            assert( false );
+        }
+    } while( false == node->IsLeaf() );
+    return node;
+}
+
 boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     BitExtractor& extractor,
     const std::shared_ptr<DHTNode>& AC_Table,
