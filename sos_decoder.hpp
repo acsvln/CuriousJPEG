@@ -29,8 +29,8 @@ public:
     static
     boost::numeric::ublas::matrix<uint8_t> ReadMatrix(
         BitExtractor&,
-        const std::shared_ptr<DHTNode>& AC_Table,
-        const std::shared_ptr<DHTNode>& DC_Table );
+        const std::shared_ptr<DHTNode>& DC_Table,
+        const std::shared_ptr<DHTNode>& AC_Table );
 
 public:
     ~SOSDecoder() final = default;
