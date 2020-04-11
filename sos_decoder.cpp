@@ -48,71 +48,72 @@ std::shared_ptr<DHTNode> SOSDecoder::LocateNodeInTree(
         } else {
             assert( false );
         }
+        if ( nullptr == node ) {
+            assert( false );
+        }
     } while( false == node->IsLeaf() );
     return node;
 }
 
 boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     BitExtractor& extractor,
-    const std::shared_ptr<DHTNode>& AC_Table,
-    const std::shared_ptr<DHTNode>& DC_Table )
+    const std::shared_ptr<DHTNode>& DC_Table,
+    const std::shared_ptr<DHTNode>& AC_Table )
 {
-    const auto locate_node = [&]( const auto& table ){
-        std::shared_ptr<DHTNode> node{ nullptr };
-        do {
-            const auto next_number = extractor.nextNumber();
-            if ( 0 == next_number ) {
-                node = table->left;
-            } else if (  1 == next_number ) {
-                node = table->right;
-            } else {
-                assert( false );
-            }
-        } while( false == node->IsLeaf() );
-        return node;
-    };
-
     std::array<uint16_t, 64> buffer = {0};
 
-    boost::numeric::ublas::matrix<uint8_t> result{ 8, 8, 0u };
+    const auto fixNum = []( uint8_t const num, std::size_t const length ) -> uint8_t {
+        std::bitset<8> set = num;
+        if ( set[length - 1] == 0 ) {
+            return num - std::pow( 2, length ) + 1;
+        }
+        return num;
+    };
 
-    const auto DC_node = locate_node( DC_Table );
+    const auto DC_node = LocateNodeInTree( extractor, DC_Table );
     const auto DC_value = DC_node->data.value();
     if ( DC_value == 0 ) {
         buffer[0] = 0;
     } else {
-        buffer[0] = extractor.nextNumber( DC_value );
-        // tODO: пофиксить цифру
+        uint8_t num = extractor.nextNumber( DC_value );
+        buffer[0] = fixNum( num, DC_value );
     }
 
-    const auto AC_node = locate_node( AC_Table );
-    const auto AC_value = AC_node->data.value();
-    if ( 0 == AC_value ) {
-        // матрица уже заполнена нулями
-        return CreateZigZagMatrix( buffer );
-    }
+    auto it = buffer.begin() + 1;
 
-    auto it = buffer.begin();
-    const auto end_it = buffer.end();
     do
     {
-        auto null_cnt = ( AC_value & 0xF0 ) >> 4;
-        const auto coeff_len = AC_value & 0xF;
-        const auto coeff =   (coeff_len != 0)
-                            ? extractor.nextNumber( coeff_len )
-                            : 0;
+        const auto AC_node = LocateNodeInTree( extractor, AC_Table );
 
-        while ( null_cnt > 0 ) {
-            // проверка
-            *it;
-            --null_cnt;
+        if ( nullptr == AC_node ) {
+            throw "bad";
+        }
+
+        const auto AC_value = AC_node->data.value();
+        if ( 0 == AC_value ) {
+            // матрица уже заполнена нулями
+            return CreateZigZagMatrix( buffer );
+        }
+
+        // добавляем нули
+        auto null_cnt = ( AC_value & 0xF0 ) >> 4;
+        if ( it + null_cnt == buffer.end() ) {
+            throw "WTF";
+        }
+
+        it += null_cnt;
+
+        // добавляем значение
+        const auto coeff_len = AC_value & 0xF;
+
+        if( coeff_len !=  0 ){
+            const auto coeff = extractor.nextNumber( coeff_len );
+            *it = fixNum( coeff, coeff_len );
             it++;
         }
-        if(coeff_len !=  0){
-            *it = coeff;
-            it++;
-        }
-    } while( it != end_it );
+    } while( it != buffer.end() );
+
+    return CreateZigZagMatrix( buffer );
 }
 
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
