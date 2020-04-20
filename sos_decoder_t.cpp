@@ -535,6 +535,168 @@ BOOST_AUTO_TEST_CASE(ReadTable_Cr) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(ReadMCU) {
+    const auto AC_root_0 = AC_Tree_0();
+    const auto DC_root_0 = DC_Tree_0();
+    const auto AC_root_1 = AC_Tree_1();
+    const auto DC_root_1 = DC_Tree_1();
+    {
+        const std::array<char, 19> data = {
+            (char)0b10101110,
+            (char)0b11100111,
+            (char)0b01100001,
+            (char)0b11110010,
+            (char)0b00011011,
+            (char)0b11010101,
+            (char)0b00100010,
+            (char)0b10000101,
+            (char)0b01011101,
+            (char)0b00000100,
+            (char)0b00111100,
+            (char)0b10000010,
+            (char)0b11001000,
+            (char)0b01001000,
+            (char)0b10110001,
+            (char)0b11011100,
+            (char)0b10111111,
+            (char)0b11111111,
+            (char)0b11011001
+        };
+
+        basic_array_source<char> input_source(data.data(), data.size());
+        stream<basic_array_source<char>> input_stream(input_source);
+
+        SOSDecoder::BitExtractor extractor{ input_stream };
+
+        DCTTable dct;
+        dct.precision = 8;
+        dct.width = 16;
+        dct.height = 16;
+
+        dct.components.resize( 3 );
+
+        dct.components[0].id = 1;
+        dct.components[0].h = 2;
+        dct.components[0].v = 2;
+        dct.components[0].dqtId = 0;
+
+        dct.components[1].id = 2;
+        dct.components[1].h = 1;
+        dct.components[1].v = 1;
+        dct.components[1].dqtId = 1;
+
+        dct.components[2].id = 3;
+        dct.components[2].h = 1;
+        dct.components[2].v = 1;
+        dct.components[2].dqtId = 1;
+
+        std::vector<SOSDecoder::Channel> channels;
+        channels.resize(3);
+        channels[0].id  = 1;
+        channels[0].ac_id = 0;
+        channels[0].dc_id = 0;
+
+        channels[1].id  = 2;
+        channels[1].ac_id = 1;
+        channels[1].dc_id = 1;
+
+        channels[2].id  = 3;
+        channels[2].ac_id = 1;
+        channels[2].dc_id = 1;
+
+        std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables{
+            AC_Tree_0(), AC_Tree_1()
+        };
+        std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables{
+            DC_Tree_0(), DC_Tree_1()
+        };
+
+        const auto mcu = SOSDecoder::ReadMCU(
+            extractor,
+            dct,
+            channels,
+            AC_HuffmanTables,
+            DC_HuffmanTables
+        );
+
+        boost::numeric::ublas::matrix<uint8_t> cs1_1(8, 8);
+        cs1_1 <<=       2,  0,  3, 0, 0, 0, 0, 0,
+                        0,  1,  2, 0, 0, 0, 0, 0,
+                        0, -1, -1, 0, 0, 0, 0, 0,
+                        1,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_2(8, 8);
+        cs1_2 <<=
+            -2,  1, 1, 1, 0, 0, 0, 0,
+             0,  0, 1, 0, 0, 0, 0, 0,
+             0, -1, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_3(8, 8);
+        cs1_3 <<=
+            3, -1,  1, 0, 0, 0, 0, 0,
+           -1, -2, -1, 0, 0, 0, 0, 0,
+            0, -1,  0, 0, 0, 0, 0, 0,
+           -1,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_4(8, 8);
+        cs1_4 <<=
+            -1,  2,  2, 1, 0, 0, 0, 0,
+            -1,  0, -1, 0, 0, 0, 0, 0,
+            -1, -1,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0;
+
+        prnt_matr( mcu.Cs1.at(0) );
+        prnt_matr( mcu.Cs1.at(1) );
+        prnt_matr( mcu.Cs1.at(2) );
+        prnt_matr( mcu.Cs1.at(3) );
+
+        BOOST_CHECK_EQUAL(mcu.Cs1.size(), 4);
+        BOOST_CHECK_EQUAL(cs1_1, mcu.Cs1.at(0));
+        BOOST_CHECK_EQUAL(cs1_2, mcu.Cs1.at(1));
+        BOOST_CHECK_EQUAL(cs1_3, mcu.Cs1.at(2));
+        BOOST_CHECK_EQUAL(cs1_4, mcu.Cs1.at(3));
+
+        boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
+        cb <<=
+                -1, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0;
+        BOOST_CHECK_EQUAL(mcu.Cs2.size(), 1);
+        BOOST_CHECK_EQUAL(cb, mcu.Cs2.at(0));
+
+        boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
+        cr <<=
+            0,  0, 0, 0, 0, 0, 0, 0,
+            1, -1, 0, 0, 0, 0, 0, 0,
+            1,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0;
+        BOOST_CHECK_EQUAL(mcu.Cs3.size(), 1);
+        BOOST_CHECK_EQUAL(cr, mcu.Cs3.at(0));
+    }
+}
 
 BOOST_AUTO_TEST_CASE(Invoke) {
 //    const std::array<char, 31> data = {

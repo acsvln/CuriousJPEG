@@ -8,6 +8,7 @@
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include <iostream>
 
 SOSDecoder::BitExtractor::BitExtractor( std::istream &aStream )
     : mStream{ aStream }
@@ -114,6 +115,70 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     } while( it != buffer.end() );
 
     return CreateZigZagMatrix( buffer );
+}
+
+SOSDecoder::Cs SOSDecoder::ReadMCU(
+    BitExtractor& extractor,
+    DCTTable const& dct,
+    std::vector<Channel>const& channels,
+    std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables,
+    std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables  )
+{
+    Cs result;
+    
+    for ( const auto& channel : channels ) {
+        const auto it = std::find_if(
+              std::begin( dct.components )
+            , std::end( dct.components )
+            , [id = channel.id]( const auto& comp ){
+            return comp.id == id;
+        } );
+
+        const auto dc_id = channel.dc_id;
+        const auto ac_id = channel.ac_id;
+        const auto AC_Root = AC_HuffmanTables.at(ac_id);
+        const auto DC_Root = DC_HuffmanTables.at(dc_id);
+
+        std::vector<boost::numeric::ublas::matrix<uint8_t>> cs;
+
+        if ( it != std::end( dct.components ) ) {
+            for ( auto t = 0; t < ( it->h * it->v ); t++ ) {
+                const auto matrix = ReadMatrix(
+                    extractor,
+                    DC_Root,
+                    AC_Root
+                );
+                cs.push_back( matrix );
+            }
+        }
+
+        if ( cs.size() > 1 ) {
+            for (   auto prev_it = cs.begin() + 1, it = cs.begin();
+                    it < cs.end() && prev_it < cs.end();
+                    ++it, ++prev_it ) {
+                auto& prev_matrix = *prev_it;
+                const auto& matrix = *it;
+                prev_matrix(0,0) = matrix(0,0) + prev_matrix(0,0);
+            }
+        }
+
+        switch ( channel.id ) {
+        case 1:
+            result.Cs1 = cs;
+            break;
+        case 2:
+            result.Cs2 = cs;
+            break;
+        case 3:
+            result.Cs3 = cs;
+            break;
+        case 4:
+            assert(false);
+            break;
+        }
+    }
+    
+    return result;
 }
 
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
