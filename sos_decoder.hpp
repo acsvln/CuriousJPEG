@@ -21,6 +21,20 @@ public:
         std::istream &mStream;
     };
 
+    struct Channel {
+        std::size_t id;
+        std::size_t dc_id;
+        std::size_t ac_id;
+    };
+
+    struct Cs
+    {
+        std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs1;
+        std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs2;
+        std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs3;
+        std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs4;
+    };
+
     static
     std::shared_ptr<DHTNode> LocateNodeInTree(
         BitExtractor& extractor,
@@ -31,6 +45,14 @@ public:
         BitExtractor&,
         const std::shared_ptr<DHTNode>& DC_Table,
         const std::shared_ptr<DHTNode>& AC_Table );
+
+    static
+    Cs ReadMCU(
+        BitExtractor&m,
+        DCTTable const& dct,
+        std::vector<Channel>const& channels,
+        std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables,
+        std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables );
 
 public:
     ~SOSDecoder() final = default;
