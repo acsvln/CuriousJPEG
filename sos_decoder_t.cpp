@@ -698,15 +698,241 @@ BOOST_AUTO_TEST_CASE(ReadMCU) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(Invoke) {
-//    const std::array<char, 31> data = {
-//        (char)0x00, (char)0x0c, (char)0x03, (char)0x01, (char)0x00, (char)0x02,
-//        (char)0x11, (char)0x03, (char)0x11, (char)0x00, (char)0x3f, (char)0x00,
-//        (char)0xae, (char)0xe7, (char)0x61, (char)0xf2, (char)0x1b, (char)0xd5,
-//        (char)0x22, (char)0x85, (char)0x5d, (char)0x04, (char)0x3c, (char)0x82,
-//        (char)0xc8, (char)0x48, (char)0xb1, (char)0xdc, (char)0xbf, (char)0xff,
-//        (char)0xd9
-//     };
+BOOST_AUTO_TEST_CASE(QuantMCU) {
+    SOSDecoder::Cs mcu;
+
+    {
+        boost::numeric::ublas::matrix<uint8_t> cs1_1(8, 8);
+        cs1_1 <<=       2,  0,  3, 0, 0, 0, 0, 0,
+                        0,  1,  2, 0, 0, 0, 0, 0,
+                        0, -1, -1, 0, 0, 0, 0, 0,
+                        1,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0,
+                        0,  0,  0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_2(8, 8);
+        cs1_2 <<=
+            -2,  1, 1, 1, 0, 0, 0, 0,
+             0,  0, 1, 0, 0, 0, 0, 0,
+             0, -1, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0,
+             0,  0, 0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_3(8, 8);
+        cs1_3 <<=
+            3, -1,  1, 0, 0, 0, 0, 0,
+           -1, -2, -1, 0, 0, 0, 0, 0,
+            0, -1,  0, 0, 0, 0, 0, 0,
+           -1,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0,
+            0,  0,  0, 0, 0, 0, 0, 0;
+        boost::numeric::ublas::matrix<uint8_t> cs1_4(8, 8);
+        cs1_4 <<=
+            -1,  2,  2, 1, 0, 0, 0, 0,
+            -1,  0, -1, 0, 0, 0, 0, 0,
+            -1, -1,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0,
+             0,  0,  0, 0, 0, 0, 0, 0;
+
+        mcu.Cs1.push_back( cs1_1 );
+        mcu.Cs1.push_back( cs1_2 );
+        mcu.Cs1.push_back( cs1_3 );
+        mcu.Cs1.push_back( cs1_4 );
+
+
+        boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
+        cb <<=
+                -1, 0, 0, 0, 0, 0, 0, 0,
+                1, 1, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0;
+
+        mcu.Cs2.push_back( cb );
+
+        boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
+        cr <<=
+            0,  0, 0, 0, 0, 0, 0, 0,
+            1, -1, 0, 0, 0, 0, 0, 0,
+            1,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0,
+            0,  0, 0, 0, 0, 0, 0, 0;
+        mcu.Cs3.push_back( cr );
+    }
+
+        std::cout << "____0000" << std::endl;
+
+    std::vector<DCTComponent> components;
+
+    components.resize( 3 );
+
+    components[0].id = 1;
+    components[0].h = 2;
+    components[0].v = 2;
+    components[0].dqtId = 0;
+
+    components[1].id = 2;
+    components[1].h = 1;
+    components[1].v = 1;
+    components[1].dqtId = 1;
+
+    components[2].id = 3;
+    components[2].h = 1;
+    components[2].v = 1;
+    components[2].dqtId = 1;
+
+    boost::numeric::ublas::matrix<uint8_t> quant1(8, 8);
+    quant1 <<=    0xA0, 0x6E, 0x64, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF,
+                    0x78, 0x78, 0x8C, 0xBE, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0x8C, 0x82, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0x8C, 0xAA, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xB4, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+
+    boost::numeric::ublas::matrix<char> quant2(8, 8);
+    quant2 <<=  0xaa, 0xb4, 0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xb4, 0xd2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+
+
+    std::cout << "____1111" << std::endl;
+
+    const auto mcu2 = SOSDecoder::QuantMCU(mcu, components, {quant1, quant2});
+
+    std::cout << "____22222" << std::endl;
+
+    boost::numeric::ublas::matrix<uint8_t> cs1_1(8, 8);
+    cs1_1 <<=   320,    0,  300, 0, 0, 0, 0, 0,
+                  0,  120,  280, 0, 0, 0, 0, 0,
+                  0, -130, -160, 0, 0, 0, 0, 0,
+                140,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<uint8_t> cs1_2(8, 8);
+    cs1_2 <<=
+                -320,  110, 100, 160, 0, 0, 0, 0,
+                   0,    0, 140,   0, 0, 0, 0, 0,
+                   0, -130,   0,   0, 0, 0, 0, 0,
+                   0,    0,   0,   0, 0, 0, 0, 0,
+                   0,    0,   0,   0, 0, 0, 0, 0,
+                   0,    0,   0,   0, 0, 0, 0, 0,
+                   0,    0,   0,   0, 0, 0, 0, 0,
+                   0,    0,   0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<uint8_t> cs1_3(8, 8);
+    cs1_3 <<=
+        480,  -110,  100, 0, 0, 0, 0, 0,
+        -120, -240, -140, 0, 0, 0, 0, 0,
+           0, -130,    0, 0, 0, 0, 0, 0,
+        -140,    0,    0, 0, 0, 0, 0, 0,
+           0,    0,    0, 0, 0, 0, 0, 0,
+           0,    0,    0, 0, 0, 0, 0, 0,
+           0,    0,    0, 0, 0, 0, 0, 0,
+           0,    0,    0, 0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<uint8_t> cs1_4(8, 8);
+    cs1_4 <<=
+        -160,  220,  200, 160, 0, 0, 0, 0,
+        -120,    0, -140,   0, 0, 0, 0, 0,
+        -140, -130,    0,   0, 0, 0, 0, 0,
+           0,    0,    0,   0, 0, 0, 0, 0,
+           0,    0,    0,   0, 0, 0, 0, 0,
+           0,    0,    0,   0, 0, 0, 0, 0,
+           0,    0,    0,   0, 0, 0, 0, 0,
+           0,    0,    0,   0, 0, 0, 0, 0;
+    std::cout << "____1" << std::endl;
+
+
+    BOOST_CHECK_EQUAL(mcu2.Cs1.size(), 4);
+
+    std::cout << "____2" << std::endl;
+
+    prnt_matr( mcu2.Cs1.at(0) );
+    prnt_matr( mcu2.Cs1.at(1) );
+    prnt_matr( mcu2.Cs1.at(2) );
+    prnt_matr( mcu2.Cs1.at(3) );
+
+    std::cout << "____3" << std::endl;
+
+    BOOST_CHECK_EQUAL(cs1_1, mcu2.Cs1.at(0));
+    BOOST_CHECK_EQUAL(cs1_2, mcu2.Cs1.at(1));
+    BOOST_CHECK_EQUAL(cs1_3, mcu2.Cs1.at(2));
+    BOOST_CHECK_EQUAL(cs1_4, mcu2.Cs1.at(3));
+
+    boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
+    cb <<=
+        -170,   0, 0, 0, 0, 0, 0, 0,
+         180, 210, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0,
+           0,   0, 0, 0, 0, 0, 0, 0;
+    BOOST_CHECK_EQUAL(mcu2.Cs2.size(), 1);
+    BOOST_CHECK_EQUAL(cb, mcu2.Cs2.at(0));
+
+    boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
+    cr <<=
+      0,    0, 0, 0, 0, 0, 0, 0,
+    180, -210, 0, 0, 0, 0, 0, 0,
+    240,    0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0,
+      0,    0, 0, 0, 0, 0, 0, 0;
+
+    BOOST_CHECK_EQUAL(mcu2.Cs3.size(), 1);
+    BOOST_CHECK_EQUAL(cr, mcu2.Cs3.at(0));
+}
+
+//BOOST_AUTO_TEST_CASE(Invoke) {
+//    const std::array<char, 19> data = {
+//        (char)0b10101110,
+//        (char)0b11100111,
+//        (char)0b01100001,
+//        (char)0b11110010,
+//        (char)0b00011011,
+//        (char)0b11010101,
+//        (char)0b00100010,
+//        (char)0b10000101,
+//        (char)0b01011101,
+//        (char)0b00000100,
+//        (char)0b00111100,
+//        (char)0b10000010,
+//        (char)0b11001000,
+//        (char)0b01001000,
+//        (char)0b10110001,
+//        (char)0b11011100,
+//        (char)0b10111111,
+//        (char)0b11111111,
+//        (char)0b11011001
+//    };
 
 //    basic_array_source<char> input_source(data.data(), data.size());
 //    stream<basic_array_source<char>> input_stream(input_source);
@@ -715,6 +941,6 @@ BOOST_AUTO_TEST_CASE(Invoke) {
 //    SOSDecoder decoder;
 
 //    decoder.Invoke(input_stream, context);
-}
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
