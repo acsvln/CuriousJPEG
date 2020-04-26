@@ -7,6 +7,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix.hpp>
 
 #include <iostream>
 
@@ -181,21 +183,58 @@ SOSDecoder::Cs SOSDecoder::ReadMCU(
     return result;
 }
 
+SOSDecoder::Cs SOSDecoder::QuantMCU(
+      SOSDecoder::Cs mcu
+    , std::vector<DCTComponent> const& components
+    , std::vector<boost::numeric::ublas::matrix<uint8_t>> quant )
+{
+    const auto find_chan = [&]( const auto id ) -> DCTComponent {
+        const auto it = std::find_if(
+              std::begin( components )
+            , std::end( components )
+            , [id]( const auto& comp ){
+            return comp.id == id;
+        } );
+
+        if ( it == std::end( components ) ) {
+            assert( false );
+        }
+
+        return *it;
+    };
+
+    const auto do_smthng = [&]( auto& matrx_lsit, const auto chanid ){
+        const auto dqtid = find_chan( chanid ).dqtId;
+
+
+        std::cout << "dqtid" << (int) dqtid;
+
+        for ( auto& matrx : matrx_lsit ) {
+            const auto dqt = quant.at( dqtid );
+
+            // домножили на матрицу квантования
+            matrx = boost::numeric::ublas::element_prod( matrx, dqt );
+        }
+
+        return matrx_lsit;
+    };
+
+    //-------------------------------------
+    mcu.Cs1 = do_smthng( mcu.Cs1, 1 );
+    mcu.Cs2 = do_smthng( mcu.Cs2, 2 );
+    mcu.Cs3 = do_smthng( mcu.Cs3, 3 );
+
+    return mcu;
+}
+
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
     const auto size = ReadNumberFromStream<uint16_t>(aStream);
     printSectionDescription("Start Of Scan!", size);
     const auto pos = aStream.tellg() + std::streampos{size};
     const auto channel_count = ReadNumberFromStream<uint8_t>(aStream);
     if ( channel_count != 3 ) {
-        // TODO: exception
-        return;
+        assert(false);
     }
-
-    struct Channel {
-        std::size_t id;
-        std::size_t dc_id;
-        std::size_t ac_id;
-    };
 
     std::vector<Channel> channels;
 
@@ -213,47 +252,111 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
 
     aStream.ignore( 3 );
 
-    BitExtractor extractor{ aStream };
-
     using Matrix = boost::numeric::ublas::matrix<uint16_t>;
     using ImageData = std::map<int, std::vector<Matrix>>;
 
-    const auto read_table = [&]( auto dc_id, auto ac_id ){
-        while (true) {
-            const auto i = extractor.nextNumber();
-
-        }
-        return boost::numeric::ublas::matrix<uint16_t>{};
-    };
-
     std::vector<ImageData> imageData;
-    do {
-        ImageData data;
-        for ( const auto& channel : channels ) {
+    BitExtractor extractor{ aStream };
 
-            // dct_component =
+    do {
+        const auto mcu = ReadMCU(
+            extractor,
+            aContext.dct,
+            channels,
+            aContext.AC_HuffmanTables,
+            aContext.DC_HuffmanTables
+        );
+
+        //-------------------------------------
+        const auto do_smthng = [&]( const auto& matrx_lsit, const auto dqtid ){
+            for ( auto& matrx : matrx_lsit ) {
+                const auto dqt = aContext.DQT_Vector.at( dqtid );
+
+                // домножили на матрицу квантования
+                const auto matrx_wtf = boost::numeric::ublas::element_prod( matrx, dqt );
+
+            }
+        };
+
+        //-------------------------------------
+        const auto find_chan = []( const auto& components, const auto id ) -> DCTComponent {
             const auto it = std::find_if(
-                  std::begin( aContext.dct.components )
-                , std::end( aContext.dct.components )
-                , [id = channel.id]( const auto& comp ){
+                  std::begin( components )
+                , std::end( components )
+                , [id]( const auto& comp ){
                 return comp.id == id;
             } );
 
-            if ( it != std::end( aContext.dct.components ) ) {
-                for ( auto t = 0; t < (it->h * it->v); t++ ) {
-                    auto matrix = read_table( channel.dc_id, channel.ac_id );
-                    // matix *= dqt
-                    // DC += 1024
-                    data[channel.id].push_back(matrix);
-                }
+            if ( it == std::end( components ) ) {
+                assert( false );
             }
-        }
-        imageData.push_back(data);
-    } while (pos != aStream.tellg());
+
+            return *it;
+        };
+
+        //-------------------------------------
+        do_smthng( mcu.Cs1, find_chan( aContext.dct.components, 0 ).dqtId );
+        do_smthng( mcu.Cs2, find_chan( aContext.dct.components, 1 ).dqtId );
+        do_smthng( mcu.Cs3, find_chan( aContext.dct.components, 2 ).dqtId );
+
+//        for ( const auto& data : imageData ) {
+//            const auto rgb = YCbCrToRGB(data[0], data[1], data[2]);
+//            aContext.Image.push_back(rgb);
+//        }
+
+    } while (false);
 
 
-//    for ( const auto& data : imageData ) {
-//        const auto rgb = YCbCrToRGB(data[0], data[1], data[2]);
-//        aContext.Image.push_back(rgb);
-//    }
 }
+
+
+//struct Channel {
+//    std::size_t id;
+//    std::size_t dc_id;
+//    std::size_t ac_id;
+//};
+
+
+
+
+
+//
+
+//
+
+
+
+//const auto read_table = [&]( auto dc_id, auto ac_id ){
+//    while (true) {
+//        const auto i = extractor.nextNumber();
+
+//    }
+//    return boost::numeric::ublas::matrix<uint16_t>{};
+//};
+
+
+//do {
+//
+//    for ( const auto& channel : channels ) {
+
+//        // dct_component =
+//        const auto it = std::find_if(
+//              std::begin( aContext.dct.components )
+//            , std::end( aContext.dct.components )
+//            , [id = channel.id]( const auto& comp ){
+//            return comp.id == id;
+//        } );
+
+//        if ( it != std::end( aContext.dct.components ) ) {
+//            for ( auto t = 0; t < (it->h * it->v); t++ ) {
+//                auto matrix = read_table( channel.dc_id, channel.ac_id );
+//                // matix *= dqt
+//                // DC += 1024
+//                data[channel.id].push_back(matrix);
+//            }
+//        }
+//    }
+//    imageData.push_back(data);
+//} while (pos != aStream.tellg());
+
+

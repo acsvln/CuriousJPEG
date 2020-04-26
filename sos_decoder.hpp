@@ -54,6 +54,12 @@ public:
         std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables,
         std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables );
 
+    static
+    Cs QuantMCU(
+        Cs mcu
+        , std::vector<DCTComponent> const& components
+        , std::vector<boost::numeric::ublas::matrix<uint8_t>> quant );
+
 public:
     ~SOSDecoder() final = default;
 
