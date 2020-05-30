@@ -227,6 +227,234 @@ SOSDecoder::Cs SOSDecoder::QuantMCU(
     return mcu;
 }
 
+
+boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT3(
+    boost::numeric::ublas::matrix<int8_t> const& in )
+{
+    int i, j, u, v;
+     double s;
+
+     boost::numeric::ublas::matrix<int8_t> out(8,8);
+
+     for (i = 0; i < 8; i++)
+       for (j = 0; j < 8; j++)
+       {
+         s = 0;
+
+         for (u = 0; u < 8; u++)
+           for (v = 0; v < 8; v++)
+             s += in(v,u) * cos((2 * i + 1) * u * M_PI / 16) *
+                             cos((2 * j + 1) * v * M_PI / 16) *
+                  ((u == 0) ? 1 / sqrt(2) : 1.) *
+                  ((v == 0) ? 1 / sqrt(2) : 1.);
+
+         out(i,j) = s / 4;
+       }
+
+     for (int i = 0; i< out.size1(); i++ ){
+         for (int j = 0; j< out.size1(); j++ ){
+             out( i, j ) = std::min(std::max(0, out( i, j )  + 128), 255);
+         }
+     }
+
+     return out;
+}
+
+//-------------------------------------
+
+//ivect4 ycrcb2rgb(int y, int cr, int cb)
+//{
+//    int r = round(1.402*(cr-128) + y);
+//    int g = round(-0.34414*(cb-128)-0.71414*(cr-128) + y);
+//    int b = round(1.772*(cb-128) + y);
+//    return ivect4(r, g, b, 255);
+//}
+
+std::tuple<
+      boost::numeric::ublas::matrix<int16_t>
+    , boost::numeric::ublas::matrix<int16_t>
+    , boost::numeric::ublas::matrix<int16_t>
+>
+SOSDecoder::YCbCrToRGB(
+      boost::numeric::ublas::matrix<int16_t> const& y
+    , boost::numeric::ublas::matrix<int16_t> const& cb
+    , boost::numeric::ublas::matrix<int16_t> const& cr )
+{
+    boost::numeric::ublas::matrix<int16_t> R(8,8);
+    boost::numeric::ublas::matrix<int16_t> G(8,8);
+    boost::numeric::ublas::matrix<int16_t> B(8,8);
+
+    // https://impulseadventure.com/photo/jpeg-color-space.html
+
+//    R = round(Y                      + 1.402   * (Cr-128))
+//       G = round(Y - 0.34414 * (Cb-128) - 0.71414 * (Cr-128))
+//       B = round(Y + 1.772   * (Cb-128)                     )
+
+    for ( unsigned i = 0; i < 8; i++ ) {
+        for ( unsigned j = 0; j < 8; j++ ) {
+            R(i,j) = (int16_t) std::round( y(i,j)                               + 1.402   * ( cr(i/2,j/2) - 128 ) );
+            G(i,j) = (int16_t) std::round( y(i,j) - 0.34414 * ( cb(i/2,j/2 ) - 128 ) - 0.71414 * ( cr(i/2,j/2) - 128 ) );
+            B(i,j) = (int16_t) std::round( y(i,j) + 1.772   * ( cb(i/2,j/2) - 128 ) );
+
+            const auto fix = [=]( auto& C ) {
+                if ( C(i,j) < 0 ){
+                    C(i,j) = 0;
+                } else if ( C(i,j) > 255 ) {
+                    C(i,j) = 255;
+                }
+            };
+
+            fix( R );
+            fix( G );
+            fix( B );
+
+
+            //       R = min(max(0, R), 255)
+            //       G = min(max(0, G), 255)
+            //       B = min(max(0, B), 255)
+
+//            if ( R(i,j) < 0 ){
+//                R(i,j) = 0;
+//            } else if ( R(i,j) > 255 ) {
+//                R(i,j) = 255;
+//            }
+
+//            if ( G(i,j) < 0 ){
+//                G(i,j) = 0;
+//            } else if ( G(i,j) > 255 ) {
+//                G(i,j) = 255;
+//            }
+
+//            if ( B(i,j) < 0 ){
+//                B(i,j) = 0;
+//            } else if ( B(i,j) > 255 ) {
+//                B(i,j) = 255;
+//            }
+        }
+    }
+
+    return {R, G, B};
+}
+
+//-------------------------------------
+
+boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT2(
+        boost::numeric::ublas::matrix<int8_t> const& matrix ) {
+    const auto Cx = []( const auto x ){
+        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<int8_t> res(8,8);
+
+    for ( int y = 0; y < 8; y++ ) {
+        for ( int x = 0; x < 8; x++ ) {
+            //-------------------------------------
+            double tmp1 = 0.;
+            for ( int u = 0; u < 8; u++ ) {
+                double tmp2 = 0.;
+                for ( int v = 0; v < 8; v++ ) {
+                    const auto Cu = Cx(u);
+                    const auto Cv = Cx(v);
+                    const auto Svu = matrix(v,u);
+                    tmp2 += Cu * Cv * Svu
+                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
+                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
+                }
+                tmp1 += tmp2;
+            }
+            //-------------------------------------
+            const auto w = (1. / 4.)  *  tmp1; //
+            res(y,x) = w;
+            std::cout << "res" << w << std::endl;
+        }
+    }
+
+    return res;
+}
+
+boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReverseDQT(
+        boost::numeric::ublas::matrix<uint8_t> const& matrix ) {
+    const auto Cx = []( const auto x ) -> double {
+        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<uint8_t> res(8,8);
+
+    for ( int y = 0; y < 8; y++ ) {
+        for ( int x = 0; x < 8; x++ ) {
+            //-------------------------------------
+            double tmp1 = 0.;
+            for ( int u = 0; u < 8; u++ ) {
+                double tmp2 = 0.;
+                for ( int v = 0; v < 8; v++ ) {
+                    const auto Cu = Cx(u);
+                    const auto Cv = Cx(v);
+                    const auto Svu = matrix(v,u);
+                    tmp2 += Cu * Cv * Svu
+                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
+                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
+                }
+                tmp1 += tmp2;
+            }
+            //-------------------------------------
+            const auto w = (1. / 4.)  *  tmp1; //
+            res(y,x) = w;
+            std::cout << "res" << w << std::endl;
+        }
+    }
+
+//    for (int i = 0; i< res.size1(); i++ ){
+//        for (int j = 0; j< res.size1(); j++ ){
+//            res( i, j ) = std::min(std::max(0, res( i, j )  + 128), 255);
+//        }
+//    }
+
+    return res;
+}
+
+boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
+        boost::numeric::ublas::matrix<int16_t> const& matrix ) {
+    const auto Cx = []( const auto x ) -> double {
+        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<int16_t> res(8,8);
+
+    for ( int y = 0; y < 8; y++ ) {
+        for ( int x = 0; x < 8; x++ ) {
+            //-------------------------------------
+            double tmp1 = 0.;
+            for ( int u = 0; u < 8; u++ ) {
+                double tmp2 = 0.;
+                for ( int v = 0; v < 8; v++ ) {
+                    const double Cu = Cx(u);
+                    const double Cv = Cx(v);
+                    const double Svu = matrix(v,u);
+                    tmp2 += Cu * Cv * Svu
+                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
+                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
+                }
+                tmp1 += tmp2;
+            }
+            //-------------------------------------
+            const auto w = (1. / 4.)  *  tmp1; //
+            res(y,x) = w;
+            std::cout << "res" << w << std::endl;
+        }
+    }
+
+    return res;
+}
+
+//auto SOSDecoder::ReverseDQT(
+//        Cs mcu ) -> Cs {
+//    for ( int u = 0; u < 7; u++ ) {
+//        for ( int v = 0; v < 7; v++ ) {
+
+//        }
+//    }
+//}
+
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
     const auto size = ReadNumberFromStream<uint16_t>(aStream);
     printSectionDescription("Start Of Scan!", size);

@@ -60,6 +60,37 @@ public:
         , std::vector<DCTComponent> const& components
         , std::vector<boost::numeric::ublas::matrix<uint8_t>> quant );
 
+    static
+    boost::numeric::ublas::matrix<uint8_t> ReverseDQT(
+        boost::numeric::ublas::matrix<uint8_t> const& matrix );
+
+    static
+    boost::numeric::ublas::matrix<int16_t> ReverseDQT_1(
+        boost::numeric::ublas::matrix<int16_t> const& matrix );
+
+    static
+    boost::numeric::ublas::matrix<int8_t> ReverseDQT2(
+        boost::numeric::ublas::matrix<int8_t> const& matrix );
+
+    static
+    boost::numeric::ublas::matrix<int8_t> ReverseDQT3(
+        boost::numeric::ublas::matrix<int8_t> const& matrix );
+
+    static
+    std::tuple<
+          boost::numeric::ublas::matrix<int16_t>
+        , boost::numeric::ublas::matrix<int16_t>
+        , boost::numeric::ublas::matrix<int16_t>>
+    YCbCrToRGB(
+          boost::numeric::ublas::matrix<int16_t> const& y
+        , boost::numeric::ublas::matrix<int16_t> const& cb
+        , boost::numeric::ublas::matrix<int16_t> const& cr );
+
+//    static
+//    Cs ReverseDQT(
+//        Cs mcu
+//    );
+
 public:
     ~SOSDecoder() final = default;
 
