@@ -4,7 +4,8 @@
 
 namespace {
 
-std::shared_ptr<DHTNode> PushHuffValueImplementation(std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value, uint8_t currentLevel  = 0, bool direction = false)
+std::shared_ptr<DHTNode> PushHuffValueImplementation(
+    std::shared_ptr<DHTNode> parent, uint8_t level, uint8_t value, uint8_t currentLevel  = 0, bool direction = false)
 {
     // when reach correct level - try to create leaf
     if (level == currentLevel) {

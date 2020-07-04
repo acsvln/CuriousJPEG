@@ -41,6 +41,19 @@ bool operator==(const boost::numeric::ublas::matrix<char> &left, const boost::nu
 
 }
 
+void prnt_matr2( const boost::numeric::ublas::matrix<uint8_t>& matrix ) {
+    std::cout << std::endl << "prnt_matr XXXXX" << std::endl;
+
+    for ( int i = 0; i < 8; i++ ) {
+        for ( int j = 0; j < 8; j++ ) {
+            std::cout << "i" << i << "j" << j << std::endl;
+            std::cout << (int) matrix( i, j ) << '\t';
+        }
+        std::cout << std::endl;
+    }
+
+}
+
 BOOST_AUTO_TEST_SUITE(DQTDecoderTests)
 
 BOOST_AUTO_TEST_CASE(Invoke) {
@@ -77,6 +90,47 @@ BOOST_AUTO_TEST_CASE(Invoke) {
 
     BOOST_CHECK_EQUAL(context.DQT_Vector.size(), 1 );
     BOOST_CHECK_EQUAL(expected,  context.DQT_Vector[0]);
+}
+
+
+BOOST_AUTO_TEST_CASE(Invoke_1) {
+    const std::array<char, 67> source = {
+        (char)0x00, (char)0x43, (char)0x01, (char)0xaa, (char)0xb4,
+        (char)0xb4, (char)0xf0, (char)0xd2, (char)0xf0, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff,
+        (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff
+    };
+
+    boost::numeric::ublas::matrix<char> expected(8, 8);
+    expected <<=    0xaa, 0xb4, 0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xb4, 0xd2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+
+
+    Context context;
+
+    DQTDecoder decoder;
+
+    basic_array_source<char> input_source(source.data(), source.size());
+    stream<basic_array_source<char>> input_stream(input_source);
+    decoder.Invoke(input_stream, context);
+
+    BOOST_CHECK_EQUAL(context.DQT_Vector.size(), 2 );
+    prnt_matr2(context.DQT_Vector[1]);
+    BOOST_CHECK_EQUAL(expected,  context.DQT_Vector[1]);
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

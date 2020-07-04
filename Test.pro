@@ -1,9 +1,17 @@
 QT -= gui
 
-CONFIG += c++1z console conan_basic_setup
+CONFIG += c++17 console conan_basic_setup
 CONFIG -= app_bundle
 
-QMAKE_CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0
+# THIS
+
+QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CC = clang-9
+QMAKE_CXX = clang-9
+QMAKE_CXXFLAGS  += -Wno-unknown-pragmas
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas #последняя попытка
+
+#QMAKE_CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -26,6 +34,8 @@ SOURCES += \
     dht_decoder.cpp \
     dqt_decoder.cpp \
     sof0_decoder.cpp \
+    sos_decoder.cpp \
+    sos_decoder_t.cpp \
     utility.cpp \
     utility_t.cpp
 
@@ -39,4 +49,5 @@ HEADERS += \
     dht_decoder.hpp \
     sof0_decoder.hpp \
     context.hpp \
+    sos_decoder.hpp \
     utility.hpp
