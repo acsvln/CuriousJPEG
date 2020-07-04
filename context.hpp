@@ -45,6 +45,14 @@ struct Context
     std::vector<DQTMatrix> DQT_Vector;
     std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables;
     std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables;
+    struct RGB {
+        using Matr = boost::numeric::ublas::matrix<uint16_t>;
+        Matr R;
+        Matr G;
+        Matr B;
+    };
+
+    std::vector<RGB> Image;
     DCTTable dct;
 };
 
