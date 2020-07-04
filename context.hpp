@@ -34,7 +34,7 @@ struct DHTNode
     std::weak_ptr<DHTNode> parent;
     std::optional<uint8_t> data = {};
 
-    bool IsLeaf() const {
+    bool IsLeaf() const noexcept {
         return data.has_value();
     }
 

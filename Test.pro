@@ -3,8 +3,15 @@ QT -= gui
 CONFIG += c++17 console conan_basic_setup
 CONFIG -= app_bundle
 
+# THIS
 
-QMAKE_CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0 -static-libstdc++
+QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CC = clang-9
+QMAKE_CXX = clang-9
+QMAKE_CXXFLAGS  += -Wno-unknown-pragmas
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas #последняя попытка
+
+#QMAKE_CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
