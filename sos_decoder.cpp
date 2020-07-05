@@ -38,30 +38,30 @@ uint8_t SOSDecoder::BitExtractor::nextNumber( std::size_t bit_cnt ) {
 
 
 //-------------------------------------
-std::shared_ptr<DHTNode> SOSDecoder::LocateNodeInTree(
+std::shared_ptr<HuffmanTree::Node> SOSDecoder::LocateNodeInTree(
           BitExtractor& extractor
-        , const std::shared_ptr<DHTNode>& tree ){
-    std::shared_ptr<DHTNode> node = tree;
+        , const std::shared_ptr<HuffmanTree::Node>& tree ){
+    std::shared_ptr<HuffmanTree::Node> node = tree;
     do {
         const auto next_number = extractor.nextNumber();
         if ( 0 == next_number ) {
-            node = node->left;
+            node = node->left();
         } else if (  1 == next_number ) {
-            node = node->right;
+            node = node->right();
         } else {
             assert( false );
         }
         if ( nullptr == node ) {
             assert( false );
         }
-    } while( false == node->IsLeaf() );
+    } while( false == node->isLeaf() );
     return node;
 }
 
 boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     BitExtractor& extractor,
-    const std::shared_ptr<DHTNode>& DC_Table,
-    const std::shared_ptr<DHTNode>& AC_Table )
+    const std::shared_ptr<HuffmanTree::Node>& DC_Table,
+    const std::shared_ptr<HuffmanTree::Node>& AC_Table )
 {
     std::array<uint16_t, 64> buffer = {0};
 
@@ -74,7 +74,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
     };
 
     const auto DC_node = LocateNodeInTree( extractor, DC_Table );
-    const auto DC_value = DC_node->data.value();
+    const auto DC_value = DC_node->data();
     if ( DC_value == 0 ) {
         buffer[0] = 0;
     } else {
@@ -92,7 +92,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
             throw "bad";
         }
 
-        const auto AC_value = AC_node->data.value();
+        const auto AC_value = AC_node->data();
         if ( 0 == AC_value ) {
             // матрица уже заполнена нулями
             return CreateZigZagMatrix( buffer );
@@ -123,8 +123,8 @@ SOSDecoder::Cs SOSDecoder::ReadMCU(
     BitExtractor& extractor,
     DCTTable const& dct,
     std::vector<Channel>const& channels,
-    std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables,
-    std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables  )
+    std::vector<std::shared_ptr<HuffmanTree::Node>> AC_HuffmanTables,
+    std::vector<std::shared_ptr<HuffmanTree::Node>> DC_HuffmanTables  )
 {
     Cs result;
     

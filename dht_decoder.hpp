@@ -8,9 +8,6 @@
 #include "decoder.hpp"
 #include "utility.hpp"
 
-std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent,
-                                       uint8_t level, uint8_t value);
-
 class DHTDecoder : public IDecoder {
 public:
   ~DHTDecoder() final = default;

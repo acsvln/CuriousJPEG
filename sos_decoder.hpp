@@ -36,23 +36,23 @@ public:
     };
 
     static
-    std::shared_ptr<DHTNode> LocateNodeInTree(
+    std::shared_ptr<HuffmanTree::Node> LocateNodeInTree(
         BitExtractor& extractor,
-        const std::shared_ptr<DHTNode>& AC_Table );
+        const std::shared_ptr<HuffmanTree::Node>& AC_Table );
 
     static
     boost::numeric::ublas::matrix<uint8_t> ReadMatrix(
         BitExtractor&,
-        const std::shared_ptr<DHTNode>& DC_Table,
-        const std::shared_ptr<DHTNode>& AC_Table );
+        const std::shared_ptr<HuffmanTree::Node>& DC_Table,
+        const std::shared_ptr<HuffmanTree::Node>& AC_Table );
 
     static
     Cs ReadMCU(
         BitExtractor&m,
         DCTTable const& dct,
         std::vector<Channel>const& channels,
-        std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables,
-        std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables );
+        std::vector<std::shared_ptr<HuffmanTree::Node>> AC_HuffmanTables,
+        std::vector<std::shared_ptr<HuffmanTree::Node>> DC_HuffmanTables );
 
     static
     Cs QuantMCU(

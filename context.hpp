@@ -7,6 +7,8 @@
 
 #include <boost/numeric/ublas/matrix.hpp>
 
+#include "huffman_tree.h"
+
 using DQTMatrix = boost::numeric::ublas::matrix<uint16_t>;
 
 struct DCTComponent
@@ -27,24 +29,13 @@ struct DCTTable
     std::vector<DCTComponent> components;
 };
 
-struct DHTNode
-{
-    std::shared_ptr<DHTNode> left = nullptr;
-    std::shared_ptr<DHTNode> right = nullptr;
-    std::weak_ptr<DHTNode> parent;
-    std::optional<uint8_t> data = {};
 
-    bool IsLeaf() const noexcept {
-        return data.has_value();
-    }
-
-};
 
 struct Context
 {
     std::vector<DQTMatrix> DQT_Vector;
-    std::vector<std::shared_ptr<DHTNode>> AC_HuffmanTables;
-    std::vector<std::shared_ptr<DHTNode>> DC_HuffmanTables;
+    std::vector<std::shared_ptr<HuffmanTree::Node>> AC_HuffmanTables;
+    std::vector<std::shared_ptr<HuffmanTree::Node>> DC_HuffmanTables;
     struct RGB {
         using Matr = boost::numeric::ublas::matrix<uint16_t>;
         Matr R;

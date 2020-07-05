@@ -2,94 +2,7 @@
 
 #include <iostream>
 
-namespace {
-
-auto x() { return 4; }
-
-std::shared_ptr<DHTNode>
-PushHuffValueImplementation(std::shared_ptr<DHTNode> parent, uint8_t level,
-                            uint8_t value, uint8_t currentLevel = 0,
-                            bool direction = false) {
-  // when reach correct level - try to create leaf
-  if (level == currentLevel) {
-    if (nullptr != parent->left && nullptr != parent->right) {
-      return nullptr;
-    }
-
-    auto item = std::make_shared<DHTNode>();
-    item->data = value;
-    item->parent = parent;
-
-    if (nullptr == parent->left) {
-      parent->left = item;
-    } else if (nullptr == parent->right) {
-      parent->right = item;
-    }
-    return item;
-  }
-
-  uint8_t nextLevel = currentLevel;
-  std::shared_ptr<DHTNode> node;
-  bool toUp = false;
-
-  const auto checkChild = [&](auto &child) {
-    if (nullptr == child) {
-      child = std::make_shared<DHTNode>();
-      child->parent = parent;
-      node = child;
-      nextLevel = currentLevel + 1;
-      return true;
-    } else if (!child->IsLeaf()) {
-      node = child;
-      nextLevel = currentLevel + 1;
-      return true;
-    }
-    return false;
-  };
-
-  const auto checkUp = [&](auto parent) {
-    if (nextLevel == 0) {
-      throw std::runtime_error("Tree is filled");
-    }
-
-    node = parent->parent.lock();
-    nextLevel = currentLevel - 1;
-    return false;
-  };
-
-  if (!direction) {
-    bool checked = checkChild(parent->left);
-    if (!checked) {
-      checked = checkChild(parent->right);
-    }
-    if (!checked) {
-      toUp = true;
-      checkUp(parent);
-    } else {
-      toUp = false;
-    }
-  } else {
-    bool checked = checkChild(parent->right);
-    if (!checked) {
-      toUp = true;
-      checkUp(parent);
-    } else {
-      toUp = false;
-    }
-  }
-
-  auto inserted =
-      PushHuffValueImplementation(node, level, value, nextLevel, toUp);
-
-  if ((inserted != nullptr) || (currentLevel == 0)) {
-    return inserted;
-  }
-
-  toUp = true;
-  return PushHuffValueImplementation(node, level, value, nextLevel, toUp);
-}
-
-} // namespace
+#include "huffman_tree.h"
 
 void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
   static constexpr std::size_t HuffCodeCount = 16;
@@ -97,7 +10,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
   static constexpr uint8_t HuffClassAC = 1u;
 
   const auto extractHuffTableVector =
-      [&](const uint8_t tableClass) -> std::vector<std::shared_ptr<DHTNode>> & {
+      [&](const uint8_t tableClass) -> std::vector<std::shared_ptr<HuffmanTree::Node>> & {
     switch (tableClass) {
     case HuffClassDC:
       return aContext.DC_HuffmanTables;
@@ -123,7 +36,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
     huffVector.resize(tableIndex + 1);
   }
 
-  const auto root = std::make_shared<DHTNode>();
+  const auto root = std::make_shared<HuffmanTree::Node>( nullptr );
 
   std::array<uint8_t, HuffCodeCount> huffCodes;
 
@@ -146,14 +59,9 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
                  huffData.size() * sizeof(uint8_t));
 
     for (uint8_t code : huffData) {
-      PushHuffValueImplementation(root, index, code, 0);
+      HuffmanTree::createAndinsertNode(root, index, code);
     }
   }
 
   huffVector[tableIndex] = root;
-}
-
-std::shared_ptr<DHTNode> PushHuffValue(std::shared_ptr<DHTNode> parent,
-                                       uint8_t level, uint8_t value) {
-  return PushHuffValueImplementation(parent, level, value);
 }
