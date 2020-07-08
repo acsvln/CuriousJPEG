@@ -8,6 +8,8 @@
 #include <boost/endian/conversion.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
+auto lowByte( uint8_t const Src ) -> uint8_t;
+auto highByte( uint8_t const Src ) -> uint8_t;
 
 void printSectionDescription(const std::string& name, std::size_t size);
 

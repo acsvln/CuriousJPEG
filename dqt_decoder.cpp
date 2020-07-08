@@ -15,8 +15,8 @@ void DQTDecoder::Invoke(std::istream &aStream, Context& aContext)
     const auto numBuffer = DataReader::readNumber<uint8_t>(aStream);
 
     // TODO: To the utility module, or search something standard
-    tableElementSize = numBuffer >> 4;
-    tableIndex= numBuffer & 0xF;
+    tableElementSize = lowByte( numBuffer );
+    tableIndex= highByte( numBuffer );
 
     if (aContext.DQT_Vector.size() <= tableIndex ) {
         aContext.DQT_Vector.resize(tableIndex + 1);

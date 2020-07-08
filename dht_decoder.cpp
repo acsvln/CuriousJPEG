@@ -28,8 +28,8 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
   printSectionDescription("Define Huffman Table", size);
 
   const auto description = DataReader::readNumber<uint8_t>(aStream);
-  const uint8_t tableClass = description >> 4;
-  const uint8_t tableIndex = description & 0xF;
+  const uint8_t tableClass = lowByte( description );
+  const uint8_t tableIndex = highByte( description );
 
   auto &huffVector = extractHuffTableVector(tableClass);
 

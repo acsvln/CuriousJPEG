@@ -9,6 +9,14 @@
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+auto lowByte( uint8_t const Src ) -> uint8_t {
+    return Src >> 4;
+}
+
+auto highByte( uint8_t const Src ) -> uint8_t {
+    return Src & 0xF;
+}
+
 static const uint16_t SIZE = 8;
 
 void printSectionDescription(const std::string &name, std::size_t size)
