@@ -3,11 +3,9 @@
 #include <iostream>
 #include <array>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
 auto lowByte( uint8_t const Src ) -> uint8_t {
     return Src >> 4;
@@ -61,31 +59,3 @@ boost::numeric::ublas::matrix<uint16_t> CreateZigZagMatrix( std::array<uint16_t,
     return matrix;
 }
 
-std::ostream &boost::numeric::ublas::boost_test_print_type(std::ostream &ostr, const boost::numeric::ublas::matrix<uint16_t> &right) {
-    ostr << right;
-    return ostr;
-}
-
-bool boost::numeric::ublas::operator==(const boost::numeric::ublas::matrix<uint16_t> &left, const boost::numeric::ublas::matrix<uint16_t> &right) {
-    using size_type = boost::numeric::ublas::matrix<uint16_t>::size_type;
-
-    if (left.size1() != right.size1()) {
-        return false;
-    }
-
-    if (left.size2() != right.size2()){
-        return false;
-    }
-
-    for(size_type i=0;i< left.size1();++i)
-    {
-        for (size_type j=0;j<left.size2();++j)
-        {
-            if (left(i,j) != right(i,j)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}

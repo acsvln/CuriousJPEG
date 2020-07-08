@@ -8,38 +8,13 @@
 #include <array>
 #include <boost/iostreams/stream.hpp>
 
+#include "testing_utility.hpp"
+
 using namespace boost::iostreams;
 using namespace std;
 
 #include "dqt_decoder.hpp"
 
-namespace boost::numeric::ublas {
-
-bool operator==(const boost::numeric::ublas::matrix<char> &left, const boost::numeric::ublas::matrix<char> &right) {
-    using size_type = boost::numeric::ublas::matrix<char>::size_type;
-
-    if (left.size1() != right.size1()) {
-        return false;
-    }
-
-    if (left.size2() != right.size2()){
-        return false;
-    }
-
-    for(size_type i=0;i< left.size1();++i)
-    {
-        for (size_type j=0;j<left.size2();++j)
-        {
-            if (left(i,j) != right(i,j)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-}
 
 void prnt_matr2( const boost::numeric::ublas::matrix<uint8_t>& matrix ) {
     std::cout << std::endl << "prnt_matr XXXXX" << std::endl;

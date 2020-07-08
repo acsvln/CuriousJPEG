@@ -12,6 +12,7 @@ using namespace std;
 
 #include "sos_decoder.hpp"
 #include "utility.hpp"
+#include "testing_utility.hpp"
 
 //-------------------------------------
 auto DC_Tree_0() -> std::shared_ptr<HuffmanTree::Node> {

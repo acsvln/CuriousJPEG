@@ -11,16 +11,7 @@ using namespace boost::iostreams;
 using namespace std;
 
 #include "utility.hpp"
-
-namespace std {
-
-std::ostream& boost_test_print_type(std::ostream& ostr, std::array<uint16_t, 64> const& right) {
-    for (auto &element : right)
-        ostr << element << ' ';
-    return ostr;
-}
-
-}
+#include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(UtilityTests)
 

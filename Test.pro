@@ -38,6 +38,7 @@ SOURCES += \
     sof0_decoder.cpp \
     sos_decoder.cpp \
     sos_decoder_t.cpp \
+    testing_utility.cpp \
     utility.cpp \
     utility_t.cpp
 
@@ -54,4 +55,5 @@ HEADERS += \
     sof0_decoder.hpp \
     context.hpp \
     sos_decoder.hpp \
+    testing_utility.hpp \
     utility.hpp
