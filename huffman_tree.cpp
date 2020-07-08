@@ -1,4 +1,4 @@
-#include "huffman_tree.h"
+#include "huffman_tree.hpp"
 
 #include <cassert>
 

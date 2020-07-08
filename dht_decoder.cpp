@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-#include "huffman_tree.h"
+#include "data_reader.hpp"
+#include "huffman_tree.hpp"
 
 void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
   static constexpr std::size_t HuffCodeCount = 16;
@@ -23,10 +24,10 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
     throw std::runtime_error(ss.str());
   };
 
-  const auto size = ReadNumberFromStream<uint16_t>(aStream);
+  const auto size = DataReader::readNumber<uint16_t>(aStream);
   printSectionDescription("Define Huffman Table", size);
 
-  const auto description = ReadNumberFromStream<uint8_t>(aStream);
+  const auto description = DataReader::readNumber<uint8_t>(aStream);
   const uint8_t tableClass = description >> 4;
   const uint8_t tableIndex = description & 0xF;
 
@@ -44,8 +45,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
                 sizeof(std::array<uint8_t, HuffCodeCount>::value_type));
   static_assert(sizeof(std::istream::char_type *) ==
                 sizeof(std::array<uint8_t, HuffCodeCount>::pointer));
-  aStream.read(reinterpret_cast<std::istream::char_type *>(huffCodes.data()),
-               sizeof(huffCodes));
+  DataReader::readBuffer( aStream, huffCodes );
 
   for (std::size_t index = 0; index < huffCodes.size(); ++index) {
     uint8_t count = huffCodes[index];
@@ -55,8 +55,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
 
     std::vector<uint8_t> huffData;
     huffData.resize(count);
-    aStream.read(reinterpret_cast<std::istream::char_type *>(huffData.data()),
-                 huffData.size() * sizeof(uint8_t));
+    DataReader::readBuffer( aStream, huffData );
 
     for (uint8_t code : huffData) {
       HuffmanTree::createAndinsertNode(root, index, code);

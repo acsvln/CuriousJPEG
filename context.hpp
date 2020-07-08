@@ -7,7 +7,7 @@
 
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include "huffman_tree.h"
+#include "huffman_tree.hpp"
 
 using DQTMatrix = boost::numeric::ublas::matrix<uint16_t>;
 

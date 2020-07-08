@@ -12,6 +12,8 @@
 
 #include <iostream>
 
+#include "data_reader.hpp"
+
 SOSDecoder::BitExtractor::BitExtractor( std::istream &aStream )
     : mStream{ aStream }
 {}
@@ -456,10 +458,10 @@ boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
 //}
 
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
-    const auto size = ReadNumberFromStream<uint16_t>(aStream);
+    const auto size = DataReader::readNumber<uint16_t>(aStream);
     printSectionDescription("Start Of Scan!", size);
     const auto pos = aStream.tellg() + std::streampos{size};
-    const auto channel_count = ReadNumberFromStream<uint8_t>(aStream);
+    const auto channel_count = DataReader::readNumber<uint8_t>(aStream);
     if ( channel_count != 3 ) {
         assert(false);
     }
@@ -467,8 +469,8 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
     std::vector<Channel> channels;
 
     for ( std::size_t i = 0; i < channel_count; ++i ) {
-        const auto id = ReadNumberFromStream<uint8_t>(aStream);
-        const auto huff_id = ReadNumberFromStream<uint8_t>(aStream);
+        const auto id = DataReader::readNumber<uint8_t>(aStream);
+        const auto huff_id = DataReader::readNumber<uint8_t>(aStream);
 
         Channel channel;
         channel.id = id;
@@ -478,7 +480,8 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
         channels.push_back( channel );
     }
 
-    aStream.ignore( 3 );
+    DataReader::skipChars(aStream,3);
+
 
     using Matrix = boost::numeric::ublas::matrix<uint16_t>;
     using ImageData = std::map<int, std::vector<Matrix>>;

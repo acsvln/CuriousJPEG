@@ -27,8 +27,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 include(conanbuildinfo.pri)
 
 SOURCES += \
+    data_reader.cpp \
     dqt_decoder_t.cpp \
     main_t.cpp \
+    huffman_tree.cpp \
     dht_decoder_t.cpp \
     sof0_decoder_t.cpp \
     dht_decoder.cpp \
@@ -45,8 +47,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    data_reader.hpp \
     decoder.hpp \
     dht_decoder.hpp \
+    huffman_tree.hpp \
     sof0_decoder.hpp \
     context.hpp \
     sos_decoder.hpp \

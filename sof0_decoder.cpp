@@ -3,21 +3,22 @@
 #include <iostream>
 
 #include "utility.hpp"
+#include "data_reader.hpp"
 
 void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
 {
-    const auto size = ReadNumberFromStream<uint16_t>(aStream);
+    const auto size = DataReader::readNumber<uint16_t>(aStream);
     printSectionDescription("Baseline DCT", size);
 
-    const auto precision = ReadNumberFromStream<uint8_t>(aStream);
-    const auto height = ReadNumberFromStream<uint16_t>(aStream);
-    const auto width = ReadNumberFromStream<uint16_t>(aStream);
+    const auto precision = DataReader::readNumber<uint8_t>(aStream);
+    const auto height = DataReader::readNumber<uint16_t>(aStream);
+    const auto width = DataReader::readNumber<uint16_t>(aStream);
 
     aContext.dct.precision = precision;
     aContext.dct.height = height;
     aContext.dct.width = width;
 
-    const auto unitsCount = ReadNumberFromStream<uint8_t>(aStream);
+    const auto unitsCount = DataReader::readNumber<uint8_t>(aStream);
     aContext.dct.components.resize(unitsCount);
 
     uint32_t maxH = 0, maxV = 0;
@@ -25,9 +26,7 @@ void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
     for (int cx=0; cx<unitsCount; cx++)
     {
         DCTComponent component;
-
-        // TODO: Remove that shit
-        aStream.read((char*)&component,sizeof(DCTComponent));
+        DataReader::readSruct(aStream, component);
 
         // TODO: For max/min write test
 
