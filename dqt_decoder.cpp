@@ -14,7 +14,6 @@ void DQTDecoder::Invoke(std::istream &aStream, Context& aContext)
 
     const auto numBuffer = DataReader::readNumber<uint8_t>(aStream);
 
-    // TODO: To the utility module, or search something standard
     tableElementSize = lowByte( numBuffer );
     tableIndex= highByte( numBuffer );
 
@@ -35,7 +34,7 @@ void DQTDecoder::Invoke(std::istream &aStream, Context& aContext)
     }
     else
     {
-        DataReader::readBuffer(aStream, buffer);
+        // DataReader::readBuffer(aStream, buffer);
         //aStream.read(reinterpret_cast<std::istream::char_type*>(buffer.data()),sizeof(buffer));
     }
 

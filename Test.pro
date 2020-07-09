@@ -28,7 +28,9 @@ include(conanbuildinfo.pri)
 
 SOURCES += \
     data_reader.cpp \
+    decoder.cpp \
     dqt_decoder_t.cpp \
+    idecoder.cpp \
     main_t.cpp \
     huffman_tree.cpp \
     dht_decoder_t.cpp \
@@ -52,6 +54,7 @@ HEADERS += \
     decoder.hpp \
     dht_decoder.hpp \
     huffman_tree.hpp \
+    idecoder.hpp \
     sof0_decoder.hpp \
     context.hpp \
     sos_decoder.hpp \

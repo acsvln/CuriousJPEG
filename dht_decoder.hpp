@@ -8,13 +8,14 @@
 #include "decoder.hpp"
 #include "utility.hpp"
 
-class DHTDecoder : public IDecoder {
+class DHTDecoder : public Decoder {
 public:
   ~DHTDecoder() final = default;
+DHTDecoder();
 
-  // IDecoder interface
+  // Decoder interface
 public:
-  void Invoke(std::istream &aStream, Context &aContext) final;
+  void InvokeImpl(std::istream &aStream, Context &aContext) final;
 };
 
 #endif // DHT_DECODER_H

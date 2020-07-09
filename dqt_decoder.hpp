@@ -1,7 +1,7 @@
 #ifndef DQT_DECODER_HPP
 #define DQT_DECODER_HPP
 
-#include "decoder.hpp"
+#include "idecoder.hpp"
 
 class DQTDecoder : public IDecoder
 {

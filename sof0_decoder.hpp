@@ -3,14 +3,14 @@
 
 #include "decoder.hpp"
 
-class SOF0Decoder : public IDecoder
-{
+class SOF0Decoder : public Decoder {
 public:
-    ~SOF0Decoder() final = default;
+  ~SOF0Decoder() final = default;
+  SOF0Decoder();
 
-    // IDecoder interface
+  // IDecoder interface
 public:
-    void Invoke(std::istream &aStream, Context& aContext) final;
+  void InvokeImpl(std::istream &aStream, Context &aContext) final;
 };
 
 #endif // SOF0_DECODER_HPP

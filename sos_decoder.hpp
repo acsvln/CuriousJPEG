@@ -1,7 +1,7 @@
 #ifndef SOS_DECODER_HPP
 #define SOS_DECODER_HPP
 
-#include "decoder.hpp"
+#include "idecoder.hpp"
 
 #include <bitset>
 

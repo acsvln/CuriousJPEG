@@ -2,45 +2,39 @@
 
 #include <iostream>
 
-#include "utility.hpp"
 #include "data_reader.hpp"
+#include "utility.hpp"
 
-void SOF0Decoder::Invoke(std::istream& aStream, Context& aContext)
-{
-    const auto size = DataReader::readNumber<uint16_t>(aStream);
-    printSectionDescription("Baseline DCT", size);
+SOF0Decoder::SOF0Decoder() : Decoder{"Baseline DCT"} {}
 
-    const auto precision = DataReader::readNumber<uint8_t>(aStream);
-    const auto height = DataReader::readNumber<uint16_t>(aStream);
-    const auto width = DataReader::readNumber<uint16_t>(aStream);
+void SOF0Decoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+  const auto precision = DataReader::readNumber<uint8_t>(Stream);
+  const auto height = DataReader::readNumber<uint16_t>(Stream);
+  const auto width = DataReader::readNumber<uint16_t>(Stream);
 
-    aContext.dct.precision = precision;
-    aContext.dct.height = height;
-    aContext.dct.width = width;
+  Ctx.dct.precision = precision;
+  Ctx.dct.height = height;
+  Ctx.dct.width = width;
 
-    const auto unitsCount = DataReader::readNumber<uint8_t>(aStream);
-    aContext.dct.components.resize(unitsCount);
+  const auto unitsCount = DataReader::readNumber<uint8_t>(Stream);
+  Ctx.dct.components.resize(unitsCount);
 
-    uint32_t maxH = 0, maxV = 0;
+  uint32_t maxH = 0, maxV = 0;
 
-    for (int cx=0; cx<unitsCount; cx++)
-    {
-        DCTComponent component;
-        DataReader::readSruct(aStream, component);
+  for (std::size_t cx = 0; cx < unitsCount; cx++) {
+    auto &component = Ctx.dct.components[cx];
+    DataReader::readSruct(Stream, component);
 
-        // TODO: For max/min write test
-
-        if (component.h > maxH) {
-            maxH = component.h;
-        }
-
-        if (component.v > maxV) {
-            maxV = component.v;
-        }        
-
-        aContext.dct.components[cx] = component;
+    // TODO: Test that
+    if (component.h > maxH) {
+      maxH = component.h;
     }
 
-    aContext.dct.maxH = maxH;
-    aContext.dct.maxV = maxV;
+    if (component.v > maxV) {
+      maxV = component.v;
+    }
+  }
+
+  Ctx.dct.maxH = maxH;
+  Ctx.dct.maxV = maxV;
 }

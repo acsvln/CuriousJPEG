@@ -209,7 +209,7 @@ SOSDecoder::Cs SOSDecoder::QuantMCU(
         const auto dqtid = find_chan( chanid ).dqtId;
 
 
-        std::cout << "dqtid" << (int) dqtid;
+//        std::cout << "dqtid" << (int) dqtid;
 
         for ( auto& matrx : matrx_lsit ) {
             const auto dqt = quant.at( dqtid );
@@ -367,7 +367,7 @@ boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT2(
             //-------------------------------------
             const auto w = (1. / 4.)  *  tmp1; //
             res(y,x) = w;
-            std::cout << "res" << w << std::endl;
+//            std::cout << "res" << w << std::endl;
         }
     }
 
@@ -401,7 +401,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReverseDQT(
             //-------------------------------------
             const auto w = (1. / 4.)  *  tmp1; //
             res(y,x) = w;
-            std::cout << "res" << w << std::endl;
+//            std::cout << "res" << w << std::endl;
         }
     }
 
@@ -441,7 +441,7 @@ boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
             //-------------------------------------
             const auto w = (1. / 4.)  *  tmp1; //
             res(y,x) = w;
-            std::cout << "res" << w << std::endl;
+//            std::cout << "res" << w << std::endl;
         }
     }
 

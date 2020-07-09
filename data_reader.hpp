@@ -1,7 +1,7 @@
 #ifndef DATAREADER_H
 #define DATAREADER_H
 
-#include <fstream>
+#include <istream>
 #include <string>
 #include <type_traits>
 
@@ -22,12 +22,15 @@ public:
     return boost::endian::native_to_big(Buffer);
   }
 
-    template<class Struc> static auto readSruct(StreamT &Stream, Struc& struc ){
-        Stream.read(reinterpret_cast<CharT *>(&struc),sizeof(struc));
-    }
+  template <class Struc> static auto readSruct(StreamT &Stream, Struc &struc) {
+    Stream.read(reinterpret_cast<CharT *>(&struc), sizeof(struc));
+  }
 
   template <class BufferT>
   static void readBuffer(StreamT &Stream, BufferT &Buffer) {
+    static_assert(sizeof(CharT) == sizeof(typename BufferT::value_type));
+    static_assert(sizeof(CharT *) == sizeof(typename BufferT::pointer));
+
     Stream.read(reinterpret_cast<CharT *>(Buffer.data()), Buffer.size());
   }
 

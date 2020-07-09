@@ -5,7 +5,11 @@
 #include "data_reader.hpp"
 #include "huffman_tree.hpp"
 
-void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
+DHTDecoder::DHTDecoder()
+    : Decoder{"Define Huffman Table"}
+{}
+
+void DHTDecoder::InvokeImpl(std::istream &aStream, Context &aContext) {
   static constexpr std::size_t HuffCodeCount = 16;
   static constexpr uint8_t HuffClassDC = 0u;
   static constexpr uint8_t HuffClassAC = 1u;
@@ -24,9 +28,6 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
     throw std::runtime_error(ss.str());
   };
 
-  const auto size = DataReader::readNumber<uint16_t>(aStream);
-  printSectionDescription("Define Huffman Table", size);
-
   const auto description = DataReader::readNumber<uint8_t>(aStream);
   const uint8_t tableClass = lowByte( description );
   const uint8_t tableIndex = highByte( description );
@@ -41,10 +42,7 @@ void DHTDecoder::Invoke(std::istream &aStream, Context &aContext) {
 
   std::array<uint8_t, HuffCodeCount> huffCodes;
 
-  static_assert(sizeof(std::istream::char_type) ==
-                sizeof(std::array<uint8_t, HuffCodeCount>::value_type));
-  static_assert(sizeof(std::istream::char_type *) ==
-                sizeof(std::array<uint8_t, HuffCodeCount>::pointer));
+
   DataReader::readBuffer( aStream, huffCodes );
 
   for (std::size_t index = 0; index < huffCodes.size(); ++index) {

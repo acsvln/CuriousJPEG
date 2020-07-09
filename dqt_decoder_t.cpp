@@ -15,6 +15,17 @@ using namespace std;
 
 #include "dqt_decoder.hpp"
 
+void prnt_matr666(const boost::numeric::ublas::matrix<uint8_t> &matrix) {
+  std::cout << std::endl << "prnt_matr" << std::endl;
+
+  for (int i = 0; i < 8; i++) {
+    for (int j = 0; j < 8; j++) {
+      std::cout << std::hex << (int)matrix(i, j) << '\t';
+    }
+    std::cout << std::endl;
+  }
+}
+
 
 void prnt_matr2( const boost::numeric::ublas::matrix<uint8_t>& matrix ) {
     std::cout << std::endl << "prnt_matr XXXXX" << std::endl;
@@ -44,7 +55,7 @@ BOOST_AUTO_TEST_CASE(Invoke) {
         (char)0xFF, (char)0xFF, (char)0xFF, (char)0xFF
     };
 
-    boost::numeric::ublas::matrix<char> expected(8, 8);
+    boost::numeric::ublas::matrix<uint16_t> expected(8, 8);
     expected <<=    0xA0, 0x6E, 0x64, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF,
                     0x78, 0x78, 0x8C, 0xBE, 0xFF, 0xFF, 0xFF, 0xFF,
                     0x8C, 0x82, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -62,6 +73,11 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     basic_array_source<char> input_source(source.data(), source.size());
     stream<basic_array_source<char>> input_stream(input_source);
     decoder.Invoke(input_stream, context);
+
+    std::cout << "-------------------------------------------------" << std::endl;
+    prnt_matr666(context.DQT_Vector[0]);
+    prnt_matr666(expected);
+
 
     BOOST_CHECK_EQUAL(context.DQT_Vector.size(), 1 );
     BOOST_CHECK_EQUAL(expected,  context.DQT_Vector[0]);
@@ -82,7 +98,8 @@ BOOST_AUTO_TEST_CASE(Invoke_1) {
         (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff, (char)0xff
     };
 
-    boost::numeric::ublas::matrix<char> expected(8, 8);
+
+    boost::numeric::ublas::matrix<uint16_t> expected(8, 8);
     expected <<=    0xaa, 0xb4, 0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                     0xb4, 0xd2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                     0xf0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -102,7 +119,8 @@ BOOST_AUTO_TEST_CASE(Invoke_1) {
     decoder.Invoke(input_stream, context);
 
     BOOST_CHECK_EQUAL(context.DQT_Vector.size(), 2 );
-    prnt_matr2(context.DQT_Vector[1]);
+    std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+    prnt_matr666(context.DQT_Vector[1]);
     BOOST_CHECK_EQUAL(expected,  context.DQT_Vector[1]);
 
 
