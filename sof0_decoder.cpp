@@ -8,33 +8,32 @@
 SOF0Decoder::SOF0Decoder() : Decoder{"Baseline DCT"} {}
 
 void SOF0Decoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
-  const auto precision = DataReader::readNumber<uint8_t>(Stream);
-  const auto height = DataReader::readNumber<uint16_t>(Stream);
-  const auto width = DataReader::readNumber<uint16_t>(Stream);
+  const auto Precision = DataReader::readNumber<uint8_t>(Stream);
+  const auto Height = DataReader::readNumber<uint16_t>(Stream);
+  const auto Width = DataReader::readNumber<uint16_t>(Stream);
 
-  Ctx.dct.precision = precision;
-  Ctx.dct.height = height;
-  Ctx.dct.width = width;
+  Ctx.dct.precision = Precision;
+  Ctx.dct.height = Height;
+  Ctx.dct.width = Width;
 
-  const auto unitsCount = DataReader::readNumber<uint8_t>(Stream);
-  Ctx.dct.components.resize(unitsCount);
+  const auto UnitsCount = DataReader::readNumber<uint8_t>(Stream);
+  Ctx.dct.components.resize(UnitsCount);
 
-  uint32_t maxH = 0, maxV = 0;
+  uint32_t MaxH = 0, MaxV = 0;
 
-  for (std::size_t cx = 0; cx < unitsCount; cx++) {
+  for (std::size_t cx = 0; cx < UnitsCount; cx++) {
     auto &component = Ctx.dct.components[cx];
     DataReader::readSruct(Stream, component);
 
-    // TODO: Test that
-    if (component.h > maxH) {
-      maxH = component.h;
+    if (component.h > MaxH) {
+      MaxH = component.h;
     }
 
-    if (component.v > maxV) {
-      maxV = component.v;
+    if (component.v > MaxV) {
+      MaxV = component.v;
     }
   }
 
-  Ctx.dct.maxH = maxH;
-  Ctx.dct.maxV = maxV;
+  Ctx.dct.maxH = MaxH;
+  Ctx.dct.maxV = MaxV;
 }
