@@ -2,6 +2,7 @@
 boost_numeric_ublas/1.69.0@bincrafters/stable
 boost_endian/1.69.0@bincrafters/stable
 boost_test/1.69.0@bincrafters/stable
+boost_assert/1.69.0@bincrafters/stable
 # We need this to build on linux
 bzip2/1.0.6
 

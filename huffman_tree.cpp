@@ -1,6 +1,6 @@
 #include "huffman_tree.hpp"
 
-#include <cassert>
+#include <boost/assert.hpp>
 
 auto HuffmanTree::createAndinsertNodeImplementation(
     std::shared_ptr<Node> const &Parent, uint8_t const Level,
@@ -100,7 +100,7 @@ auto HuffmanTree::Node::left() const -> std::shared_ptr<Node> { return Left; }
 auto HuffmanTree::Node::right() const -> std::shared_ptr<Node> { return Right; }
 auto HuffmanTree::Node::parent() const -> std::weak_ptr<Node> { return Parent; }
 auto HuffmanTree::Node::data() const -> uint8_t {
-  assert(Data.has_value());
+  BOOST_ASSERT_MSG(Data.has_value(), "Node is not leaf");
   return Data.value();
 }
 
