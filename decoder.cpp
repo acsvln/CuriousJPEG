@@ -1,6 +1,6 @@
 #include "decoder.hpp"
 
-#include <cassert>
+#include <boost/assert.hpp>
 
 #include "data_reader.hpp"
 #include "utility.hpp"
@@ -13,7 +13,6 @@ void Decoder::Invoke(std::istream &Stream, Context &Ctx) {
   std::cout << "Segment size: " << Size << " bytes" << std::endl;
   const auto Pos = Stream.tellg();
   InvokeImpl(Stream, Ctx);
-  std::cout << "x" << (Stream.tellg() - Pos) << "y" <<(Size - sizeof(Size));
-
-  assert((Stream.tellg() - Pos) == (Size - sizeof(Size)));
+  BOOST_ASSERT_MSG((Stream.tellg() - Pos) == (Size - sizeof(Size)),
+                   "Segment was not read correctly");
 }

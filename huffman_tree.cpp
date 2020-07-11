@@ -134,12 +134,14 @@ auto HuffmanTree::Node::Builder::right() -> Builder & {
 
 auto HuffmanTree::Node::Builder::end() -> Builder & {
   const auto ParentNode = NextNode->Parent.lock();
-  assert(ParentNode != nullptr);
+  BOOST_ASSERT_MSG(ParentNode != nullptr,
+                   "Don't call end method on the root of tree");
   NextNode = ParentNode;
   return *this;
 }
 
 auto HuffmanTree::Node::Builder::done() -> std::shared_ptr<HuffmanTree::Node> {
   assert(Root == NextNode);
+  BOOST_ASSERT_MSG(Root == NextNode, "Tree was not fully formed");
   return Root;
 }
