@@ -30,6 +30,7 @@ SOURCES += \
     data_reader.cpp \
     decoder.cpp \
     dqt_decoder_t.cpp \
+    exceptions.cpp \
     idecoder.cpp \
     main_t.cpp \
     huffman_tree.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     data_reader.hpp \
     decoder.hpp \
     dht_decoder.hpp \
+    exceptions.h \
     huffman_tree.hpp \
     idecoder.hpp \
     sof0_decoder.hpp \
@@ -60,3 +62,6 @@ HEADERS += \
     sos_decoder.hpp \
     testing_utility.hpp \
     utility.hpp
+
+DISTFILES += \
+    conanfile.txt
