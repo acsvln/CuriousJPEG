@@ -2,11 +2,11 @@
 
 #include <array>
 
-#include <boost/iostreams/device/array.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
 #include "dqt_decoder.hpp"
+#include "exceptions.h"
 #include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(DQTDecoderTests)
@@ -39,8 +39,7 @@ BOOST_AUTO_TEST_CASE(Invoke_0) {
   // clang-format on
 
   Context Ctx;
-  DQTDecoder Decoder;
-  invokeDecoderWithDataBuffer(Decoder, Ctx, Source);
+  invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source);
 
   BOOST_CHECK_EQUAL(Ctx.DQT_Vector.size(), std::size_t{1});
   BOOST_CHECK_EQUAL(Expected, Ctx.DQT_Vector.at(0));
@@ -74,11 +73,29 @@ BOOST_AUTO_TEST_CASE(Invoke_1) {
   // clang-format on
 
   Context Ctx;
-  DQTDecoder Decoder;
-  invokeDecoderWithDataBuffer(Decoder, Ctx, Source);
+  invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source);
 
   BOOST_CHECK_EQUAL(Ctx.DQT_Vector.size(), std::size_t{2});
   BOOST_CHECK_EQUAL(Expected, Ctx.DQT_Vector.at(1));
+}
+
+BOOST_AUTO_TEST_CASE(UnimplementedTableElementSize) {
+    std::array<uint8_t, 67> const Source{
+        // clang-format off
+          0x00, 0x43, 0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+          0xFF, 0xFF, 0xFF
+        // clang-format on
+    };
+
+    Context Ctx;
+    BOOST_CHECK_THROW( invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source), NotImplementedException );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

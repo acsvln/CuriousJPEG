@@ -1,42 +1,30 @@
 #include "dqt_decoder.hpp"
-#include <iostream>
 
 #include "data_reader.hpp"
+#include "exceptions.h"
 #include "utility.hpp"
 
-void DQTDecoder::Invoke(std::istream &aStream, Context& aContext)
-{
-    const auto size = DataReader::readNumber<uint16_t>(aStream);
-    printSectionDescription("Define a Quantization Table", size);
+DQTDecoder::DQTDecoder() : Decoder{"Define a Quantization Table"} {}
 
-    uint8_t tableElementSize=0;
-    uint8_t tableIndex=0;
+void DQTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+  const auto numBuffer = DataReader::readNumber<uint8_t>(Stream);
 
-    const auto numBuffer = DataReader::readNumber<uint8_t>(aStream);
+  const auto tableElementSize = lowByte(numBuffer);
+  if (tableElementSize != 0) {
+      throw NotImplementedException{};
+  }
 
-    tableElementSize = lowByte( numBuffer );
-    tableIndex= highByte( numBuffer );
+  const auto tableIndex = highByte(numBuffer);
+  if (Ctx.DQT_Vector.size() <= tableIndex) {
+    Ctx.DQT_Vector.resize(tableIndex + 1);
+  }
 
-    if (aContext.DQT_Vector.size() <= tableIndex ) {
-        aContext.DQT_Vector.resize(tableIndex + 1);
-    }
+  std::array<uint8_t, 64> RawBuffer;
+  DataReader::readBuffer(Stream, RawBuffer);
 
-    std::array<uint16_t, 64> buffer;
+  std::array<uint16_t, 64> Buffer;
+  std::transform(std::begin(RawBuffer), std::end(RawBuffer), std::begin(Buffer),
+                 TransformCaster<uint16_t>());
 
-    if (tableElementSize==0)
-    {
-        std::array<uint8_t, 64> byteBuffer;
-        DataReader::readBuffer(aStream, byteBuffer);
-        //aStream.read(reinterpret_cast<std::istream::char_type*>(byteBuffer.data()),sizeof(byteBuffer));
-        std::transform(std::begin(byteBuffer), std::end(byteBuffer),std::begin(buffer),[](uint8_t number){
-            return uint16_t{number};
-        });
-    }
-    else
-    {
-        // DataReader::readBuffer(aStream, buffer);
-        //aStream.read(reinterpret_cast<std::istream::char_type*>(buffer.data()),sizeof(buffer));
-    }
-
-    aContext.DQT_Vector[tableIndex] = CreateZigZagMatrix(buffer);
+  Ctx.DQT_Vector[tableIndex] = CreateZigZagMatrix(Buffer);
 }

@@ -1,16 +1,16 @@
 #ifndef DQT_DECODER_HPP
 #define DQT_DECODER_HPP
 
-#include "idecoder.hpp"
+#include "decoder.hpp"
 
-class DQTDecoder : public IDecoder
+class DQTDecoder : public Decoder
 {
 public:
     ~DQTDecoder() final = default;
+    DQTDecoder();
 
-    // IDecoder interface
-public:
-    void Invoke(std::istream &aStream, Context& aContext) final;
+private:
+  void InvokeImpl(std::istream &Stream, Context &Ctx);
 };
 
 #endif // DQT_DECODER_HPP
