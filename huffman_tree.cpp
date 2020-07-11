@@ -3,8 +3,8 @@
 #include <boost/assert.hpp>
 
 auto HuffmanTree::createAndinsertNodeImplementation(
-    std::shared_ptr<Node> const &Parent, uint8_t const Level,
-    uint8_t const Value, uint8_t const CurrentLevel,
+    std::shared_ptr<Node> const &Parent, std::size_t const Level,
+    uint8_t const Value, std::size_t const CurrentLevel,
     BypassDirection const Direction) -> std::shared_ptr<HuffmanTree::Node> {
   using Node = HuffmanTree::Node;
 
@@ -24,7 +24,7 @@ auto HuffmanTree::createAndinsertNodeImplementation(
     return item;
   }
 
-  uint8_t nextLevel = CurrentLevel;
+  std::size_t nextLevel = CurrentLevel;
   std::shared_ptr<Node> node;
   auto NewDirection = BypassDirection::Down;
 
@@ -105,7 +105,7 @@ auto HuffmanTree::Node::data() const -> uint8_t {
 }
 
 auto HuffmanTree::createAndinsertNode(std::shared_ptr<Node> const &Parent,
-                                      uint8_t Level, uint8_t Value)
+                                      std::size_t Level, uint8_t Value)
     -> std::shared_ptr<Node> {
   return createAndinsertNodeImplementation(Parent, Level, Value);
 }

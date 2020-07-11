@@ -46,15 +46,15 @@ public:
   };
 
   static auto createAndinsertNode(std::shared_ptr<Node> const &Parent,
-                                  uint8_t const Level, uint8_t const Value)
+                                  std::size_t const Level, uint8_t const Value)
       -> std::shared_ptr<Node>;
 
 private:
   enum class BypassDirection { Up, Down };
 
   static auto createAndinsertNodeImplementation(
-      std::shared_ptr<Node> const &Parent, uint8_t const Level,
-      uint8_t const Value, uint8_t const CurrentLevel = 0,
+      std::shared_ptr<Node> const &Parent, std::size_t const Level,
+      uint8_t const Value, std::size_t const CurrentLevel = 0,
       BypassDirection const Direction = BypassDirection::Down)
       -> std::shared_ptr<Node>;
 };
