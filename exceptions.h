@@ -1,11 +1,11 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
 
+#include <stdexcept>
 
-class exceptions
-{
+class NotImplementedException : public std::logic_error {
 public:
-    exceptions();
+  NotImplementedException();
 };
 
 #endif // EXCEPTIONS_H

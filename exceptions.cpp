@@ -1,6 +1,4 @@
 #include "exceptions.h"
 
-exceptions::exceptions()
-{
-
-}
+NotImplementedException::NotImplementedException()
+    : std::logic_error("Function not yet implemented"){};
