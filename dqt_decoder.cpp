@@ -7,16 +7,16 @@
 DQTDecoder::DQTDecoder() : Decoder{"Define a Quantization Table"} {}
 
 void DQTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
-  const auto numBuffer = DataReader::readNumber<uint8_t>(Stream);
+  const auto NumBuffer = DataReader::readNumber<uint8_t>(Stream);
 
-  const auto tableElementSize = lowByte(numBuffer);
-  if (tableElementSize != 0) {
+  const auto TableElementSize = lowByte(NumBuffer);
+  if (TableElementSize != 0) {
       throw NotImplementedException{};
   }
 
-  const auto tableIndex = highByte(numBuffer);
-  if (Ctx.DQT_Vector.size() <= tableIndex) {
-    Ctx.DQT_Vector.resize(tableIndex + 1);
+  const auto TableIndex = highByte(NumBuffer);
+  if (Ctx.DQT_Vector.size() <= TableIndex) {
+    Ctx.DQT_Vector.resize(TableIndex + 1);
   }
 
   std::array<uint8_t, 64> RawBuffer;
@@ -26,5 +26,5 @@ void DQTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
   std::transform(std::begin(RawBuffer), std::end(RawBuffer), std::begin(Buffer),
                  TransformCaster<uint16_t>());
 
-  Ctx.DQT_Vector[tableIndex] = CreateZigZagMatrix(Buffer);
+  Ctx.DQT_Vector[TableIndex] = CreateZigZagMatrix(Buffer);
 }

@@ -13,9 +13,9 @@ constexpr uint8_t HuffmanClassDC = 0u;
 constexpr uint8_t HuffmanClassAC = 1u;
 
 auto invalidTableClassException(uint8_t const TableClass) {
-  std::stringstream ss;
-  ss << "Invalid table class " << TableClass;
-  return std::runtime_error{ss.str()};
+  std::stringstream SS;
+  SS << "Invalid table class " << TableClass;
+  return std::runtime_error{SS.str()};
 }
 
 } // namespace
@@ -45,13 +45,13 @@ void DHTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
     HuffmanVector.resize(TableIndex + 1);
   }
 
-  const auto root = std::make_shared<HuffmanTree::Node>(nullptr);
+  const auto Root = std::make_shared<HuffmanTree::Node>(nullptr);
 
   std::array<uint8_t, HuffmanCodeCount> HuffmanCodes;
   DataReader::readBuffer(Stream, HuffmanCodes);
 
-  for (std::size_t index = 0; index < HuffmanCodes.size(); ++index) {
-    const auto Count = HuffmanCodes[index];
+  for (std::size_t Index = 0; Index < HuffmanCodes.size(); ++Index) {
+    const auto Count = HuffmanCodes[Index];
     if (0 == Count) {
       continue;
     }
@@ -59,10 +59,10 @@ void DHTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
     std::vector<uint8_t> HuffmanData(Count);
     DataReader::readBuffer(Stream, HuffmanData);
 
-    for (const auto code : HuffmanData) {
-      HuffmanTree::createAndinsertNode(root, index, code);
+    for (const auto Code : HuffmanData) {
+      HuffmanTree::createAndinsertNode(Root, Index, Code);
     }
   }
 
-  HuffmanVector[TableIndex] = root;
+  HuffmanVector[TableIndex] = Root;
 }
