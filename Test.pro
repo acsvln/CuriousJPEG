@@ -54,7 +54,7 @@ HEADERS += \
     data_reader.hpp \
     decoder.hpp \
     dht_decoder.hpp \
-    exceptions.h \
+    exceptions.hpp \
     huffman_tree.hpp \
     idecoder.hpp \
     sof0_decoder.hpp \

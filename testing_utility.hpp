@@ -1,5 +1,5 @@
-#ifndef TESTING_UTILITY_H
-#define TESTING_UTILITY_H
+#ifndef TESTING_UTILITY_HPP
+#define TESTING_UTILITY_HPP
 
 #include <vector>
 #include <algorithm>
@@ -40,4 +40,4 @@ void invokeDecoderWithDataBuffer(Context &Ctx, Container &Buff) {
     invokeDecoderWithDataBuffer(Dec, Ctx, Buff);
 }
 
-#endif // TESTING_UTILITY_H
+#endif // TESTING_UTILITY_HPP

@@ -1,5 +1,5 @@
-#ifndef DHT_DECODER_H
-#define DHT_DECODER_H
+#ifndef DHT_DECODER_HPP
+#define DHT_DECODER_HPP
 
 #include "decoder.hpp"
 
@@ -13,4 +13,4 @@ public:
   void InvokeImpl(std::istream &Stream, Context &Ctx) final;
 };
 
-#endif // DHT_DECODER_H
+#endif // DHT_DECODER_HPP

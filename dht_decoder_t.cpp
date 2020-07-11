@@ -3,7 +3,7 @@
 #include <array>
 
 #include "dht_decoder.hpp"
-#include "exceptions.h"
+#include "exceptions.hpp"
 #include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(DHTDecoderTests)

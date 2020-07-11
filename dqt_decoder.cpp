@@ -1,7 +1,7 @@
 #include "dqt_decoder.hpp"
 
 #include "data_reader.hpp"
-#include "exceptions.h"
+#include "exceptions.hpp"
 #include "utility.hpp"
 
 DQTDecoder::DQTDecoder() : Decoder{"Define a Quantization Table"} {}

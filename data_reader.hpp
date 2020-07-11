@@ -1,5 +1,5 @@
-#ifndef DATAREADER_H
-#define DATAREADER_H
+#ifndef DATAREADER_HPP
+#define DATAREADER_HPP
 
 #include <istream>
 #include <string>
@@ -38,4 +38,4 @@ public:
   static void skipChars(StreamT &Stream, StreamSizeT const Count);
 };
 
-#endif // DATAREADER_H
+#endif // DATAREADER_HPP

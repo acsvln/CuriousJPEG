@@ -6,7 +6,7 @@
 #include <boost/numeric/ublas/io.hpp>
 
 #include "dqt_decoder.hpp"
-#include "exceptions.h"
+#include "exceptions.hpp"
 #include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(DQTDecoderTests)

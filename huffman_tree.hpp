@@ -1,5 +1,5 @@
-#ifndef HUFFMANTREE_H
-#define HUFFMANTREE_H
+#ifndef HUFFMANTREE_HPP
+#define HUFFMANTREE_HPP
 
 #include <cstdint>
 #include <memory>
@@ -59,4 +59,4 @@ private:
       -> std::shared_ptr<Node>;
 };
 
-#endif // HUFFMANTREE_H
+#endif // HUFFMANTREE_HPP

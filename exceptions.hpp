@@ -1,5 +1,5 @@
-#ifndef EXCEPTIONS_H
-#define EXCEPTIONS_H
+#ifndef EXCEPTIONS_HPP
+#define EXCEPTIONS_HPP
 
 #include <stdexcept>
 
@@ -8,4 +8,4 @@ public:
   NotImplementedException();
 };
 
-#endif // EXCEPTIONS_H
+#endif // EXCEPTIONS_HPP
