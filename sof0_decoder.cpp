@@ -21,8 +21,8 @@ void SOF0Decoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
 
   uint32_t MaxH = 0, MaxV = 0;
 
-  for (std::size_t cx = 0; cx < UnitsCount; cx++) {
-    auto &component = Ctx.dct.components[cx];
+  for (std::size_t Index = 0; Index < UnitsCount; Index++) {
+    auto &component = Ctx.dct.components[Index];
     DataReader::readSruct(Stream, component);
 
     if (component.h > MaxH) {
