@@ -1,18 +1,16 @@
-#include <array>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/stream.hpp>
-#include <boost/numeric/ublas/assignment.hpp>
-#include <boost/numeric/ublas/io.hpp>
 #include <boost/test/unit_test.hpp>
-#include <fstream>
-#include <iostream>
-
-using namespace boost::iostreams;
-using namespace std;
 
 #include "sos_decoder.hpp"
-#include "utility.hpp"
 #include "testing_utility.hpp"
+
+#include <boost/numeric/ublas/assignment.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/iostreams/stream.hpp>
+
+//-------------------------------------
+BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
+
+namespace ios = boost::iostreams;
 
 //-------------------------------------
 auto DC_Tree_0() -> std::shared_ptr<HuffmanTree::Node> {
@@ -73,122 +71,18 @@ auto AC_Tree_1() -> std::shared_ptr<HuffmanTree::Node> {
   // clang-format on
 }
 
-void prnt_matr(const boost::numeric::ublas::matrix<int8_t> &matrix) {
-  std::cout << std::endl << "prnt_matr" << std::endl;
-
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      std::cout << (int)matrix(i, j) << '\t';
-    }
-    std::cout << std::endl;
-  }
-}
-
-void prnt_matr(const boost::numeric::ublas::matrix<uint8_t> &matrix) {
-  std::cout << std::endl << "prnt_matr" << std::endl;
-
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      std::cout << (int)matrix(i, j) << '\t';
-    }
-    std::cout << std::endl;
-  }
-}
-
-void prnt_matr(const boost::numeric::ublas::matrix<int16_t> &matrix) {
-  std::cout << std::endl << "prnt_matr" << std::endl;
-
-  for (int i = 0; i < 8; i++) {
-    for (int j = 0; j < 8; j++) {
-      std::cout << (int)matrix(i, j) << '\t';
-    }
-    std::cout << std::endl;
-  }
-}
-
-//-------------------------------------
-BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
-
-BOOST_AUTO_TEST_CASE(BitExtractor) {
-  const std::array<char, 4> data = {(char)0b10101001, 0b01111011, 0b01100101,
-                                    0b00000001};
-
-  basic_array_source<char> input_source(data.data(), data.size());
-  stream<basic_array_source<char>> input_stream(input_source);
-
-  SOSDecoder::BitExtractor extractor{input_stream};
-
-  // 0b10101001
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-
-  // 0b01111011
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-
-  // 0b01100101
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-
-  // 0b00000001
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 0);
-  BOOST_REQUIRE(extractor.nextNumber() == 1);
-}
-
-BOOST_AUTO_TEST_CASE(BitExtractor_WithLength) {
-  const std::array<char, 4> data = {(char)0b10101001, 0b01111011, 0b01100101,
-                                    0b00000001};
-
-  basic_array_source<char> input_source(data.data(), data.size());
-  stream<basic_array_source<char>> input_stream(input_source);
-
-  SOSDecoder::BitExtractor extractor{input_stream};
-
-  //-------------------------------------
-  BOOST_REQUIRE(extractor.nextNumber(6) == 0b101010);
-  BOOST_REQUIRE(extractor.nextNumber(7) == 0b0101111);
-  BOOST_REQUIRE(extractor.nextNumber(8) == 0b01101100);
-  BOOST_REQUIRE(extractor.nextNumber(5) == 0b10100);
-  BOOST_REQUIRE(extractor.nextNumber(2) == 0b00);
-  BOOST_REQUIRE(extractor.nextNumber(4) == 0b0001);
-}
-
 BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_0) {
   const std::array<char, 1> data = {(char)0b10000000};
 
-  basic_array_source<char> input_source(data.data(), data.size());
-  stream<basic_array_source<char>> input_stream(input_source);
+  ios::basic_array_source<char> input_source(data.data(), data.size());
+  ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-  SOSDecoder::BitExtractor extractor{input_stream};
+  BitExtractor extractor{input_stream};
 
   const auto root = DC_Tree_0();
 
   const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-  BOOST_CHECK_EQUAL(located, root->right()->left());
+  BOOST_REQUIRE_EQUAL(located, root->right()->left());
 }
 
 BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_0) {
@@ -196,80 +90,80 @@ BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_0) {
 
   {
     const std::array<char, 1> data = {(char)0b11100000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->right()->right()->left());
+    BOOST_REQUIRE_EQUAL(located, root->right()->right()->right()->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b11000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->right()->left()->left());
+    BOOST_REQUIRE_EQUAL(located, root->right()->right()->left()->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b10100000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->left()->right());
+    BOOST_REQUIRE_EQUAL(located, root->right()->left()->right());
   }
 
   {
     const std::array<char, 1> data = {(char)0b00000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->left());
+    BOOST_REQUIRE_EQUAL(located, root->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b00000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->left());
+    BOOST_REQUIRE_EQUAL(located, root->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b11110000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located,
+    BOOST_REQUIRE_EQUAL(located,
                       root->right()->right()->right()->right()->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b10000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->left()->left());
+    BOOST_REQUIRE_EQUAL(located, root->right()->left()->left());
   }
 }
 
 BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_1) {
   const std::array<char, 1> data = {(char)0b10000000};
 
-  basic_array_source<char> input_source(data.data(), data.size());
-  stream<basic_array_source<char>> input_stream(input_source);
+  ios::basic_array_source<char> input_source(data.data(), data.size());
+  ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-  SOSDecoder::BitExtractor extractor{input_stream};
+  BitExtractor extractor{input_stream};
 
   const auto root = DC_Tree_1();
   const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-  BOOST_CHECK_EQUAL(located, root->right()->left());
+  BOOST_REQUIRE_EQUAL(located, root->right()->left());
 }
 
 BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_1) {
@@ -277,29 +171,29 @@ BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_1) {
 
   {
     const std::array<char, 1> data = {(char)0b00000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->left());
+    BOOST_REQUIRE_EQUAL(located, root->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b10000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->left());
+    BOOST_REQUIRE_EQUAL(located, root->right()->left());
   }
 
   {
     const std::array<char, 1> data = {(char)0b11000000};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
-    SOSDecoder::BitExtractor extractor{input_stream};
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
+    BitExtractor extractor{input_stream};
     const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_CHECK_EQUAL(located, root->right()->right()->left());
+    BOOST_REQUIRE_EQUAL(located, root->right()->right()->left());
   }
 }
 
@@ -311,10 +205,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
     const std::array<char, 5> data = {(char)0b10101110, (char)0b11100111,
                                       (char)0b01100001, (char)0b11110010,
                                       (char)0b0};
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0,
@@ -323,7 +217,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
 
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -335,10 +229,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y2) {
     const std::array<char, 3> data = {(char)0b00110111, (char)0b10101010,
                                       (char)0b01000000};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= -4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -346,7 +240,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y2) {
 
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -358,10 +252,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y3) {
     const std::array<char, 4> data = {(char)0b01010000, (char)0b10101011,
                                       (char)0b10100000, (char)0b10000000};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= 5, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0,
@@ -370,7 +264,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y3) {
 
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -382,10 +276,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y4) {
     const std::array<char, 4> data = {(char)0b00111100, (char)0b10000010,
                                       (char)0b11001000, (char)0b01000000};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= -4, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0,
@@ -395,7 +289,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Y4) {
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
 
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -406,10 +300,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Cb) {
   {
     const std::array<char, 2> data = {(char)0b10001011, (char)0b00000000};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -417,7 +311,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Cb) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -428,10 +322,10 @@ BOOST_AUTO_TEST_CASE(ReadTable_Cr) {
     const std::array<char, 3> data = {(char)0b00111011, (char)0b10010111,
                                       (char)0b111};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     boost::numeric::ublas::matrix<uint8_t> expected(8, 8);
     expected <<= 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
@@ -440,7 +334,7 @@ BOOST_AUTO_TEST_CASE(ReadTable_Cr) {
 
     const auto matrix = SOSDecoder::ReadMatrix(extractor, DC_root, AC_root);
     // prnt_matr( matrix );
-    BOOST_CHECK_EQUAL(matrix, expected);
+    BOOST_REQUIRE_EQUAL(matrix, expected);
   }
 }
 
@@ -457,10 +351,10 @@ BOOST_AUTO_TEST_CASE(ReadMCU) {
         (char)0b11001000, (char)0b01001000, (char)0b10110001, (char)0b11011100,
         (char)0b10111111, (char)0b11111111, (char)0b11011001};
 
-    basic_array_source<char> input_source(data.data(), data.size());
-    stream<basic_array_source<char>> input_stream(input_source);
+    ios::basic_array_source<char> input_source(data.data(), data.size());
+    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
 
-    SOSDecoder::BitExtractor extractor{input_stream};
+    BitExtractor extractor{input_stream};
 
     DCTTable dct;
     dct.precision = 8;
@@ -523,30 +417,30 @@ BOOST_AUTO_TEST_CASE(ReadMCU) {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-    prnt_matr(mcu.Cs1.at(0));
-    prnt_matr(mcu.Cs1.at(1));
-    prnt_matr(mcu.Cs1.at(2));
-    prnt_matr(mcu.Cs1.at(3));
+    printMatrix(mcu.Cs1.at(0));
+    printMatrix(mcu.Cs1.at(1));
+    printMatrix(mcu.Cs1.at(2));
+    printMatrix(mcu.Cs1.at(3));
 
-    BOOST_CHECK_EQUAL(mcu.Cs1.size(), 4);
-    BOOST_CHECK_EQUAL(cs1_1, mcu.Cs1.at(0));
-    BOOST_CHECK_EQUAL(cs1_2, mcu.Cs1.at(1));
-    BOOST_CHECK_EQUAL(cs1_3, mcu.Cs1.at(2));
-    BOOST_CHECK_EQUAL(cs1_4, mcu.Cs1.at(3));
+    BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
+    BOOST_REQUIRE_EQUAL(cs1_1, mcu.Cs1.at(0));
+    BOOST_REQUIRE_EQUAL(cs1_2, mcu.Cs1.at(1));
+    BOOST_REQUIRE_EQUAL(cs1_3, mcu.Cs1.at(2));
+    BOOST_REQUIRE_EQUAL(cs1_4, mcu.Cs1.at(3));
 
     boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
     cb <<= -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    BOOST_CHECK_EQUAL(mcu.Cs2.size(), 1);
-    BOOST_CHECK_EQUAL(cb, mcu.Cs2.at(0));
+    BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
+    BOOST_REQUIRE_EQUAL(cb, mcu.Cs2.at(0));
 
     boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
     cr <<= 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-    BOOST_CHECK_EQUAL(mcu.Cs3.size(), 1);
-    BOOST_CHECK_EQUAL(cr, mcu.Cs3.at(0));
+    BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
+    BOOST_REQUIRE_EQUAL(cr, mcu.Cs3.at(0));
   }
 }
 
@@ -652,38 +546,33 @@ BOOST_AUTO_TEST_CASE(QuantMCU) {
   cs1_4 <<= -160, 220, 200, 160, 0, 0, 0, 0, -120, 0, -140, 0, 0, 0, 0, 0, -140,
       -130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-  std::cout << "____1" << std::endl;
 
-  BOOST_CHECK_EQUAL(mcu2.Cs1.size(), 4);
+  BOOST_REQUIRE_EQUAL(mcu2.Cs1.size(), 4);
 
-  std::cout << "____2" << std::endl;
+  printMatrix(mcu2.Cs1.at(0));
+  printMatrix(mcu2.Cs1.at(1));
+  printMatrix(mcu2.Cs1.at(2));
+  printMatrix(mcu2.Cs1.at(3));
 
-  prnt_matr(mcu2.Cs1.at(0));
-  prnt_matr(mcu2.Cs1.at(1));
-  prnt_matr(mcu2.Cs1.at(2));
-  prnt_matr(mcu2.Cs1.at(3));
-
-  std::cout << "____3" << std::endl;
-
-  BOOST_CHECK_EQUAL(cs1_1, mcu2.Cs1.at(0));
-  BOOST_CHECK_EQUAL(cs1_2, mcu2.Cs1.at(1));
-  BOOST_CHECK_EQUAL(cs1_3, mcu2.Cs1.at(2));
-  BOOST_CHECK_EQUAL(cs1_4, mcu2.Cs1.at(3));
+  BOOST_REQUIRE_EQUAL(cs1_1, mcu2.Cs1.at(0));
+  BOOST_REQUIRE_EQUAL(cs1_2, mcu2.Cs1.at(1));
+  BOOST_REQUIRE_EQUAL(cs1_3, mcu2.Cs1.at(2));
+  BOOST_REQUIRE_EQUAL(cs1_4, mcu2.Cs1.at(3));
 
   boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
   cb <<= -170, 0, 0, 0, 0, 0, 0, 0, 180, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
-  BOOST_CHECK_EQUAL(mcu2.Cs2.size(), 1);
-  BOOST_CHECK_EQUAL(cb, mcu2.Cs2.at(0));
+  BOOST_REQUIRE_EQUAL(mcu2.Cs2.size(), 1);
+  BOOST_REQUIRE_EQUAL(cb, mcu2.Cs2.at(0));
 
   boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
   cr <<= 0, 0, 0, 0, 0, 0, 0, 0, 180, -210, 0, 0, 0, 0, 0, 0, 240, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-  BOOST_CHECK_EQUAL(mcu2.Cs3.size(), 1);
-  BOOST_CHECK_EQUAL(cr, mcu2.Cs3.at(0));
+  BOOST_REQUIRE_EQUAL(mcu2.Cs3.size(), 1);
+  BOOST_REQUIRE_EQUAL(cr, mcu2.Cs3.at(0));
 }
 
 BOOST_AUTO_TEST_CASE(ReverseDQT_Y1) {
@@ -700,12 +589,10 @@ BOOST_AUTO_TEST_CASE(ReverseDQT_Y1) {
 
   const auto cs = SOSDecoder::ReverseDQT_1(src);
 
-  std::cout << "?????????????????????????????";
-  prnt_matr(cs);
-  prnt_matr(cs1_1);
-  std::cout << "?????????????????????????????";
+  printMatrix(cs);
+  printMatrix(cs1_1);
 
-  BOOST_CHECK_EQUAL(cs1_1, cs);
+  BOOST_REQUIRE_EQUAL(cs1_1, cs);
 }
 
 BOOST_AUTO_TEST_CASE(ReverseDQT_cb) {
@@ -723,10 +610,10 @@ BOOST_AUTO_TEST_CASE(ReverseDQT_cb) {
 
   const auto cs = SOSDecoder::ReverseDQT3(src);
 
-  prnt_matr(cs);
-  prnt_matr(cs1_1);
+  printMatrix(cs);
+  printMatrix(cs1_1);
 
-  //  BOOST_CHECK_EQUAL(cs1_1, cs);
+  //  BOOST_REQUIRE_EQUAL(cs1_1, cs);
 }
 
 BOOST_AUTO_TEST_CASE(YCbCrToRGB) {
@@ -761,187 +648,17 @@ BOOST_AUTO_TEST_CASE(YCbCrToRGB) {
       32, 26, 14, -1, -18, -34, -46, -53, 58, 50, 36, 18, -2, -20, -34, -42;
   fix_tbl(cr);
 
-  std::cout << "TTTTTT" << std::endl;
-  prnt_matr(y);
-  prnt_matr(cb);
-  prnt_matr(cr);
+  printMatrix(y);
+  printMatrix(cb);
+  printMatrix(cr);
 
   const auto res = SOSDecoder::YCbCrToRGB(y, cb, cr);
 
-  std::cout << "XXXXX" << std::endl;
-  prnt_matr(std::get<0>(res));
-  prnt_matr(std::get<1>(res));
-  prnt_matr(std::get<2>(res));
+  printMatrix(std::get<0>(res));
+  printMatrix(std::get<1>(res));
+  printMatrix(std::get<2>(res));
 
-  //    BOOST_CHECK_EQUAL(cs1_1, cs);
-}
-
-BOOST_AUTO_TEST_CASE(ReverseDQT_MCU) {
-#if 0
-
-    SOSDecoder::Cs mcu;
-
-    {
-        boost::numeric::ublas::matrix<uint8_t> cs1_1(8, 8);
-        cs1_1 <<=   320,    0,  300, 0, 0, 0, 0, 0,
-                      0,  120,  280, 0, 0, 0, 0, 0,
-                      0, -130, -160, 0, 0, 0, 0, 0,
-                    140,    0,    0, 0, 0, 0, 0, 0,
-                      0,    0,    0, 0, 0, 0, 0, 0,
-                      0,    0,    0, 0, 0, 0, 0, 0,
-                      0,    0,    0, 0, 0, 0, 0, 0,
-                      0,    0,    0, 0, 0, 0, 0, 0;
-        boost::numeric::ublas::matrix<uint8_t> cs1_2(8, 8);
-        cs1_2 <<=
-                    -320,  110, 100, 160, 0, 0, 0, 0,
-                       0,    0, 140,   0, 0, 0, 0, 0,
-                       0, -130,   0,   0, 0, 0, 0, 0,
-                       0,    0,   0,   0, 0, 0, 0, 0,
-                       0,    0,   0,   0, 0, 0, 0, 0,
-                       0,    0,   0,   0, 0, 0, 0, 0,
-                       0,    0,   0,   0, 0, 0, 0, 0,
-                       0,    0,   0,   0, 0, 0, 0, 0;
-        boost::numeric::ublas::matrix<uint8_t> cs1_3(8, 8);
-        cs1_3 <<=
-            480,  -110,  100, 0, 0, 0, 0, 0,
-            -120, -240, -140, 0, 0, 0, 0, 0,
-               0, -130,    0, 0, 0, 0, 0, 0,
-            -140,    0,    0, 0, 0, 0, 0, 0,
-               0,    0,    0, 0, 0, 0, 0, 0,
-               0,    0,    0, 0, 0, 0, 0, 0,
-               0,    0,    0, 0, 0, 0, 0, 0,
-               0,    0,    0, 0, 0, 0, 0, 0;
-        boost::numeric::ublas::matrix<uint8_t> cs1_4(8, 8);
-        cs1_4 <<=
-            -160,  220,  200, 160, 0, 0, 0, 0,
-            -120,    0, -140,   0, 0, 0, 0, 0,
-            -140, -130,    0,   0, 0, 0, 0, 0,
-               0,    0,    0,   0, 0, 0, 0, 0,
-               0,    0,    0,   0, 0, 0, 0, 0,
-               0,    0,    0,   0, 0, 0, 0, 0,
-               0,    0,    0,   0, 0, 0, 0, 0,
-               0,    0,    0,   0, 0, 0, 0, 0;
-
-        mcu.Cs1.push_back( cs1_1 );
-        mcu.Cs1.push_back( cs1_2 );
-        mcu.Cs1.push_back( cs1_3 );
-        mcu.Cs1.push_back( cs1_4 );
-
-
-        boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
-        cb <<=
-            -170,   0, 0, 0, 0, 0, 0, 0,
-             180, 210, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0,
-               0,   0, 0, 0, 0, 0, 0, 0;
-        mcu.Cs2.push_back( cb );
-
-        boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
-        cr <<=
-          0,    0, 0, 0, 0, 0, 0, 0,
-        180, -210, 0, 0, 0, 0, 0, 0,
-        240,    0, 0, 0, 0, 0, 0, 0,
-          0,    0, 0, 0, 0, 0, 0, 0,
-          0,    0, 0, 0, 0, 0, 0, 0,
-          0,    0, 0, 0, 0, 0, 0, 0,
-          0,    0, 0, 0, 0, 0, 0, 0,
-          0,    0, 0, 0, 0, 0, 0, 0;
-
-        mcu.Cs3.push_back( cr );
-    }
-
-    const auto mcu2 = SOSDecoder::ReverseDQT(mcu);
-
-    boost::numeric::ublas::matrix<uint8_t> cs1_1(8, 8);
-    cs1_1 <<=
-        138,  92, 27, -17, -17, 28,  93, 139,
-        136,  82,  5, -51, -55, -8,  61, 111,
-        143,  80, -9, -77, -89, -41, 32,  86,
-        157,  95,  6, -62, -76, -33, 36,  86,
-        147, 103, 37, -12, -21,  11, 62, 100,
-        87,  72, 50,  36,  37,  55, 79,  95,
-        -10,   5, 31,  56,  71,  73, 68,  62,
-        -87, -50,  6,  56,  79,  72, 48,  29;
-
-//    boost::numeric::ublas::matrix<uint8_t> cs1_2(8, 8);
-//    cs1_2 <<=
-//                -320,  110, 100, 160, 0, 0, 0, 0,
-//                   0,    0, 140,   0, 0, 0, 0, 0,
-//                   0, -130,   0,   0, 0, 0, 0, 0,
-//                   0,    0,   0,   0, 0, 0, 0, 0,
-//                   0,    0,   0,   0, 0, 0, 0, 0,
-//                   0,    0,   0,   0, 0, 0, 0, 0,
-//                   0,    0,   0,   0, 0, 0, 0, 0,
-//                   0,    0,   0,   0, 0, 0, 0, 0;
-
-//    boost::numeric::ublas::matrix<uint8_t> cs1_3(8, 8);
-//    cs1_3 <<=
-//        480,  -110,  100, 0, 0, 0, 0, 0,
-//        -120, -240, -140, 0, 0, 0, 0, 0,
-//           0, -130,    0, 0, 0, 0, 0, 0,
-//        -140,    0,    0, 0, 0, 0, 0, 0,
-//           0,    0,    0, 0, 0, 0, 0, 0,
-//           0,    0,    0, 0, 0, 0, 0, 0,
-//           0,    0,    0, 0, 0, 0, 0, 0,
-//           0,    0,    0, 0, 0, 0, 0, 0;
-
-//    boost::numeric::ublas::matrix<uint8_t> cs1_4(8, 8);
-//    cs1_4 <<=
-//        -160,  220,  200, 160, 0, 0, 0, 0,
-//        -120,    0, -140,   0, 0, 0, 0, 0,
-//        -140, -130,    0,   0, 0, 0, 0, 0,
-//           0,    0,    0,   0, 0, 0, 0, 0,
-//           0,    0,    0,   0, 0, 0, 0, 0,
-//           0,    0,    0,   0, 0, 0, 0, 0,
-//           0,    0,    0,   0, 0, 0, 0, 0,
-//           0,    0,    0,   0, 0, 0, 0, 0;
-//    std::cout << "____1" << std::endl;
-
-
-    boost::numeric::ublas::matrix<uint8_t> cb(8, 8);
-    cb <<=
-        60,  52,  38,  20,   0, -18, -32, -40,
-        48,  41,  29,  13,  -3, -19, -31, -37,
-        25,  20,  12,   2,  -9, -19, -27, -32,
-        -4,  -6,  -9, -13, -17, -20, -23, -25,
-       -37, -35, -33, -29, -25, -21, -18, -17,
-       -67, -63, -55, -44, -33, -22, -14, -10,
-       -90, -84, -71, -56, -39, -23, -11,  -4,
-       -102, -95, -81, -62, -42, -23,  -9,  -1;
-
-
-    boost::numeric::ublas::matrix<uint8_t> cr(8, 8);
-    cr <<=
-        19,  27,  41,  60,  80,  99, 113, 120,
-         0,   6,  18,  34,  51,  66,  78,  85,
-       -27, -22, -14,  -4,   7,  17,  25,  30,
-       -43, -41, -38, -34, -30, -27, -24, -22,
-       -35, -36, -39, -43, -47, -51, -53, -55,
-        -5,  -9, -17, -28, -39, -50, -58, -62,
-        32,  26,  14,  -1, -18, -34, -46, -53,
-        58,  50,  36,  18,  -2, -20, -34, -42;
-
-    //-------------------------------------
-    BOOST_CHECK_EQUAL(4, mcu2.Cs1.size());
-    BOOST_CHECK_EQUAL(cs1_1, mcu2.Cs1.at(0));
-
-    //-------------------------------------
-    BOOST_CHECK_EQUAL(mcu2.Cs2.size(), 1);
-    BOOST_CHECK_EQUAL(cb, mcu2.Cs2.at(0));
-
-    //-------------------------------------
-    BOOST_CHECK_EQUAL(mcu2.Cs3.size(), 1);
-    BOOST_CHECK_EQUAL(cr, mcu2.Cs3.at(0));
-
-//    BOOST_CHECK_EQUAL(cs1_2, mcu2.Cs1.at(1));
-//    BOOST_CHECK_EQUAL(cs1_3, mcu2.Cs1.at(2));
-//    BOOST_CHECK_EQUAL(cs1_4, mcu2.Cs1.at(3));
-
-#endif
+  //    BOOST_REQUIRE_EQUAL(cs1_1, cs);
 }
 
 // BOOST_AUTO_TEST_CASE(Invoke) {

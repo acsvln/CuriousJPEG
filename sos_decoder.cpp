@@ -14,29 +14,6 @@
 
 #include "data_reader.hpp"
 
-SOSDecoder::BitExtractor::BitExtractor( std::istream &aStream )
-    : mStream{ aStream }
-{}
-
-uint8_t SOSDecoder::BitExtractor::nextNumber( std::size_t bit_cnt ) {
-    if ( 0 == bit_cnt || bit_cnt > 8) {
-        // TODO: ASSERT
-        throw "wtf";
-    }
-
-    std::bitset<8> result;
-
-    for ( int i = bit_cnt - 1; i >= 0; --i ) {
-        if ( 0 == mCounter ) {
-            mbits = static_cast<unsigned>( mStream.get() );
-            mCounter = mbits.size();
-        }
-        mCounter--;
-        result[i] = mbits[mCounter];
-    }
-
-    return result.to_ulong();
-}
 
 
 //-------------------------------------
@@ -339,81 +316,6 @@ SOSDecoder::YCbCrToRGB(
 }
 
 //-------------------------------------
-
-boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT2(
-        boost::numeric::ublas::matrix<int8_t> const& matrix ) {
-    const auto Cx = []( const auto x ){
-        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
-    };
-
-    boost::numeric::ublas::matrix<int8_t> res(8,8);
-
-    for ( int y = 0; y < 8; y++ ) {
-        for ( int x = 0; x < 8; x++ ) {
-            //-------------------------------------
-            double tmp1 = 0.;
-            for ( int u = 0; u < 8; u++ ) {
-                double tmp2 = 0.;
-                for ( int v = 0; v < 8; v++ ) {
-                    const auto Cu = Cx(u);
-                    const auto Cv = Cx(v);
-                    const auto Svu = matrix(v,u);
-                    tmp2 += Cu * Cv * Svu
-                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
-                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
-                }
-                tmp1 += tmp2;
-            }
-            //-------------------------------------
-            const auto w = (1. / 4.)  *  tmp1; //
-            res(y,x) = w;
-//            std::cout << "res" << w << std::endl;
-        }
-    }
-
-    return res;
-}
-
-boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReverseDQT(
-        boost::numeric::ublas::matrix<uint8_t> const& matrix ) {
-    const auto Cx = []( const auto x ) -> double {
-        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
-    };
-
-    boost::numeric::ublas::matrix<uint8_t> res(8,8);
-
-    for ( int y = 0; y < 8; y++ ) {
-        for ( int x = 0; x < 8; x++ ) {
-            //-------------------------------------
-            double tmp1 = 0.;
-            for ( int u = 0; u < 8; u++ ) {
-                double tmp2 = 0.;
-                for ( int v = 0; v < 8; v++ ) {
-                    const auto Cu = Cx(u);
-                    const auto Cv = Cx(v);
-                    const auto Svu = matrix(v,u);
-                    tmp2 += Cu * Cv * Svu
-                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
-                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
-                }
-                tmp1 += tmp2;
-            }
-            //-------------------------------------
-            const auto w = (1. / 4.)  *  tmp1; //
-            res(y,x) = w;
-//            std::cout << "res" << w << std::endl;
-        }
-    }
-
-//    for (int i = 0; i< res.size1(); i++ ){
-//        for (int j = 0; j< res.size1(); j++ ){
-//            res( i, j ) = std::min(std::max(0, res( i, j )  + 128), 255);
-//        }
-//    }
-
-    return res;
-}
-
 boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
         boost::numeric::ublas::matrix<int16_t> const& matrix ) {
     const auto Cx = []( const auto x ) -> double {
@@ -448,14 +350,6 @@ boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
     return res;
 }
 
-//auto SOSDecoder::ReverseDQT(
-//        Cs mcu ) -> Cs {
-//    for ( int u = 0; u < 7; u++ ) {
-//        for ( int v = 0; v < 7; v++ ) {
-
-//        }
-//    }
-//}
 
 void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
     const auto size = DataReader::readNumber<uint16_t>(aStream);

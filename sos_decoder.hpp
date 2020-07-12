@@ -5,21 +5,11 @@
 
 #include <bitset>
 
+#include "bit_extractor.hpp"
+
 class SOSDecoder : public IDecoder
 {
 public:
-    class BitExtractor final {
-    public:
-        explicit
-        BitExtractor( std::istream &aStream );
-        uint8_t nextNumber( std::size_t bit_cnt = 1 );
-
-    private:
-
-        std::bitset<8> mbits;
-        std::size_t mCounter = 0;
-        std::istream &mStream;
-    };
 
     struct Channel {
         std::size_t id;
@@ -61,16 +51,8 @@ public:
         , std::vector<boost::numeric::ublas::matrix<uint8_t>> quant );
 
     static
-    boost::numeric::ublas::matrix<uint8_t> ReverseDQT(
-        boost::numeric::ublas::matrix<uint8_t> const& matrix );
-
-    static
     boost::numeric::ublas::matrix<int16_t> ReverseDQT_1(
         boost::numeric::ublas::matrix<int16_t> const& matrix );
-
-    static
-    boost::numeric::ublas::matrix<int8_t> ReverseDQT2(
-        boost::numeric::ublas::matrix<int8_t> const& matrix );
 
     static
     boost::numeric::ublas::matrix<int8_t> ReverseDQT3(
@@ -85,11 +67,6 @@ public:
           boost::numeric::ublas::matrix<int16_t> const& y
         , boost::numeric::ublas::matrix<int16_t> const& cb
         , boost::numeric::ublas::matrix<int16_t> const& cr );
-
-//    static
-//    Cs ReverseDQT(
-//        Cs mcu
-//    );
 
 public:
     ~SOSDecoder() final = default;
