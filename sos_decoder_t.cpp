@@ -12,6 +12,11 @@ BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
 
 namespace ios = boost::iostreams;
 
+class TestedDecoder final : public SOSDecoder {
+public:
+  using SOSDecoder::LocateNodeInHuffmanTree;
+};
+
 //-------------------------------------
 auto DC_Tree_0() -> std::shared_ptr<HuffmanTree::Node> {
   // clang-format off
@@ -71,130 +76,55 @@ auto AC_Tree_1() -> std::shared_ptr<HuffmanTree::Node> {
   // clang-format on
 }
 
-BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_0) {
-  const std::array<char, 1> data = {(char)0b10000000};
+void testLocateNodeInHuffmanTree(
+    std::shared_ptr<HuffmanTree::Node> const &Root,
+    std::array<uint8_t, 1> const &Source,
+    std::shared_ptr<HuffmanTree::Node> const &Expected) {
+  const auto Buffer = charVectorForBuffer(Source);
+  ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
+  ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
 
-  ios::basic_array_source<char> input_source(data.data(), data.size());
-  ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-
-  BitExtractor extractor{input_stream};
-
-  const auto root = DC_Tree_0();
-
-  const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-  BOOST_REQUIRE_EQUAL(located, root->right()->left());
+  BitExtractor Extractor{InputStream};
+  const auto Located = TestedDecoder::LocateNodeInHuffmanTree(Extractor, Root);
+  BOOST_REQUIRE_EQUAL(Located, Expected);
 }
 
-BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_0) {
-  const auto root = AC_Tree_0();
-
-  {
-    const std::array<char, 1> data = {(char)0b11100000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->right()->right()->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b11000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->right()->left()->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b10100000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->left()->right());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b00000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b00000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b11110000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located,
-                      root->right()->right()->right()->right()->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b10000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->left()->left());
-  }
+BOOST_AUTO_TEST_CASE(LocateNodeInHuffmanTree_DC_0) {
+  const auto Root = DC_Tree_0();
+  testLocateNodeInHuffmanTree( Root, {0b10000000}, Root->right()->left() );
 }
 
-BOOST_AUTO_TEST_CASE(LocateNodeInTree_DC_1) {
-  const std::array<char, 1> data = {(char)0b10000000};
+BOOST_AUTO_TEST_CASE(LocateNodeInHuffmanTree_AC_0) {
+  const auto Root = AC_Tree_0();
 
-  ios::basic_array_source<char> input_source(data.data(), data.size());
-  ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-
-  BitExtractor extractor{input_stream};
-
-  const auto root = DC_Tree_1();
-  const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-  BOOST_REQUIRE_EQUAL(located, root->right()->left());
+  testLocateNodeInHuffmanTree(Root, {0b11100000},
+                              Root->right()->right()->right()->left());
+  testLocateNodeInHuffmanTree(Root, {0b11000000},
+                              Root->right()->right()->left()->left());
+  testLocateNodeInHuffmanTree(Root, {0b10100000},
+                              Root->right()->left()->right());
+  testLocateNodeInHuffmanTree(Root, {0b00000000}, Root->left());
+  testLocateNodeInHuffmanTree(Root, {0b11110000},
+                              Root->right()->right()->right()->right()->left());
+  testLocateNodeInHuffmanTree(Root, {0b10000000},
+                              Root->right()->left()->left());
 }
 
-BOOST_AUTO_TEST_CASE(LocateNodeInTree_AC_1) {
-  const auto root = AC_Tree_1();
+BOOST_AUTO_TEST_CASE(LocateNodeInHuffmanTree_DC_1) {
+  const auto Root = DC_Tree_1();
+  testLocateNodeInHuffmanTree(Root, {0b10000000},
+                              Root->right()->left());
+}
 
-  {
-    const std::array<char, 1> data = {(char)0b00000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->left());
-  }
+BOOST_AUTO_TEST_CASE(LocateNodeInHuffmanTree_AC_1) {
+  const auto Root = AC_Tree_1();
 
-  {
-    const std::array<char, 1> data = {(char)0b10000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->left());
-  }
-
-  {
-    const std::array<char, 1> data = {(char)0b11000000};
-    ios::basic_array_source<char> input_source(data.data(), data.size());
-    ios::stream<ios::basic_array_source<char>> input_stream(input_source);
-    BitExtractor extractor{input_stream};
-    const auto located = SOSDecoder::LocateNodeInTree(extractor, root);
-    BOOST_REQUIRE_EQUAL(located, root->right()->right()->left());
-  }
+  testLocateNodeInHuffmanTree(Root, {0b00000000},
+                              Root->left());
+  testLocateNodeInHuffmanTree(Root, {0b10000000},
+                              Root->right()->left());
+  testLocateNodeInHuffmanTree(Root, {0b11000000},
+                              Root->right()->right()->left());
 }
 
 BOOST_AUTO_TEST_CASE(ReadTable_Y1) {
@@ -660,6 +590,52 @@ BOOST_AUTO_TEST_CASE(YCbCrToRGB) {
 
   //    BOOST_REQUIRE_EQUAL(cs1_1, cs);
 }
+
+BOOST_AUTO_TEST_CASE(YCbCrToRGB_1) {
+
+  const auto fix_tbl = [](auto &tbl) {
+    for (int i = 0; i < tbl.size1(); i++) {
+      for (int j = 0; j < tbl.size2(); j++) {
+        tbl(i, j) = std::min(std::max(0, tbl(i, j) + 128), 255);
+      }
+    }
+  };
+
+  boost::numeric::ublas::matrix<int16_t> y(8, 8);
+  y <<= 138, 92, 27, -17, -17, 28, 93, 139, 136, 82, 5, -51, -55, -8, 61, 111,
+      143, 80, -9, -77, -89, -41, 32, 86, 157, 95, 6, -62, -76, -33, 36, 86,
+      147, 103, 37, -12, -21, 11, 62, 100, 87, 72, 50, 36, 37, 55, 79, 95, -10,
+      5, 31, 56, 71, 73, 68, 62, -87, -50, 6, 56, 79, 72, 48, 29;
+  fix_tbl(y);
+
+  boost::numeric::ublas::matrix<int16_t> cb(8, 8);
+  cb <<= 60, 52, 38, 20, 0, -18, -32, -40, 48, 41, 29, 13, -3, -19, -31, -37,
+      25, 20, 12, 2, -9, -19, -27, -32, -4, -6, -9, -13, -17, -20, -23, -25,
+      -37, -35, -33, -29, -25, -21, -18, -17, -67, -63, -55, -44, -33, -22, -14,
+      -10, -90, -84, -71, -56, -39, -23, -11, -4, -102, -95, -81, -62, -42, -23,
+      -9, -1;
+  fix_tbl(cb);
+
+  boost::numeric::ublas::matrix<int16_t> cr(8, 8);
+  cr <<= 19, 27, 41, 60, 80, 99, 113, 120, 0, 6, 18, 34, 51, 66, 78, 85, -27,
+      -22, -14, -4, 7, 17, 25, 30, -43, -41, -38, -34, -30, -27, -24, -22, -35,
+      -36, -39, -43, -47, -51, -53, -55, -5, -9, -17, -28, -39, -50, -58, -62,
+      32, 26, 14, -1, -18, -34, -46, -53, 58, 50, 36, 18, -2, -20, -34, -42;
+  fix_tbl(cr);
+
+  printMatrix(y);
+  printMatrix(cb);
+  printMatrix(cr);
+
+  const auto res = SOSDecoder::YCbCrToRGB(y, cb, cr);
+
+  printMatrix(std::get<0>(res));
+  printMatrix(std::get<1>(res));
+  printMatrix(std::get<2>(res));
+
+  //    BOOST_REQUIRE_EQUAL(cs1_1, cs);
+}
+
 
 // BOOST_AUTO_TEST_CASE(Invoke) {
 //    const std::array<char, 19> data = {

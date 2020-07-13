@@ -9,6 +9,12 @@
 
 class SOSDecoder : public IDecoder
 {
+protected:
+  static auto
+  LocateNodeInHuffmanTree(BitExtractor &Extractor,
+                          std::shared_ptr<HuffmanTree::Node> const &Tree)
+      -> std::shared_ptr<HuffmanTree::Node>;
+
 public:
 
     struct Channel {
@@ -24,11 +30,6 @@ public:
         std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs3;
         std::vector<boost::numeric::ublas::matrix<uint8_t>> Cs4;
     };
-
-    static
-    std::shared_ptr<HuffmanTree::Node> LocateNodeInTree(
-        BitExtractor& extractor,
-        const std::shared_ptr<HuffmanTree::Node>& AC_Table );
 
     static
     boost::numeric::ublas::matrix<uint8_t> ReadMatrix(
@@ -69,7 +70,7 @@ public:
         , boost::numeric::ublas::matrix<int16_t> const& cr );
 
 public:
-    ~SOSDecoder() final = default;
+    ~SOSDecoder() override = default;
 
     // IDecoder interface
 public:

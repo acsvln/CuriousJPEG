@@ -3,38 +3,41 @@
 
 #include <map>
 #include <bitset>
+#include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-
-#include <iostream>
+#include <boost/assert.hpp>
 
 #include "data_reader.hpp"
 
+auto SOSDecoder::LocateNodeInHuffmanTree(
+    BitExtractor &Extractor, std::shared_ptr<HuffmanTree::Node> const &Tree)
+    -> std::shared_ptr<HuffmanTree::Node> {
+  auto node = Tree;
 
+  do {
+    const auto BitNum = Extractor.nextNumber();
 
-//-------------------------------------
-std::shared_ptr<HuffmanTree::Node> SOSDecoder::LocateNodeInTree(
-          BitExtractor& extractor
-        , const std::shared_ptr<HuffmanTree::Node>& tree ){
-    std::shared_ptr<HuffmanTree::Node> node = tree;
-    do {
-        const auto next_number = extractor.nextNumber();
-        if ( 0 == next_number ) {
-            node = node->left();
-        } else if (  1 == next_number ) {
-            node = node->right();
-        } else {
-            assert( false );
-        }
-        if ( nullptr == node ) {
-            assert( false );
-        }
-    } while( false == node->isLeaf() );
-    return node;
+    switch (BitNum) {
+    case 0:
+        node = node->left();
+        break;
+    case 1:
+        node = node->right();
+        break;
+    default:
+        BOOST_ASSERT(false);
+    }
+
+    BOOST_ASSERT_MSG(nullptr != node, "Invalid tree structure");
+
+  } while (!node->isLeaf());
+
+  return node;
 }
 
 boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
@@ -52,7 +55,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
         return num;
     };
 
-    const auto DC_node = LocateNodeInTree( extractor, DC_Table );
+    const auto DC_node = LocateNodeInHuffmanTree( extractor, DC_Table );
     const auto DC_value = DC_node->data();
     if ( DC_value == 0 ) {
         buffer[0] = 0;
@@ -65,7 +68,7 @@ boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
 
     do
     {
-        const auto AC_node = LocateNodeInTree( extractor, AC_Table );
+        const auto AC_node = LocateNodeInHuffmanTree( extractor, AC_Table );
 
         if ( nullptr == AC_node ) {
             throw "bad";
@@ -434,22 +437,11 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
 
 }
 
-
 //struct Channel {
 //    std::size_t id;
 //    std::size_t dc_id;
 //    std::size_t ac_id;
 //};
-
-
-
-
-
-//
-
-//
-
-
 
 //const auto read_table = [&]( auto dc_id, auto ac_id ){
 //    while (true) {
@@ -458,7 +450,6 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
 //    }
 //    return boost::numeric::ublas::matrix<uint16_t>{};
 //};
-
 
 //do {
 //
@@ -483,5 +474,3 @@ void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
 //    }
 //    imageData.push_back(data);
 //} while (pos != aStream.tellg());
-
-
