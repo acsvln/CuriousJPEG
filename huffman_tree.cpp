@@ -1,5 +1,6 @@
 #include "huffman_tree.hpp"
 
+#include <stdexcept>
 #include <boost/assert.hpp>
 
 auto HuffmanTree::createAndinsertNodeImplementation(
