@@ -18,6 +18,8 @@ auto operator==(matrix<uint16_t> const &left, matrix<uint16_t> const &right)
 // TODO: Maybe fix
 auto operator==(matrix<uint8_t> const &left, matrix<uint8_t> const &right)
     -> bool;
+auto operator==(matrix<int8_t> const &left, matrix<int8_t> const &right)
+    -> bool;
 auto operator==(matrix<int16_t> const &left, matrix<int16_t> const &right)
     -> bool;
 } // namespace boost::numeric::ublas
@@ -60,7 +62,9 @@ void printMatrix(boost::numeric::ublas::matrix<Type> const &matrix) {
   for (std::size_t RowIt = 0; RowIt < RowCount; ++RowIt) {
     std::cout << '\t';
     for (std::size_t ColIt = 0; ColIt < ColCount; ++ColIt) {
-      std::cout << std::hex << std::uppercase << matrix(RowIt, ColIt) << '\t';
+        // TODO: unsigned
+//      std::cout << std::hex << std::uppercase << static_cast<unsigned>(matrix(RowIt, ColIt)) << '\t';
+      std::cout << static_cast<signed>(matrix(RowIt, ColIt)) << '\t';
     }
     std::cout << std::endl;
   }

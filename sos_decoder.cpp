@@ -1,245 +1,280 @@
-#include "sos_decoder.hpp"
+﻿#include "sos_decoder.hpp"
 #include "utility.hpp"
 
 #include <map>
 #include <bitset>
 #include <iostream>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/assert.hpp>
 
 #include "data_reader.hpp"
 
-auto SOSDecoder::LocateNodeInHuffmanTree(
+auto SOSDecoder::locateNodeInHuffmanTree(
     BitExtractor &Extractor, std::shared_ptr<HuffmanTree::Node> const &Tree)
     -> std::shared_ptr<HuffmanTree::Node> {
-  auto node = Tree;
+  auto Node = Tree;
 
   do {
     const auto BitNum = Extractor.nextNumber();
 
     switch (BitNum) {
     case 0:
-        node = node->left();
+        Node = Node->left();
         break;
     case 1:
-        node = node->right();
+        Node = Node->right();
         break;
     default:
         BOOST_ASSERT(false);
     }
 
-    BOOST_ASSERT_MSG(nullptr != node, "Invalid tree structure");
-
-  } while (!node->isLeaf());
-
-  return node;
-}
-
-boost::numeric::ublas::matrix<uint8_t> SOSDecoder::ReadMatrix(
-    BitExtractor& extractor,
-    const std::shared_ptr<HuffmanTree::Node>& DC_Table,
-    const std::shared_ptr<HuffmanTree::Node>& AC_Table )
-{
-    std::array<uint16_t, 64> buffer = {0};
-
-    const auto fixNum = []( uint8_t const num, std::size_t const length ) -> uint8_t {
-        std::bitset<8> set = num;
-        if ( set[length - 1] == 0 ) {
-            return num - std::pow( 2, length ) + 1;
-        }
-        return num;
-    };
-
-    const auto DC_node = LocateNodeInHuffmanTree( extractor, DC_Table );
-    const auto DC_value = DC_node->data();
-    if ( DC_value == 0 ) {
-        buffer[0] = 0;
-    } else {
-        uint8_t num = extractor.nextNumber( DC_value );
-        buffer[0] = fixNum( num, DC_value );
+    if ( nullptr == Node ) {
+        throw std::runtime_error{"Invalid JPEG Data"};
     }
 
-    auto it = buffer.begin() + 1;
+  } while (!Node->isLeaf());
 
-    do
-    {
-        const auto AC_node = LocateNodeInHuffmanTree( extractor, AC_Table );
-
-        if ( nullptr == AC_node ) {
-            throw "bad";
-        }
-
-        const auto AC_value = AC_node->data();
-        if ( 0 == AC_value ) {
-            // матрица уже заполнена нулями
-            return CreateZigZagMatrix( buffer );
-        }
-
-        // добавляем нули
-        auto null_cnt = ( AC_value & 0xF0 ) >> 4;
-        if ( it + null_cnt == buffer.end() ) {
-            throw "WTF";
-        }
-
-        it += null_cnt;
-
-        // добавляем значение
-        const auto coeff_len = AC_value & 0xF;
-
-        if( coeff_len !=  0 ){
-            const auto coeff = extractor.nextNumber( coeff_len );
-            *it = fixNum( coeff, coeff_len );
-            it++;
-        }
-    } while( it != buffer.end() );
-
-    return CreateZigZagMatrix( buffer );
+  return Node;
 }
 
-SOSDecoder::Cs SOSDecoder::ReadMCU(
-    BitExtractor& extractor,
-    DCTTable const& dct,
-    std::vector<Channel>const& channels,
-    std::vector<std::shared_ptr<HuffmanTree::Node>> AC_HuffmanTables,
-    std::vector<std::shared_ptr<HuffmanTree::Node>> DC_HuffmanTables  )
+namespace {
+
+auto locateNodeInHuffmanTree16(
+    BitExtractor &Extractor, std::shared_ptr<HuffmanTree::Node> const &Tree)
+    -> std::shared_ptr<HuffmanTree::Node> {
+  auto Node = Tree;
+
+  do {
+    const auto BitNum = Extractor.nextNumber16();
+
+    switch (BitNum) {
+    case 0:
+        Node = Node->left();
+        break;
+    case 1:
+        Node = Node->right();
+        break;
+    default:
+        BOOST_ASSERT(false);
+    }
+
+    if ( nullptr == Node ) {
+        throw std::runtime_error{"Invalid JPEG Data"};
+    }
+
+  } while (!Node->isLeaf());
+
+  return Node;
+}
+
+void printVector( const std::array<int16_t, 64>& vector ) {
+    std::cout << vector.size() << ':' << std::endl;
+    for ( const auto& el : vector ) {
+        std::cout << el << '\t';
+    }
+    std::cout << std::endl;
+}
+
+auto findComponentById( std::vector<DCTComponent> const& Components, std::size_t const Id ) {
+    return std::find_if(
+              std::begin( Components )
+            , std::end( Components )
+            , [Id]( const auto& Component ){
+        return Component.Id == Id;
+    } );
+}
+
+template<typename T>
+auto
+reverseDQT_Impl(boost::numeric::ublas::matrix<T> const& Matrix) ->boost::numeric::ublas::matrix<T> {
+    const auto Cx = []( const auto X ) -> double {
+        return ( 0 == X ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<T> Result(8,8);
+    const auto pi = boost::math::constants::pi<double>();
+
+    for ( std::size_t Y = 0; Y < 8; Y++ ) {
+        for ( std::size_t X = 0; X < 8; X++ ) {
+            double Accumulator = 0.;
+            for ( std::size_t U = 0; U < 8; U++ ) {
+                for ( std::size_t V = 0; V < 8; V++ ) {
+                    const double Cu = Cx(U);
+                    const double Cv = Cx(V);
+                    const double Svu = Matrix(V,U);
+                    Accumulator += Cu * Cv * Svu
+                        * std::cos( ( 2 * X + 1 ) * U * pi / 16. )
+                        * std::cos( ( 2 * Y + 1 ) * V * pi / 16. );
+                }
+            }
+            Result(Y,X) = static_cast<short>( Accumulator / 4. );
+        }
+    }
+
+    return Result;
+}
+
+}
+
+auto SOSDecoder::readDU(BitExtractor &Extractor,
+                        std::shared_ptr<HuffmanTree::Node> const &DC_Tree,
+                        std::shared_ptr<HuffmanTree::Node> const &AC_Tree)
+    -> boost::numeric::ublas::matrix<int8_t> {
+  std::array<int16_t, 64> Buffer = {0};
+
+  const auto extractAndNorm = [&](std::size_t const BitCount) -> int16_t {
+    const auto RawNumber = static_cast<int16_t>(Extractor.nextNumber16(BitCount));
+    std::bitset<16> set{static_cast<unsigned long long>(RawNumber)};
+    if (0 != set[BitCount - 1]) {
+      return RawNumber;
+    }
+    return RawNumber - static_cast<int16_t>(std::pow(2, BitCount)) + 1;
+  };
+
+  const auto DC_Node = locateNodeInHuffmanTree16(Extractor, DC_Tree);
+  const auto DC_Value = DC_Node->data();
+  if (0 == DC_Value) {
+    Buffer[0] = 0;
+  } else {
+    Buffer[0] = extractAndNorm(DC_Value);
+  }
+
+  auto Iterator = std::next(Buffer.begin());
+  do {
+    const auto AC_Node = locateNodeInHuffmanTree16(Extractor, AC_Tree);
+    const auto AC_Value = AC_Node->data();
+    if (0 == AC_Value) {
+      // матрица уже заполнена нулями
+      return CreateZigZagMatrix(Buffer);
+    }
+
+    const auto Left = std::distance(Iterator, Buffer.end());
+
+    // добавляем нули
+    const auto NullCount = lowByte(AC_Value);
+    if (NullCount > Left) {
+      throw std::runtime_error{"Invalid JPEG Data"};
+    }
+
+    Iterator += NullCount;
+
+    // добавляем значение
+    if (const auto ValueLength = highByte(AC_Value); 0 != ValueLength) {
+      if (Buffer.end() == Iterator) {
+         throw std::runtime_error{"Invalid JPEG Data"};
+      }
+
+      *Iterator = extractAndNorm(ValueLength);
+      ++Iterator;
+    }
+  } while (Buffer.end() != Iterator);
+
+  return CreateZigZagMatrix(Buffer);
+}
+
+auto SOSDecoder::readMCU(
+    BitExtractor& Extractor,
+    DCTTable const& DCT,
+    std::vector<Channel> const& Channels,
+    std::vector<std::shared_ptr<HuffmanTree::Node>> const& AC_Tables,
+    std::vector<std::shared_ptr<HuffmanTree::Node>> const& DC_Tables ) -> MinimumCodedUnit
 {
-    Cs result;
+    MinimumCodedUnit Result;
     
-    for ( const auto& channel : channels ) {
-        const auto it = std::find_if(
-              std::begin( dct.components )
-            , std::end( dct.components )
-            , [id = channel.id]( const auto& comp ){
-            return comp.id == id;
-        } );
-
-        const auto dc_id = channel.dc_id;
-        const auto ac_id = channel.ac_id;
-        const auto AC_Root = AC_HuffmanTables.at(ac_id);
-        const auto DC_Root = DC_HuffmanTables.at(dc_id);
-
-        std::vector<boost::numeric::ublas::matrix<uint8_t>> cs;
-
-        if ( it != std::end( dct.components ) ) {
-            for ( auto t = 0; t < ( it->h * it->v ); t++ ) {
-                const auto matrix = ReadMatrix(
-                    extractor,
-                    DC_Root,
-                    AC_Root
-                );
-                cs.push_back( matrix );
-            }
-        }
-
-        if ( cs.size() > 1 ) {
-            for (   auto prev_it = cs.begin() + 1, it = cs.begin();
-                    it < cs.end() && prev_it < cs.end();
-                    ++it, ++prev_it ) {
-                auto& prev_matrix = *prev_it;
-                const auto& matrix = *it;
-                prev_matrix(0,0) = matrix(0,0) + prev_matrix(0,0);
-            }
-        }
-
-        switch ( channel.id ) {
+    const auto extractDataUnitForChannel = [&]( Channel const& Chann ) -> std::vector<DataUnit>& {
+        switch ( Chann.Id ) {
         case 1:
-            result.Cs1 = cs;
-            break;
+            return Result.Cs1;
         case 2:
-            result.Cs2 = cs;
-            break;
+            return Result.Cs2;
         case 3:
-            result.Cs3 = cs;
-            break;
-        case 4:
-            assert(false);
-            break;
+            return Result.Cs3;
+        }
+        throw std::runtime_error{"Invalid channel"};
+    };
+
+    for ( const auto& Channel : Channels ) {
+        const auto Component = findComponentById(DCT.Components,Channel.Id);
+
+        if ( std::end( DCT.Components ) == Component ) {
+            throw std::runtime_error{"Invalid JPEG Data"};
+        }
+
+        const auto AC_Root = AC_Tables.at(Channel.AC_Id);
+        const auto DC_Root = DC_Tables.at(Channel.DC_Id);
+
+        auto& Data = extractDataUnitForChannel(Channel);
+
+        std::size_t const DataUnitCount = Component->H * Component->V;
+        Data.reserve( DataUnitCount );
+        for ( std::size_t t = 0; t < DataUnitCount; t++ ) {
+            std::back_inserter(Data) = readDU(
+                Extractor,
+                DC_Root,
+                AC_Root
+            );
+        }
+
+        if ( Data.size() > 1 ) {
+            for (   auto Next = Data.begin() + 1, Current = Data.begin();
+                    Current < Data.end() && Next < Data.end();
+                    ++Current, ++Next ) {
+                auto& NextMatrix = *Next;
+                const auto& Matrix = *Current;
+                NextMatrix(0,0) = Matrix(0,0) + NextMatrix(0,0);
+            }
         }
     }
     
-    return result;
+    return Result;
 }
 
-SOSDecoder::Cs SOSDecoder::QuantMCU(
-      SOSDecoder::Cs mcu
-    , std::vector<DCTComponent> const& components
-    , std::vector<boost::numeric::ublas::matrix<uint8_t>> quant )
+// TODO: проверить размерность матриц в QuantVector'e
+auto SOSDecoder::quantMCU(
+      SOSDecoder::MinimumCodedUnit&& MCU
+    , std::vector<DCTComponent> const& Components
+    , std::vector<boost::numeric::ublas::matrix<uint16_t>> const& QuantVector ) -> MinimumCodedUnit
 {
-    const auto find_chan = [&]( const auto id ) -> DCTComponent {
-        const auto it = std::find_if(
-              std::begin( components )
-            , std::end( components )
-            , [id]( const auto& comp ){
-            return comp.id == id;
-        } );
-
-        if ( it == std::end( components ) ) {
-            assert( false );
+    const auto quantChannel = [&]( auto& ChannelData, std::size_t const ChannelId ) {
+        const auto Component = findComponentById(Components, ChannelId);
+        if ( Component == std::end( Components ) ) {
+            throw std::runtime_error{"Invalid channel"};
         }
-
-        return *it;
-    };
-
-    const auto do_smthng = [&]( auto& matrx_lsit, const auto chanid ){
-        const auto dqtid = find_chan( chanid ).dqtId;
-
-
-//        std::cout << "dqtid" << (int) dqtid;
-
-        for ( auto& matrx : matrx_lsit ) {
-            const auto dqt = quant.at( dqtid );
-
+        for ( auto& Matrix : ChannelData ) {
+            const auto DQT = QuantVector.at(Component->DQT_Id);
             // домножили на матрицу квантования
-            matrx = boost::numeric::ublas::element_prod( matrx, dqt );
+            Matrix = boost::numeric::ublas::element_prod(Matrix, DQT);
         }
-
-        return matrx_lsit;
     };
 
-    //-------------------------------------
-    mcu.Cs1 = do_smthng( mcu.Cs1, 1 );
-    mcu.Cs2 = do_smthng( mcu.Cs2, 2 );
-    mcu.Cs3 = do_smthng( mcu.Cs3, 3 );
+    quantChannel(MCU.Cs1, 1);
+    quantChannel(MCU.Cs2, 2);
+    quantChannel(MCU.Cs3, 3);
 
-    return mcu;
+    return std::move( MCU );
 }
 
+auto
+SOSDecoder::reverseDQT(boost::numeric::ublas::matrix<int16_t> const& Matrix) ->boost::numeric::ublas::matrix<int16_t> {
+    return reverseDQT_Impl( Matrix );
+}
 
-boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT3(
-    boost::numeric::ublas::matrix<int8_t> const& in )
-{
-    int i, j, u, v;
-     double s;
-
-     boost::numeric::ublas::matrix<int8_t> out(8,8);
-
-     for (i = 0; i < 8; i++)
-       for (j = 0; j < 8; j++)
-       {
-         s = 0;
-
-         for (u = 0; u < 8; u++)
-           for (v = 0; v < 8; v++)
-             s += in(v,u) * cos((2 * i + 1) * u * M_PI / 16) *
-                             cos((2 * j + 1) * v * M_PI / 16) *
-                  ((u == 0) ? 1 / sqrt(2) : 1.) *
-                  ((v == 0) ? 1 / sqrt(2) : 1.);
-
-         out(i,j) = s / 4;
-       }
-
-     for (int i = 0; i< out.size1(); i++ ){
-         for (int j = 0; j< out.size1(); j++ ){
-             out( i, j ) = std::min(std::max(0, out( i, j )  + 128), 255);
-         }
-     }
-
-     return out;
+auto
+SOSDecoder::normalizeReversedDQT(boost::numeric::ublas::matrix<int16_t>&& Table) -> boost::numeric::ublas::matrix<int16_t> {
+    for (std::size_t i = 0; i < Table.size1(); i++) {
+      for (std::size_t j = 0; j < Table.size2(); j++) {
+        Table(i, j) = std::clamp<int16_t>( Table(i, j) + 128, 0, 255 );
+      }
+    }
+    return Table;
 }
 
 //-------------------------------------
@@ -252,225 +287,177 @@ boost::numeric::ublas::matrix<int8_t> SOSDecoder::ReverseDQT3(
 //    return ivect4(r, g, b, 255);
 //}
 
-std::tuple<
+// https://impulseadventure.com/photo/jpeg-color-space.html
+//  R = round(Y                      + 1.402   * (Cr-128))
+//  G = round(Y - 0.34414 * (Cb-128) - 0.71414 * (Cr-128))
+//  B = round(Y + 1.772   * (Cb-128)                     )
+auto
+SOSDecoder::convertYCbCrToRGB(
+      boost::numeric::ublas::matrix<int16_t> const& Y
+    , boost::numeric::ublas::matrix<int16_t> const& Cb
+    , boost::numeric::ublas::matrix<int16_t> const& Cr ) -> std::tuple<
       boost::numeric::ublas::matrix<int16_t>
     , boost::numeric::ublas::matrix<int16_t>
     , boost::numeric::ublas::matrix<int16_t>
 >
-SOSDecoder::YCbCrToRGB(
-      boost::numeric::ublas::matrix<int16_t> const& y
-    , boost::numeric::ublas::matrix<int16_t> const& cb
-    , boost::numeric::ublas::matrix<int16_t> const& cr )
 {
+    const auto normalize = []( double const Value ) -> int16_t {
+        return static_cast<int16_t>( std::clamp( Value, 0., 255. ) );
+    };
+
     boost::numeric::ublas::matrix<int16_t> R(8,8);
     boost::numeric::ublas::matrix<int16_t> G(8,8);
     boost::numeric::ublas::matrix<int16_t> B(8,8);
 
-    // https://impulseadventure.com/photo/jpeg-color-space.html
-
-//    R = round(Y                      + 1.402   * (Cr-128))
-//       G = round(Y - 0.34414 * (Cb-128) - 0.71414 * (Cr-128))
-//       B = round(Y + 1.772   * (Cb-128)                     )
-
-    for ( unsigned i = 0; i < 8; i++ ) {
-        for ( unsigned j = 0; j < 8; j++ ) {
-            R(i,j) = (int16_t) std::round( y(i,j)                               + 1.402   * ( cr(i/2,j/2) - 128 ) );
-            G(i,j) = (int16_t) std::round( y(i,j) - 0.34414 * ( cb(i/2,j/2 ) - 128 ) - 0.71414 * ( cr(i/2,j/2) - 128 ) );
-            B(i,j) = (int16_t) std::round( y(i,j) + 1.772   * ( cb(i/2,j/2) - 128 ) );
-
-            const auto fix = [=]( auto& C ) {
-                if ( C(i,j) < 0 ){
-                    C(i,j) = 0;
-                } else if ( C(i,j) > 255 ) {
-                    C(i,j) = 255;
-                }
-            };
-
-            fix( R );
-            fix( G );
-            fix( B );
-
-
-            //       R = min(max(0, R), 255)
-            //       G = min(max(0, G), 255)
-            //       B = min(max(0, B), 255)
-
-//            if ( R(i,j) < 0 ){
-//                R(i,j) = 0;
-//            } else if ( R(i,j) > 255 ) {
-//                R(i,j) = 255;
-//            }
-
-//            if ( G(i,j) < 0 ){
-//                G(i,j) = 0;
-//            } else if ( G(i,j) > 255 ) {
-//                G(i,j) = 255;
-//            }
-
-//            if ( B(i,j) < 0 ){
-//                B(i,j) = 0;
-//            } else if ( B(i,j) > 255 ) {
-//                B(i,j) = 255;
-//            }
+    for ( std::size_t i = 0; i < 8; i++ ) {
+        for ( std::size_t j = 0; j < 8; j++ ) {
+            R(i,j) = normalize( std::round( Y(i,j)                               + 1.402   * ( Cr(i,j) - 128. ) ) );
+            G(i,j) = normalize( std::round( Y(i,j) - 0.34414 * ( Cb(i,j) - 128. ) - 0.71414 * ( Cr(i,j) - 128. ) ) );
+            B(i,j) = normalize( std::round( Y(i,j) + 1.772   * ( Cb(i,j) - 128. ) ) );
         }
     }
 
     return {R, G, B};
 }
 
-//-------------------------------------
-boost::numeric::ublas::matrix<int16_t> SOSDecoder::ReverseDQT_1(
-        boost::numeric::ublas::matrix<int16_t> const& matrix ) {
-    const auto Cx = []( const auto x ) -> double {
-        return ( 0 == x ) ? (1. / std::sqrt( 2. )) : 1.;
+auto
+SOSDecoder::convertYCbCrToRGB_AL(boost::numeric::ublas::matrix<int16_t> const &Y,
+           boost::numeric::ublas::matrix<int16_t> const &Cb,
+           boost::numeric::ublas::matrix<int16_t> const &Cr) ->
+  std::tuple<
+      boost::numeric::ublas::matrix<int16_t>,
+      boost::numeric::ublas::matrix<int16_t>,
+      boost::numeric::ublas::matrix<int16_t>
+> {
+    const auto normalize = []( double const Value ) -> int16_t {
+        return static_cast<int16_t>( std::clamp( Value, 0., 255. ) );
     };
 
-    boost::numeric::ublas::matrix<int16_t> res(8,8);
+    boost::numeric::ublas::matrix<int16_t> R(16,16);
+    boost::numeric::ublas::matrix<int16_t> G(16,16);
+    boost::numeric::ublas::matrix<int16_t> B(16,16);
 
-    for ( int y = 0; y < 8; y++ ) {
-        for ( int x = 0; x < 8; x++ ) {
-            //-------------------------------------
-            double tmp1 = 0.;
-            for ( int u = 0; u < 8; u++ ) {
-                double tmp2 = 0.;
-                for ( int v = 0; v < 8; v++ ) {
-                    const double Cu = Cx(u);
-                    const double Cv = Cx(v);
-                    const double Svu = matrix(v,u);
-                    tmp2 += Cu * Cv * Svu
-                        * std::cos( ( 2*x + 1 ) * u * M_PI / 16. )
-                        * std::cos( ( 2*y + 1 ) * v * M_PI / 16. );
-                }
-                tmp1 += tmp2;
-            }
-            //-------------------------------------
-            const auto w = (1. / 4.)  *  tmp1; //
-            res(y,x) = w;
-//            std::cout << "res" << w << std::endl;
+    for ( std::size_t i = 0; i < 16; i++ ) {
+        for ( std::size_t j = 0; j < 16; j++ ) {
+            R(i,j) = normalize( std::round( Y(i,j)                               + 1.402   * ( Cr(i/2,j/2) - 128. ) ) );
+            G(i,j) = normalize( std::round( Y(i,j) - 0.34414 * ( Cb(i/2,j/2) - 128. ) - 0.71414 * ( Cr(i/2,j/2) - 128. ) ) );
+            B(i,j) = normalize( std::round( Y(i,j) + 1.772   * ( Cb(i/2,j/2) - 128. ) ) );
         }
     }
 
-    return res;
+    return {R, G, B};
 }
 
+SOSDecoder::SOSDecoder() : Decoder{"Start Of Scan"} {}
 
-void SOSDecoder::Invoke(std::istream &aStream, Context& aContext) {
-    const auto size = DataReader::readNumber<uint16_t>(aStream);
-    printSectionDescription("Start Of Scan!", size);
-    const auto pos = aStream.tellg() + std::streampos{size};
-    const auto channel_count = DataReader::readNumber<uint8_t>(aStream);
-    if ( channel_count != 3 ) {
-        assert(false);
+void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+    const auto ChannelCount = DataReader::readNumber<uint8_t>(Stream);
+    if ( 3 != ChannelCount ) {
+        throw std::runtime_error{"Invalid channel's count"};
     }
 
-    std::vector<Channel> channels;
+    std::vector<Channel> Channels;
 
-    for ( std::size_t i = 0; i < channel_count; ++i ) {
-        const auto id = DataReader::readNumber<uint8_t>(aStream);
-        const auto huff_id = DataReader::readNumber<uint8_t>(aStream);
-
-        Channel channel;
-        channel.id = id;
-        channel.ac_id = huff_id >> 4;
-        channel.dc_id = huff_id & 0xF;
-
-        channels.push_back( channel );
+    for ( std::size_t Index = 0; Index < ChannelCount; ++Index ) {
+        const auto Id = DataReader::readNumber<uint8_t>(Stream);
+        const auto HuffId = DataReader::readNumber<uint8_t>(Stream);
+        Channel Chann;
+        Chann.Id = Id;
+        Chann.AC_Id = HuffId >> 4;
+        Chann.DC_Id = HuffId & 0xF;
+        Channels.push_back( Chann );
     }
 
-    DataReader::skipChars(aStream,3);
-
+    DataReader::skipChars(Stream,3);
 
     using Matrix = boost::numeric::ublas::matrix<uint16_t>;
     using ImageData = std::map<int, std::vector<Matrix>>;
 
     std::vector<ImageData> imageData;
-    BitExtractor extractor{ aStream };
+    BitExtractor Extractor{ Stream };
 
     do {
-        const auto mcu = ReadMCU(
-            extractor,
-            aContext.dct,
-            channels,
-            aContext.AC_HuffmanTables,
-            aContext.DC_HuffmanTables
+        auto MCU = readMCU(
+            Extractor,
+            Ctx.dct,
+            Channels,
+            Ctx.AC_HuffmanTables,
+            Ctx.DC_HuffmanTables
         );
 
-        //-------------------------------------
-        const auto do_smthng = [&]( const auto& matrx_lsit, const auto dqtid ){
-            for ( auto& matrx : matrx_lsit ) {
-                const auto dqt = aContext.DQT_Vector.at( dqtid );
+        MCU = quantMCU( std::move( MCU ), Ctx.dct.Components, Ctx.DQT_Vector );
 
-                // домножили на матрицу квантования
-                const auto matrx_wtf = boost::numeric::ublas::element_prod( matrx, dqt );
+        BOOST_ASSERT_MSG( ( MCU.Cs1.size() == MCU.Cs2.size() ) && ( MCU.Cs2.size() == MCU.Cs3.size() ),
+                         "Channel size is different" );
 
+        Matrix matrix( 16, 16 );
+
+        for ( std::size_t i = 0; i < MCU.Cs2.size(); ++i ) {
+            auto Y1 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i) ) );
+            auto Y2 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 1) ) );
+            auto Y3 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 2) ) );
+            auto Y4 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 3) ) );
+
+            auto Cb = MCU.Cs2.at(i);
+
+            auto Cr = MCU.Cs3.at(i);
+
+            Matrix Y( 160, 160 );
+
+            for ( int i = 0; i < 8; i++ ) {
+                for ( int j = 0; j < 8; j++ ) {
+                   Y(     i,     j ) = Y1(i,j);
+                   Y(     i, 7 + j ) = Y2(i,j);
+                   Y( 7 + i,     j ) = Y3(i,j);
+                   Y( 7 + i, 7 + j ) = Y4(i,j);
+                }
             }
-        };
 
-        //-------------------------------------
-        const auto find_chan = []( const auto& components, const auto id ) -> DCTComponent {
-            const auto it = std::find_if(
-                  std::begin( components )
-                , std::end( components )
-                , [id]( const auto& comp ){
-                return comp.id == id;
-            } );
-
-            if ( it == std::end( components ) ) {
-                assert( false );
-            }
-
-            return *it;
-        };
-
-        //-------------------------------------
-        do_smthng( mcu.Cs1, find_chan( aContext.dct.components, 0 ).dqtId );
-        do_smthng( mcu.Cs2, find_chan( aContext.dct.components, 1 ).dqtId );
-        do_smthng( mcu.Cs3, find_chan( aContext.dct.components, 2 ).dqtId );
-
-//        for ( const auto& data : imageData ) {
-//            const auto rgb = YCbCrToRGB(data[0], data[1], data[2]);
-//            aContext.Image.push_back(rgb);
-//        }
-
+            auto RevercedY = Y;
+            auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
+            auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
+            const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+            Context::RGB r;
+            r.R = std::get<0>(rgb);
+            r.G = std::get<1>(rgb);
+            r.B = std::get<2>(rgb);
+            Ctx.Image.push_back(r);
+        }
     } while (false);
-
-
+    std::cout << "while (false)" << std::endl;
 }
 
-//struct Channel {
-//    std::size_t id;
-//    std::size_t dc_id;
-//    std::size_t ac_id;
-//};
+//for ( int i = 0; i < 8; i++ ) {
+//    auto Y = MCU.Cs1.at(i);
+//    auto Cb = MCU.Cs2.at(i);
+//    auto Cr = MCU.Cs3.at(i);
+//    auto RevercedY = normalizeReversedDQT( reverseDQT_Impl( Y ) );
+//    auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
+//    auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
+//    const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+//    Context::RGB r;
+//    r.R = std::get<0>(rgb);
+//    r.G = std::get<1>(rgb);
+//    r.B = std::get<2>(rgb);
+//    Ctx.Image.push_back(r);
+//}
 
-//const auto read_table = [&]( auto dc_id, auto ac_id ){
-//    while (true) {
-//        const auto i = extractor.nextNumber();
+#if 0
 
-//    }
-//    return boost::numeric::ublas::matrix<uint16_t>{};
-//};
+for ( std::size_t i = 0; i < MCU.Cs1.size(); ++i ) {
+    auto Y = MCU.Cs1.at(i);
+    auto Cb = MCU.Cs2.at(i);
+    auto Cr = MCU.Cs3.at(i);
+    auto RevercedY = normalizeReversedDQT( reverseDQT_Impl( Y ) );
+    auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
+    auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
+    const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+    Context::RGB r;
+    r.R = std::get<0>(rgb);
+    r.G = std::get<1>(rgb);
+    r.B = std::get<2>(rgb);
+    Ctx.Image.push_back(r);
+}
 
-//do {
-//
-//    for ( const auto& channel : channels ) {
+#endif
 
-//        // dct_component =
-//        const auto it = std::find_if(
-//              std::begin( aContext.dct.components )
-//            , std::end( aContext.dct.components )
-//            , [id = channel.id]( const auto& comp ){
-//            return comp.id == id;
-//        } );
-
-//        if ( it != std::end( aContext.dct.components ) ) {
-//            for ( auto t = 0; t < (it->h * it->v); t++ ) {
-//                auto matrix = read_table( channel.dc_id, channel.ac_id );
-//                // matix *= dqt
-//                // DC += 1024
-//                data[channel.id].push_back(matrix);
-//            }
-//        }
-//    }
-//    imageData.push_back(data);
-//} while (pos != aStream.tellg());

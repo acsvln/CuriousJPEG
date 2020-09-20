@@ -12,28 +12,28 @@ void SOF0Decoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
   const auto Height = DataReader::readNumber<uint16_t>(Stream);
   const auto Width = DataReader::readNumber<uint16_t>(Stream);
 
-  Ctx.dct.precision = Precision;
-  Ctx.dct.height = Height;
-  Ctx.dct.width = Width;
+  Ctx.dct.Precision = Precision;
+  Ctx.dct.Height = Height;
+  Ctx.dct.Width = Width;
 
   const auto UnitsCount = DataReader::readNumber<uint8_t>(Stream);
-  Ctx.dct.components.resize(UnitsCount);
+  Ctx.dct.Components.resize(UnitsCount);
 
   uint32_t MaxH = 0, MaxV = 0;
 
   for (std::size_t Index = 0; Index < UnitsCount; Index++) {
-    auto &component = Ctx.dct.components[Index];
+    auto &component = Ctx.dct.Components[Index];
     DataReader::readSruct(Stream, component);
 
-    if (component.h > MaxH) {
-      MaxH = component.h;
+    if (component.H > MaxH) {
+      MaxH = component.H;
     }
 
-    if (component.v > MaxV) {
-      MaxV = component.v;
+    if (component.V > MaxV) {
+      MaxV = component.V;
     }
   }
 
-  Ctx.dct.maxH = MaxH;
-  Ctx.dct.maxV = MaxV;
+  Ctx.dct.MaxH = MaxH;
+  Ctx.dct.MaxV = MaxV;
 }

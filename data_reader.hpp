@@ -5,6 +5,8 @@
 #include <string>
 #include <type_traits>
 
+#include <iostream>
+
 #include <boost/endian/conversion.hpp>
 
 class DataReader final {

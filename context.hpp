@@ -13,23 +13,21 @@ using DQTMatrix = boost::numeric::ublas::matrix<uint16_t>;
 
 struct DCTComponent
 {
-    uint8_t id:8;
-    uint8_t h:4;
-    uint8_t v:4;
-    uint8_t dqtId:8;
+    uint8_t Id:8;
+    uint8_t H:4;
+    uint8_t V:4;
+    uint8_t DQT_Id:8;
 };
 
 struct DCTTable
 {
-    uint8_t precision;
-    uint32_t height;
-    uint32_t width;
-    uint32_t maxH;
-    uint32_t maxV;
-    std::vector<DCTComponent> components;
+    uint8_t Precision;
+    uint32_t Height;
+    uint32_t Width;
+    uint32_t MaxH;
+    uint32_t MaxV;
+    std::vector<DCTComponent> Components;
 };
-
-
 
 struct Context
 {
