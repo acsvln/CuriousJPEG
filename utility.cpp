@@ -23,39 +23,45 @@ void printSectionDescription(const std::string &name, std::size_t size)
     std::cout << "Segment size: " << size << " bytes" << std::endl;
 }
 
-boost::numeric::ublas::matrix<uint16_t> CreateZigZagMatrix( std::array<uint16_t, 64> source )
-{
-    boost::numeric::ublas::matrix<uint16_t> matrix(SIZE,SIZE);
+template <class Type>
+auto CreateZigZagMatrixImpl(std::array<Type, 64> Source)
+    -> boost::numeric::ublas::matrix<Type> {
+  boost::numeric::ublas::matrix<Type> matrix(SIZE, SIZE);
 
-    auto start_iterator = source.begin();
-    auto end_iterator = source.rbegin();
+  auto start_iterator = Source.begin();
+  auto end_iterator = Source.rbegin();
 
-    for (uint16_t i = 0; i < SIZE; i++)
-    {
-        uint16_t x = i;
-        if (i % 2) { // нечетные
-            for (uint16_t j = 0;
-                 (j <= i) && (start_iterator < source.end()) && (end_iterator < source.rend());
-                 j++, x--)
-            {
-                matrix(j,x) = *start_iterator;
-                matrix(SIZE - 1 - j, SIZE - 1 - x) = *end_iterator;
-                ++start_iterator;
-                ++end_iterator;
-            }
-        }
-        else // четные
-            for (uint16_t j = 0;
-                 (j <= i) && (start_iterator < source.end()) && (end_iterator < source.rend())
-                 ; j++, x--)
-            {
-                matrix(x,j) = *start_iterator;
-                matrix(SIZE - 1 - x, SIZE - 1 - j) = *end_iterator;
-                ++start_iterator;
-                ++end_iterator;
-            }
-    }
+  for (uint16_t i = 0; i < SIZE; i++) {
+    uint16_t x = i;
+    if (i % 2) { // нечетные
+      for (uint16_t j = 0; (j <= i) && (start_iterator < Source.end()) &&
+                           (end_iterator < Source.rend());
+           j++, x--) {
+        matrix(j, x) = *start_iterator;
+        matrix(SIZE - 1 - j, SIZE - 1 - x) = *end_iterator;
+        ++start_iterator;
+        ++end_iterator;
+      }
+    } else // четные
+      for (uint16_t j = 0; (j <= i) && (start_iterator < Source.end()) &&
+                           (end_iterator < Source.rend());
+           j++, x--) {
+        matrix(x, j) = *start_iterator;
+        matrix(SIZE - 1 - x, SIZE - 1 - j) = *end_iterator;
+        ++start_iterator;
+        ++end_iterator;
+      }
+  }
 
-    return matrix;
+  return matrix;
 }
 
+auto CreateZigZagMatrix(std::array<int16_t, 64> source)
+    -> boost::numeric::ublas::matrix<int16_t> {
+  return CreateZigZagMatrixImpl(source);
+}
+
+auto CreateZigZagMatrix(std::array<uint16_t, 64> source)
+    -> boost::numeric::ublas::matrix<uint16_t> {
+  return CreateZigZagMatrixImpl(source);
+}

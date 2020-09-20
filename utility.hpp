@@ -19,7 +19,8 @@ public:
 auto lowByte( uint8_t const Src ) -> uint8_t;
 auto highByte( uint8_t const Src ) -> uint8_t;
 
-boost::numeric::ublas::matrix<uint16_t> CreateZigZagMatrix( std::array<uint16_t, 64> source );
+auto CreateZigZagMatrix( std::array<uint16_t, 64> source ) -> boost::numeric::ublas::matrix<uint16_t>;
+auto CreateZigZagMatrix( std::array<int16_t, 64> source ) -> boost::numeric::ublas::matrix<int16_t>;
 
 //-------------------------------------
 //-------------------------------------
