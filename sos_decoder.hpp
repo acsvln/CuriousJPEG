@@ -50,6 +50,9 @@ protected:
   reverseDQT(boost::numeric::ublas::matrix<int16_t> const& matrix) -> boost::numeric::ublas::matrix<int16_t>;
 
   static auto
+  reverseDQT2(boost::numeric::ublas::matrix<int16_t> const& matrix) -> boost::numeric::ublas::matrix<int16_t>;
+
+  static auto
   normalizeReversedDQT(boost::numeric::ublas::matrix<int16_t>&& Table) -> boost::numeric::ublas::matrix<int16_t>;
 
   static auto

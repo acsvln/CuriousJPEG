@@ -99,17 +99,81 @@ reverseDQT_Impl(boost::numeric::ublas::matrix<T> const& Matrix) ->boost::numeric
         return ( 0 == X ) ? (1. / std::sqrt( 2. )) : 1.;
     };
 
-    boost::numeric::ublas::matrix<T> Result(8,8);
+    boost::numeric::ublas::matrix<T> Result(Matrix.size1(),Matrix.size2());
     const auto pi = boost::math::constants::pi<double>();
 
-    for ( std::size_t Y = 0; Y < 8; Y++ ) {
-        for ( std::size_t X = 0; X < 8; X++ ) {
+    for ( std::size_t Y = 0; Y < Matrix.size1(); Y++ ) {
+        for ( std::size_t X = 0; X < Matrix.size2(); X++ ) {
             double Accumulator = 0.;
             for ( std::size_t U = 0; U < 8; U++ ) {
                 for ( std::size_t V = 0; V < 8; V++ ) {
                     const double Cu = Cx(U);
                     const double Cv = Cx(V);
-                    const double Svu = Matrix(V,U);
+                    const double Svu = Matrix(V,U); // here v u
+                    Accumulator += Cu * Cv * Svu
+                        * std::cos( ( 2 * X + 1 ) * U * pi / 16. )
+                        * std::cos( ( 2 * Y + 1 ) * V * pi / 16. );
+                }
+            }
+            Result(Y,X) = static_cast<short>( Accumulator / 4. );
+        }
+    }
+
+    return Result;
+}
+
+//          1     7   7                      (2x+1)*u*Pi      (2x+1)*v*Pi
+//  f(x,y)= - * [Sum Sum C(u)*C(v)*F(u,v)*cos----------- * cos----------- ]
+//          4    x=0 y=0                         16                16
+
+template<typename T>
+auto
+reverseDQT_Impl2(boost::numeric::ublas::matrix<T> const& Matrix) ->boost::numeric::ublas::matrix<T> {
+    const auto Cx = []( const auto X ) -> double {
+        return ( 0 == X ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<T> Result(Matrix.size1(),Matrix.size2());
+    const auto pi = boost::math::constants::pi<double>();
+
+    for ( std::size_t U = 0; U < Matrix.size1(); U++ ) {
+        for ( std::size_t V = 0; V < Matrix.size2(); V++ ) {
+            double Accumulator = 0.;
+            for ( std::size_t Y = 0; Y < 8; Y++ ) {
+                for ( std::size_t X = 0; X < 8; X++ ) {
+                    const double Cu = Cx(U);
+                    const double Cv = Cx(V);
+                    const double Svu = Matrix(U,V); // here v u
+                    Accumulator += Cu * Cv * Svu
+                        * std::cos( ( 2 * Y + 1 ) * V * pi / 16. )
+                        * std::cos( ( 2 * X + 1 ) * U * pi / 16. );
+                }
+            }
+            Result(U,V) = static_cast<short>( Accumulator / 4. );
+        }
+    }
+
+    return Result;
+}
+
+template<typename T>
+auto
+reverseDQT_Impl3(boost::numeric::ublas::matrix<T> const& Matrix) ->boost::numeric::ublas::matrix<T> {
+    const auto Cx = []( const auto X ) -> double {
+        return ( 0 == X ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<T> Result(Matrix.size1(),Matrix.size2());
+    const auto pi = boost::math::constants::pi<double>();
+
+    for ( std::size_t Y = 0; Y < Matrix.size1(); Y++ ) {
+        for ( std::size_t X = 0; X < Matrix.size2(); X++ ) {
+            double Accumulator = 0.;
+            for ( std::size_t U = 0; U < 8; U++ ) {
+                for ( std::size_t V = 0; V < 8; V++ ) {
+                    const double Cu = Cx(U);
+                    const double Cv = Cx(V);
+                    const double Svu = Matrix(V,U); // here v u
                     Accumulator += Cu * Cv * Svu
                         * std::cos( ( 2 * X + 1 ) * U * pi / 16. )
                         * std::cos( ( 2 * Y + 1 ) * V * pi / 16. );
@@ -264,7 +328,40 @@ auto SOSDecoder::quantMCU(
 
 auto
 SOSDecoder::reverseDQT(boost::numeric::ublas::matrix<int16_t> const& Matrix) ->boost::numeric::ublas::matrix<int16_t> {
-    return reverseDQT_Impl( Matrix );
+    return reverseDQT_Impl3( Matrix );
+}
+
+auto
+SOSDecoder::reverseDQT2(boost::numeric::ublas::matrix<int16_t> const& Matrix) -> boost::numeric::ublas::matrix<int16_t> {
+    //          1     7   7                      (2x+1)*u*Pi      (2x+1)*v*Pi
+    //  f(x,y)= - * [Sum Sum C(u)*C(v)*F(u,v)*cos----------- * cos----------- ]
+    //          4    x=0 y=0                         16                16
+
+    const auto Cx = []( const auto X ) -> double {
+        return ( 0 == X ) ? (1. / std::sqrt( 2. )) : 1.;
+    };
+
+    boost::numeric::ublas::matrix<int16_t> Result(Matrix.size1(),Matrix.size2());
+    const auto pi = boost::math::constants::pi<double>();
+
+    for ( std::size_t U = 0; U < Matrix.size1(); U++ ) {
+        for ( std::size_t V = 0; V < Matrix.size2(); V++ ) {
+            double Accumulator = 0.;
+            for ( std::size_t X = 0; X < Matrix.size1(); X++ ) {
+                for ( std::size_t Y = 0; Y < Matrix.size2(); Y++ ) {
+                    const double Cu = Cx(X);
+                    const double Cv = Cx(Y);
+                    const double Svu = Matrix(Y,X); // here v u
+                    Accumulator += Cu * Cv * Svu
+                        * std::cos( ( 2 * V + 1 ) * X * pi / 16. )
+                        * std::cos( ( 2 * U + 1 ) * Y * pi / 16. );
+                }
+            }
+            Result(U,V) = static_cast<short>( Accumulator / 4. );
+        }
+    }
+
+    return Result;
 }
 
 auto
@@ -339,9 +436,9 @@ SOSDecoder::convertYCbCrToRGB_AL(boost::numeric::ublas::matrix<int16_t> const &Y
 
     for ( std::size_t i = 0; i < 16; i++ ) {
         for ( std::size_t j = 0; j < 16; j++ ) {
-            R(i,j) = normalize( std::round( Y(i,j)                               + 1.402   * ( Cr(i/2,j/2) - 128. ) ) );
-            G(i,j) = normalize( std::round( Y(i,j) - 0.34414 * ( Cb(i/2,j/2) - 128. ) - 0.71414 * ( Cr(i/2,j/2) - 128. ) ) );
-            B(i,j) = normalize( std::round( Y(i,j) + 1.772   * ( Cb(i/2,j/2) - 128. ) ) );
+            R(i,j) = normalize( std::round( Y(i,j)                               + 1.402   * ( Cr(i/2,j/2) - 128. )     ) );
+            G(i,j) = normalize( std::round( Y(i,j) - 0.34414 * ( Cb(i/2,j/2) - 128. ) - 0.71414 * ( Cr(i/2, j/2) - 128. ) ) );
+            B(i,j) = normalize( std::round( Y(i,j) + 1.772   * ( Cb(i/2,j/2) - 128. )                                   ) );
         }
     }
 
@@ -407,8 +504,8 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
             for ( int i = 0; i < 8; i++ ) {
                 for ( int j = 0; j < 8; j++ ) {
                    Y(     i,     j ) = Y1(i,j);
-                   Y(     i, 7 + j ) = Y2(i,j);
-                   Y( 7 + i,     j ) = Y3(i,j);
+                   Y(     i, 7 + j ) = Y3(i,j);
+                   Y( 7 + i,     j ) = Y2(i,j);
                    Y( 7 + i, 7 + j ) = Y4(i,j);
                 }
             }
@@ -422,10 +519,79 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
             r.G = std::get<1>(rgb);
             r.B = std::get<2>(rgb);
             Ctx.Image.push_back(r);
+
+
         }
+#if 0
+
+            auto Y1 = MCU.Cs1.at(i);
+            auto Y2 = MCU.Cs1.at(i + 1);
+            auto Y3 = MCU.Cs1.at(i + 2);
+            auto Y4 = MCU.Cs1.at(i + 3);
+
+            auto Cb = MCU.Cs2.at(i);
+
+            auto Cr = MCU.Cs3.at(i);
+
+            Matrix Y( 160, 160 );
+
+            for ( int i = 0; i < 8; i++ ) {
+                for ( int j = 0; j < 8; j++ ) {
+                   Y(     i,     j ) = Y1(i,j);
+                   Y(     i, 7 + j ) = Y2(i,j);
+                   Y( 7 + i,     j ) = Y3(i,j);
+                   Y( 7 + i, 7 + j ) = Y4(i,j);
+                }
+            }
+
+            auto RevercedY = normalizeReversedDQT( reverseDQT_Impl( Y ) );
+            auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
+            auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
+            const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+            Context::RGB r;
+            r.R = std::get<0>(rgb);
+            r.G = std::get<1>(rgb);
+            r.B = std::get<2>(rgb);
+            Ctx.Image.push_back(r);
+
+        }
+#endif
+
     } while (false);
     std::cout << "while (false)" << std::endl;
 }
+
+#if 0
+            auto Y1 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i) ) );
+            auto Y2 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 1) ) );
+            auto Y3 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 2) ) );
+            auto Y4 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 3) ) );
+
+            auto Cb = MCU.Cs2.at(i);
+
+            auto Cr = MCU.Cs3.at(i);
+
+            Matrix Y( 160, 160 );
+
+            for ( int i = 0; i < 8; i++ ) {
+                for ( int j = 0; j < 8; j++ ) {
+                   Y(     i,     j ) = Y1(i,j);
+                   Y(     i, 7 + j ) = Y3(i,j);
+                   Y( 7 + i,     j ) = Y2(i,j);
+                   Y( 7 + i, 7 + j ) = Y4(i,j);
+                }
+            }
+
+            auto RevercedY = Y;
+            auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
+            auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
+            const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+            Context::RGB r;
+            r.R = std::get<0>(rgb);
+            r.G = std::get<1>(rgb);
+            r.B = std::get<2>(rgb);
+            Ctx.Image.push_back(r);
+#endif
 
 //for ( int i = 0; i < 8; i++ ) {
 //    auto Y = MCU.Cs1.at(i);

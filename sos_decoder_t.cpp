@@ -7,6 +7,8 @@
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include "bitmap_image.hpp"
+
 #include <tiffio.h>
 
 //-------------------------------------
@@ -698,6 +700,108 @@ BOOST_AUTO_TEST_CASE(reverseDQT_XXX) {
     printMatrix(r3);
 }
 
+BOOST_AUTO_TEST_CASE(reverseDQT_XXX1) {
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    Y_Raw <<=
+            320,   0, 300, 0, 0, 0, 0, 0, /* | */ -320, 110, 100, 160, 0, 0, 0, 0,
+              0, 120, 280, 0, 0, 0, 0, 0, /* | */    0,   0, 140,   0, 0, 0, 0, 0,
+              0,-130,-160, 0, 0, 0, 0, 0, /* | */    0,-130,   0,   0, 0, 0, 0, 0,
+            140,   0,   0, 0, 0, 0, 0, 0, /* | */    0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */    0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */    0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */    0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0, 0, 0, 0, 0, 0,  /* | */    0,   0,   0,   0, 0, 0, 0, 0,
+            /*-------------------------------------------------------------------*/
+             480,-110, 100,   0, 0, 0, 0, 0,  /* | */  -160, 220,  200, 160, 0, 0, 0, 0,
+            -120,-240,-140,   0, 0, 0, 0, 0,  /* | */  -120,   0, -140,   0, 0, 0, 0, 0,
+               0,-130,   0,   0, 0, 0, 0, 0,  /* | */  -140,-130,    0,   0, 0, 0, 0, 0,
+            -140,   0,   0,   0, 0, 0, 0, 0,  /* | */     0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,   0,   0, 0, 0, 0, 0,  /* | */     0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,   0,   0, 0, 0, 0, 0,  /* | */     0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,   0,   0, 0, 0, 0, 0,  /* | */     0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,   0,   0, 0, 0, 0, 0,  /* | */     0,   0,    0,   0, 0, 0, 0, 0;
+
+    const auto R = TestedDecoder::reverseDQT(Y_Raw);
+    printMatrix(R);
+
+//    const auto q1 = Quanted_Cs1_2_Table();
+//    const auto q1 = Quanted_Cs1_2_Table();
+//    const auto q2 = Quanted_Cs1_3_Table();
+//    const auto q3 = Quanted_Cs1_4_Table();
+//    const auto r1 = TestedDecoder::reverseDQT(q1);
+//    const auto r2 = TestedDecoder::reverseDQT(q2);
+//    const auto r3 = TestedDecoder::reverseDQT(q3);
+//    printMatrix(r1);
+//    printMatrix(r2);
+//    printMatrix(r3);
+}
+
+BOOST_AUTO_TEST_CASE(reverseDQT_XXX2) {
+    boost::numeric::ublas::matrix<int16_t> Y1_Raw(8, 8);
+    Y1_Raw <<=
+            320,   0, 300, 0, 0, 0, 0, 0, /* | */
+              0, 120, 280, 0, 0, 0, 0, 0, /* | */
+              0,-130,-160, 0, 0, 0, 0, 0, /* | */
+            140,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0;  /* | */
+
+    boost::numeric::ublas::matrix<int16_t> Y2_Raw(8, 8);
+    Y2_Raw <<= -320, 110, 100, 160, 0, 0, 0, 0,
+                0,   0, 140,   0, 0, 0, 0, 0,
+                0,-130,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                 0,   0,   0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y3_Raw(8, 8);
+    Y3_Raw <<=
+            480,-110, 100,   0, 0, 0, 0, 0,
+           -120,-240,-140,   0, 0, 0, 0, 0,
+              0,-130,   0,   0, 0, 0, 0, 0,
+           -140,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y4_Raw(8, 8);
+    Y4_Raw <<=
+            -160, 220,  200, 160, 0, 0, 0, 0,
+            -120,   0, -140,   0, 0, 0, 0, 0,
+            -140,-130,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0;
+
+
+    const auto R1 = TestedDecoder::reverseDQT(Y1_Raw);
+    const auto R2 = TestedDecoder::reverseDQT(Y2_Raw);
+    const auto R3 = TestedDecoder::reverseDQT(Y3_Raw);
+    const auto R4 = TestedDecoder::reverseDQT(Y4_Raw);
+    printMatrix(R1);
+    printMatrix(R2);
+    printMatrix(R3);
+    printMatrix(R4);
+
+//    const auto q1 = Quanted_Cs1_2_Table();
+//    const auto q1 = Quanted_Cs1_2_Table();
+//    const auto q2 = Quanted_Cs1_3_Table();
+//    const auto q3 = Quanted_Cs1_4_Table();
+//    const auto r1 = TestedDecoder::reverseDQT(q1);
+//    const auto r2 = TestedDecoder::reverseDQT(q2);
+//    const auto r3 = TestedDecoder::reverseDQT(q3);
+//    printMatrix(r1);
+//    printMatrix(r2);
+//    printMatrix(r3);
+}
+
 BOOST_AUTO_TEST_CASE(reverseDQT_Y2) {
   const auto Src = Quanted_Cs1_1_Table<int16_t>();
   const auto Expected = Reversed_Y1();
@@ -794,7 +898,7 @@ BOOST_AUTO_TEST_CASE(Invoke) {
 
     std::cout << "!!!!" << std::endl;
 
-    auto createRGB = [](int r, int g, int b) -> unsigned long {
+    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
         return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
     };
 
@@ -803,6 +907,7 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     uint32* buffer = (uint32 *)malloc(width*height * sizeof(uint32));
 
     TIFF *image = TIFFOpen("input.tif", "w");
+    /*
     TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
     TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
     TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 32);
@@ -810,8 +915,20 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
     TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
     TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
     TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
+    TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+    */
+
+    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 4);
+    TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
+    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_BOTRIGHT);
+    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+    TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
     TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
 
     auto scan_line = (uint32 *)malloc(width*(sizeof(uint32)));
@@ -823,7 +940,9 @@ BOOST_AUTO_TEST_CASE(Invoke) {
 
     for (int i = 0; i < height; i++) {
         for ( auto j = 0; j < width; ++j ) {
-            scan_line[j] = createRGB(rgb.R(i,j), rgb.G(i,j), rgb.B(i,j));
+            scan_line[j] = createRGB(
+                rgb.R(i,j), rgb.G(i,j), rgb.B(i,j)
+            );
         }
         TIFFWriteScanline(image, scan_line, i, 0);
     }
@@ -832,6 +951,452 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     free(buffer);
     free(scan_line);
 }
+
+BOOST_AUTO_TEST_CASE(Invoke_BMP) {
+    std::array<uint8_t, 29> const Source{
+        0x00, 0x0c, 0x03, 0x01, 0x00, 0x02, 0x11,
+        0x03, 0x11, 0x00, 0x3f, 0x00, 0xae, 0xe7,
+        0x61, 0xf2, 0x1b, 0xd5, 0x22, 0x85, 0x5d,
+        0x04, 0x3c, 0x82, 0xc8, 0x48, 0xb1, 0xdc,
+        0xbf
+    };
+
+    const auto width = 16;
+    const auto height = 16;
+
+    Context Ctx;
+
+    Ctx.dct.Precision = 8;
+    Ctx.dct.Width = width;
+    Ctx.dct.Height = height;
+
+    Ctx.dct.Components.resize(3);
+
+    Ctx.dct.Components[0].Id = 1;
+    Ctx.dct.Components[0].H = 2;
+    Ctx.dct.Components[0].V = 2;
+    Ctx.dct.Components[0].DQT_Id = 0;
+
+    Ctx.dct.Components[1].Id = 2;
+    Ctx.dct.Components[1].H = 1;
+    Ctx.dct.Components[1].V = 1;
+    Ctx.dct.Components[1].DQT_Id = 1;
+
+    Ctx.dct.Components[2].Id = 3;
+    Ctx.dct.Components[2].H = 1;
+    Ctx.dct.Components[2].V = 1;
+    Ctx.dct.Components[2].DQT_Id = 1;
+
+    Ctx.AC_HuffmanTables = { AC_Tree_0(), AC_Tree_1() };
+    Ctx.DC_HuffmanTables = { DC_Tree_0(), DC_Tree_1() };
+
+    boost::numeric::ublas::matrix<uint16_t> DQT1(8, 8);
+    DQT1 <<=    0xA0, 0x6E, 0x64, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF,
+                0x78, 0x78, 0x8C, 0xBE, 0xFF, 0xFF, 0xFF, 0xFF,
+                0x8C, 0x82, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF,
+                0x8C, 0xAA, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xB4, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+    boost::numeric::ublas::matrix<uint16_t> DQT2(8, 8);
+    DQT2 <<=    0xAA, 0xB4, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xB4, 0xD2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
+
+    Ctx.DQT_Vector = { DQT1, DQT2 };
+
+    std::cout << "????" << std::endl;
+
+    invokeDecoderWithDataBuffer<SOSDecoder>(Ctx, Source);
+
+    std::cout << "!!!!" << std::endl;
+
+    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
+        return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+    };
+
+    //---------------writing part------------------
+
+    const unsigned int dim = 16;
+
+      bitmap_image image(dim,dim);
+
+      int cx = 0;
+      auto rgb = Ctx.Image.at( cx );
+
+      for (unsigned int i = 0; i < dim; ++i)
+      {
+         for (unsigned int j = 0; j < dim; ++j)
+         {
+            image.set_pixel(i,j,rgb.R(i,j),rgb.G(i,j),rgb.B(i,j));
+         }
+      }
+
+      image.save_image("test09_color_map_image.bmp");
+}
+
+BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_TIFF) {
+#if 0
+ // ORIGINAL:
+
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139, /* | */  15, 31, 39,  20, -16, -47, -55, -51,
+          136,  82,  5, -51, -55,  -8, 61, 111, /* | */   2, 19, 28,  13, -17, -39, -39, -30,
+          143,  80, -9, -77, -89, -41, 32,  86, /* | */ -13,  2, 12,   1, -20, -29, -16,   0,
+          157,  95,  6, -62, -76, -33, 36,  86, /* | */ -20, -8, -1, -11, -26, -23,   1,  26,
+          147, 103, 37, -12, -21,  11, 62, 100, /* | */ -10, -3, -5, -22, -37, -28,   5,  37,
+           87,  72, 50,  36,  37,  55, 79,  95, /* | */  16, 14,  0, -28, -50, -41,  -4,  30,
+          -10,   5, 31,  56,  71,  73, 68,  62, /* | */  47, 37, 10, -31, -62, -58, -21,  13,
+          -87, -50,  6,  56,  79,  72, 48,  29, /* | */  68, 53, 17, -31, -69, -69, -34,   1,
+          /*_______________________________________________________________________________*/
+           48,  21, -17,-47, -53, -32, -1,  21, /* | */  35, 39, 32,   6, -20, -26,  -4,  19,
+            8, -13, -43,-65, -63, -39, -6,  16, /* | */   6, 15, 16,   0, -21, -23,   0,  23,
+          -33, -47, -65,-72, -61, -32,  1,  24, /* | */ -34,-17, -3,  -7, -19, -16,   6,  30,
+          -44, -50, -54,-50, -31,  -1, 29,  48, /* | */ -63,-38,-12,  -4,  -9,  -6,  13,  33,
+          -25, -24, -20, -9,  10,  34, 57,  71, /* | */ -66,-34,  0,  14,   9,   6,  17,  31,
+           -3,   0,   8, 19,  33,  46, 56,  62, /* | */ -40, -6, 32,  45,  34,  19,  17,  24,
+            1,   6,  14, 21,  25,  26, 24,  22, /* | */  -2, 32, 70,  79,  58,  30,  16,  14,
+           -4,   0,   7, 10,   8,   0, -9, -15, /* | */ 24,  59, 95, 101,  73,  37,  14,   8;
+
+#endif
+
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139,/* | */     15, 31, 39,  20, -16, -47, -55, -51,
+          136,  82,  5, -51, -55,  -8, 61, 111, /* | */         2, 19, 28,  13, -17, -39, -39, -30,
+          143,  80, -9, -77, -89, -41, 32,  86, /* | */       -13,  2, 12,   1, -20, -29, -16,   0,
+          157,  95,  6, -62, -76, -33, 36,  86, /* | */       -20, -8, -1, -11, -26, -23,   1,  26,
+          147, 103, 37, -12, -21,  11, 62, 100, /* | */       -10, -3, -5, -22, -37, -28,   5,  37,
+           87,  72, 50,  36,  37,  55, 79,  95, /* | */        16, 14,  0, -28, -50, -41,  -4,  30,
+          -10,   5, 31,  56,  71,  73, 68,  62, /* | */        47, 37, 10, -31, -62, -58, -21,  13,
+          -87, -50,  6,  56,  79,  72, 48,  29, /* | */        68, 53, 17, -31, -69, -69, -34,   1,
+          /*_______________________________________________________________________________*/
+            48,  21, -17,-47, -53, -32, -1,  21, /* | */  35, 39, 32,   6, -20, -26,  -4,  19,
+             8, -13, -43,-65, -63, -39, -6,  16, /* | */   6, 15, 16,   0, -21, -23,   0,  23,
+           -33, -47, -65,-72, -61, -32,  1,  24, /* | */ -34,-17, -3,  -7, -19, -16,   6,  30,
+           -44, -50, -54,-50, -31,  -1, 29,  48, /* | */ -63,-38,-12,  -4,  -9,  -6,  13,  33,
+           -25, -24, -20, -9,  10,  34, 57,  71, /* | */ -66,-34,  0,  14,   9,   6,  17,  31,
+            -3,   0,   8, 19,  33,  46, 56,  62, /* | */ -40, -6, 32,  45,  34,  19,  17,  24,
+             1,   6,  14, 21,  25,  26, 24,  22, /* | */  -2, 32, 70,  79,  58,  30,  16,  14,
+            -4,   0,   7, 10,   8,   0, -9, -15, /* | */ 24,  59, 95, 101,  73,  37,  14,   8;
+
+
+
+
+
+
+
+
+
+
+
+
+    auto width = 16;
+    auto height = 16;
+
+
+
+
+    const auto Y = TestedDecoder::normalizeReversedDQT( std::move( Y_Raw ) );
+    const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
+    const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
+
+    const auto res = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
+    printMatrix(std::get<0>(res));
+    printMatrix(std::get<1>(res));
+    printMatrix(std::get<2>(res));
+
+    auto r = std::get<0>(res);
+    auto g = std::get<1>(res);
+    auto b = std::get<2>(res);
+
+    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
+        return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+    };
+
+    uint32* buffer = (uint32 *)malloc(width*height * sizeof(uint32));
+
+    TIFF *image = TIFFOpen("input2.tif", "w");
+    /*
+    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 32);
+    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 1);
+    TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
+    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+    TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
+    TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+    */
+
+    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
+    TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
+    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 4);
+    TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
+    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+    TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
+    TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+
+    auto scan_line = (uint32 *)malloc(width*(sizeof(uint32)));
+
+    int cx = 0;
+
+    for (int i = 0; i < height; i++) {
+        for ( auto j = 0; j < width; ++j ) {
+            scan_line[j] = createRGB(
+                r(i,j), g(i,j), b(i,j)
+            );
+        }
+        TIFFWriteScanline(image, scan_line, i, 0);
+    }
+
+    TIFFClose(image);
+    free(buffer);
+    free(scan_line);
+
+}
+
+BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
+
+    boost::numeric::ublas::matrix<int16_t> Y1_Raw(8, 8);
+    Y1_Raw <<=
+            320,   0, 300, 0, 0, 0, 0, 0, /* | */
+              0, 120, 280, 0, 0, 0, 0, 0, /* | */
+              0,-130,-160, 0, 0, 0, 0, 0, /* | */
+            140,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0, /* | */
+              0,   0,   0, 0, 0, 0, 0, 0;  /* | */
+
+    boost::numeric::ublas::matrix<int16_t> Y2_Raw(8, 8);
+    Y2_Raw <<= -320, 110, 100, 160, 0, 0, 0, 0,
+                0,   0, 140,   0, 0, 0, 0, 0,
+                0,-130,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                0,   0,   0,   0, 0, 0, 0, 0,
+                 0,   0,   0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y3_Raw(8, 8);
+    Y3_Raw <<=
+            480,-110, 100,   0, 0, 0, 0, 0,
+           -120,-240,-140,   0, 0, 0, 0, 0,
+              0,-130,   0,   0, 0, 0, 0, 0,
+           -140,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0,
+              0,   0,   0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y4_Raw(8, 8);
+    Y4_Raw <<=
+            -160, 220,  200, 160, 0, 0, 0, 0,
+            -120,   0, -140,   0, 0, 0, 0, 0,
+            -140,-130,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0,
+               0,   0,    0,   0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+
+    const auto R1 = TestedDecoder::reverseDQT(Y1_Raw);
+    const auto R2 = TestedDecoder::reverseDQT(Y2_Raw);
+    const auto R3 = TestedDecoder::reverseDQT(Y3_Raw);
+    const auto R4 = TestedDecoder::reverseDQT(Y4_Raw);
+
+    printMatrix(R1);
+    printMatrix(R2);
+    printMatrix(R3);
+    printMatrix(R4);
+
+    for ( int i = 0; i < 8; i++ ) {
+        for ( int j = 0; j < 8; j++ ) {
+           Y_Raw(     i,     j ) = R1(i,j);
+           Y_Raw(     i, 8 + j ) = R2(i,j);
+           Y_Raw( 8 + i,     j ) = R3(i,j);
+           Y_Raw( 8 + i, 8 + j ) = R4(i,j);
+        }
+    }
+
+    const auto Y = TestedDecoder::normalizeReversedDQT( std::move( Y_Raw ) );
+    const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
+    const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
+
+    const auto res = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
+    printMatrix(std::get<0>(res));
+    printMatrix(std::get<1>(res));
+    printMatrix(std::get<2>(res));
+
+    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
+        return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+    };
+
+    //---------------writing part------------------
+
+    const unsigned int dim = 16;
+
+      bitmap_image image(dim,dim);
+
+      int cx = 0;
+      auto r = std::get<0>(res);
+      auto g = std::get<1>(res);
+      auto b = std::get<2>(res);
+
+      for (unsigned int i = 0; i < dim; ++i)
+      {
+         for (unsigned int j = 0; j < dim; ++j)
+         {
+            image.set_pixel(j,i,r(i,j),g(i,j),b(i,j));
+         }
+      }
+
+      image.save_image("test09_000_combined.bmp");
+}
+
+
+BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
+#if 0
+ // ORIGINAL:
+
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139, /* | */  15, 31, 39,  20, -16, -47, -55, -51,
+          136,  82,  5, -51, -55,  -8, 61, 111, /* | */   2, 19, 28,  13, -17, -39, -39, -30,
+          143,  80, -9, -77, -89, -41, 32,  86, /* | */ -13,  2, 12,   1, -20, -29, -16,   0,
+          157,  95,  6, -62, -76, -33, 36,  86, /* | */ -20, -8, -1, -11, -26, -23,   1,  26,
+          147, 103, 37, -12, -21,  11, 62, 100, /* | */ -10, -3, -5, -22, -37, -28,   5,  37,
+           87,  72, 50,  36,  37,  55, 79,  95, /* | */  16, 14,  0, -28, -50, -41,  -4,  30,
+          -10,   5, 31,  56,  71,  73, 68,  62, /* | */  47, 37, 10, -31, -62, -58, -21,  13,
+          -87, -50,  6,  56,  79,  72, 48,  29, /* | */  68, 53, 17, -31, -69, -69, -34,   1,
+          /*_______________________________________________________________________________*/
+           48,  21, -17,-47, -53, -32, -1,  21, /* | */  35, 39, 32,   6, -20, -26,  -4,  19,
+            8, -13, -43,-65, -63, -39, -6,  16, /* | */   6, 15, 16,   0, -21, -23,   0,  23,
+          -33, -47, -65,-72, -61, -32,  1,  24, /* | */ -34,-17, -3,  -7, -19, -16,   6,  30,
+          -44, -50, -54,-50, -31,  -1, 29,  48, /* | */ -63,-38,-12,  -4,  -9,  -6,  13,  33,
+          -25, -24, -20, -9,  10,  34, 57,  71, /* | */ -66,-34,  0,  14,   9,   6,  17,  31,
+           -3,   0,   8, 19,  33,  46, 56,  62, /* | */ -40, -6, 32,  45,  34,  19,  17,  24,
+            1,   6,  14, 21,  25,  26, 24,  22, /* | */  -2, 32, 70,  79,  58,  30,  16,  14,
+           -4,   0,   7, 10,   8,   0, -9, -15, /* | */ 24,  59, 95, 101,  73,  37,  14,   8;
+
+#endif
+
+//    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+//    Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139, /* | */    35, 39, 32,   6, -20, -26,  -4,  19,
+//          136,  82,  5, -51, -55,  -8, 61, 111,     /* | */        6, 15, 16,   0, -21, -23,   0,  23,
+//          143,  80, -9, -77, -89, -41, 32,  86,     /* | */      -34,-17, -3,  -7, -19, -16,   6,  30,
+//          157,  95,  6, -62, -76, -33, 36,  86,     /* | */      -63,-38,-12,  -4,  -9,  -6,  13,  33,
+//          147, 103, 37, -12, -21,  11, 62, 100,     /* | */      -66,-34,  0,  14,   9,   6,  17,  31,
+//           87,  72, 50,  36,  37,  55, 79,  95,     /* | */      -40, -6, 32,  45,  34,  19,  17,  24,
+//          -10,   5, 31,  56,  71,  73, 68,  62,     /* | */       -2, 32, 70,  79,  58,  30,  16,  14,
+//          -87, -50,  6,  56,  79,  72, 48,  29,     /* | */      24,  59, 95, 101,  73,  37,  14,   8,
+//          /*_______________________________________________________________________________*/
+//            15, 31, 39,  20, -16, -47, -55, -51,    /* | */       48,  21, -17,-47, -53, -32, -1,  21,
+//             2, 19, 28,  13, -17, -39, -39, -30,    /* | */        8, -13, -43,-65, -63, -39, -6,  16,
+//           -13,  2, 12,   1, -20, -29, -16,   0,    /* | */      -33, -47, -65,-72, -61, -32,  1,  24,
+//           -20, -8, -1, -11, -26, -23,   1,  26,    /* | */      -44, -50, -54,-50, -31,  -1, 29,  48,
+//           -10, -3, -5, -22, -37, -28,   5,  37,    /* | */      -25, -24, -20, -9,  10,  34, 57,  71,
+//            16, 14,  0, -28, -50, -41,  -4,  30,    /* | */       -3,   0,   8, 19,  33,  46, 56,  62,
+//            47, 37, 10, -31, -62, -58, -21,  13,    /* | */        1,   6,  14, 21,  25,  26, 24,  22,
+//            68, 53, 17, -31, -69, -69, -34,   1,    /* | */       -4,   0,   7, 10,   8,   0, -9, -15;
+
+
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    Y_Raw <<=
+            138, 92,  27,  -17, -17, 28,  93,  139, /* | */  21,  -34, -93, -105    -70, -26, -5,  -5,
+            136, 82,  5,   -51, -55, -8,  61,  111, /* | */  33,  -21, -81, -97, -68, -34, -22, -27,
+            143, 80,  -9,  -77, -89, -41, 32,  86,  /* | */  49,  -4,  -64, -83, -64, -44, -46, -60,
+            157, 95,  6,   -62, -76, -33, 36,  86,  /* | */  54,  4,   -49, -68, -56, -49, -66, -89,
+            147, 103, 37,  -12, -21, 11,  62,  100, /* | */  42,  0,   -44, -56, -43, -43, -71, -102,
+            87,  72,  50,  36,  37,  55,  79,  95,  /* | */  13,  -19, -49, -47, -28, -29, -61, -96,
+            -10, 5,   31,  56,  71,  73,  68,  62,  /* | */  -20, -44, -59, -43, -15, -11, -44, -80,
+            -87, -50, 6,   56,  79,  72,  48,  29,  /* | */  -42, -60, -67, -42, -6,  0,   -32, -68,
+            /* ------------------------------------------------------------------------------------------ */
+            -103    -77, -35, 12,  55,  85,  102, 109,  /* | */  -30, -61, -86, -78, -50, -41, -65, -94,
+            -43, -25, 6,   41,  73,  96,  110, 116,     /* | */  8,   -28, -62, -63, -42, -36, -61, -90,
+            31,  38,  50,  66,  81,  95,  105, 110,     /* | */  66,  20,  -27, -42, -31, -29, -53, -81,
+            78,  72,  64,  59,  59,  66,  74,  80,      /* | */  116, 61,  -1,  -29, -25, -22, -42, -66,
+            94,  78,  53,  32,  23,  28,  41,  51,      /* | */  137, 74,  1,   -34, -29, -19, -28, -45,
+            107, 83,  47,  18,  8,   18,  39,  55,      /* | */  125, 59,  -18, -55, -43, -20, -14, -21,
+            133, 105, 64,  33,  26,  44,  75,  98,      /* | */  97,  29,  -49, -81, -60, -23, -3,  -1,
+            158, 129, 86,  55,  51,  76,  113, 140,     /* | */  74,  6,   -71, -100    -72, -25, 2,   10;
+
+//            138,  91,  60,  -7,   -2,  -14,  -38, -59, -42,  35,  -4,   83, -76,  84, -39, 52,
+//             31,  -3,  49,  30, -121,   60,  -78,  17,  30, 179, -147, 214, -35,  82,  -9, 49,
+//             37,  52, -58, -19,  -60,   40,  103, -40, -32,  66,   30, -16, -58,  36, -79, 60,
+//             47, -12,  21, -73,  -13,  -25,   98,  32,  58, 136,  -13, -23,  23,  30,  -15, 73,
+//            57,  161, -81, 19,  -32, -13, -59, 30,  -57,
+//            108, -34, -27, 7,   -27, 30,  62
+//            ,    93,  -7,  99,  -4,  -16, -31, -38, -48, 30
+//            -41, -11, 41,  76,  -93, -20, -5
+//            ,    126, 11,  -45, 81,  -29, -37, 16,  29,  -13
+//            -21, 6,   -70, 13,  18,  30,  -97
+//            ,    146, -27, 16,  -19, 37,  -44, 36,  -24, 12,
+//            -33, 32,  -41, 74,  -112,    121, -112,
+//                109, -33, -23, 21,  -20, 15,  -7,  0,   10,
+//            -11, 12,  4,   25,  -53, 757, 264
+//            ,    245, -134,    -1166,   -2204,   -2234,   807, 2594,    -112,    -27,
+//            -58, 293, 903, 727, -1285,   -4844,   -1416,    1968,    5414,    1085,
+//            -3321,   290, -1852,   -6595,   123, -1893, -6384,   -1733,   10026,   12871,
+//            3556,    3000,   -971,    -4727,   2638,    3071,    -1499,   7856,    -4953,   2779,
+//            182, -4022,            1793 ,   11012 ,  617, -1509,   7839,    -5754 ,  1615,
+//               -526,    -10842,  5963 ,   -11945,  -4771,   -5810,   -4581,   2212 ,   -4560,
+//            13138,   -4288,   7151,    -581,    4473,    6211 ,   -16056,
+//                9534,    -8408,   15652,   3214,    4138 ,   9325   , 2860  ,  612, -2300,
+//            9406,    548, -8364 ,  11365 ,  1548  ,  18055  , 996
+//            ,    -3381,   -18242,  6595,    -1624,   -8453 ,  -194 ,   3042 ,   -1481 ,  -4960,
+//            4415 ,   12060 ,  -7847 ,  -16046,  9986,    19372 ,  -15651
+//            ,    30717,   -25193,  21595,   -10771,  15641,   -21211,  2399,    -1847,   -2047,
+//            -1125,   6501,    12441,   478, -15981 , -14714,  26080;
+
+
+    const auto Y = TestedDecoder::normalizeReversedDQT( std::move( Y_Raw ) );
+    const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
+    const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
+
+    const auto res = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
+    printMatrix(std::get<0>(res));
+    printMatrix(std::get<1>(res));
+    printMatrix(std::get<2>(res));
+
+    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
+        return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+    };
+
+    //---------------writing part------------------
+
+    const unsigned int dim = 16;
+
+      bitmap_image image(dim,dim);
+
+      int cx = 0;
+      auto r = std::get<0>(res);
+      auto g = std::get<1>(res);
+      auto b = std::get<2>(res);
+
+      for (unsigned int i = 0; i < dim; ++i)
+      {
+         for (unsigned int j = 0; j < dim; ++j)
+         {
+            image.set_pixel(j,i,r(i,j),g(i,j),b(i,j));
+         }
+      }
+
+      image.save_image("test09_000.bmp");
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 #if 0
 
@@ -859,10 +1424,6 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_LOLOL) {
 //        it.begin2();
 //    }
 }
-
-#endif
-
-#if 0
 
 BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
   const auto Y = TestedDecoder::normalizeReversedDQT( Reversed_Y1() );
@@ -963,11 +1524,6 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
   BOOST_REQUIRE_EQUAL(ExpectedB, std::get<2>(res));
 }
 
-#endif
-
-
-#if 0
-
 BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
 //  const auto Y = TestedDecoder::normalizeReversedDQT( Reversed_Y1() );
 
@@ -999,7 +1555,6 @@ Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139, /* | */  15, 31, 39,  20, -16, -
     printMatrix(std::get<1>(res));
     printMatrix(std::get<2>(res));
 }
-
 #endif
 
 //  // по хорошему такие данные, но у нас что о не то с точностью =[
@@ -1071,4 +1626,3 @@ Y_Raw <<= 138,  92, 27, -17, -17,  28, 93, 139, /* | */  15, 31, 39,  20, -16, -
 //                0x6F,      0x7E,      0x94,      0xAD,      0xB7,      0xB9,     0xAD,      0xA7,
 //                0x22,      0x47,      0x7B,      0xAD,      0xBF,      0xB8,     0x99,      0x86;
 
-BOOST_AUTO_TEST_SUITE_END()
