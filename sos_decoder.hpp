@@ -79,31 +79,6 @@ public:
         boost::numeric::ublas::matrix<int16_t>
   >;
 
-#if 0
-
-  static auto
-  convertYCbCrToRGB_2(boost::numeric::ublas::matrix<int16_t> const &y,
-             boost::numeric::ublas::matrix<int16_t> const &cb,
-             boost::numeric::ublas::matrix<int16_t> const &cr) ->
-    std::tuple<
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>
-  >;
-
-  static
-  auto
-  convertYCbCrToRGB_3(
-        boost::numeric::ublas::matrix<int16_t> const& Y
-      , boost::numeric::ublas::matrix<int16_t> const& Cb
-      , boost::numeric::ublas::matrix<int16_t> const& Cr ) -> std::tuple<
-        boost::numeric::ublas::matrix<int16_t>
-      , boost::numeric::ublas::matrix<int16_t>
-      , boost::numeric::ublas::matrix<int16_t>
-  >;
-
-#endif
-
 private:
   void InvokeImpl(std::istream &Stream, Context &Ctx) final;
 
