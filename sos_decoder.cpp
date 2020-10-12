@@ -422,17 +422,17 @@ SOSDecoder::convertYCbCrToRGB_AL(boost::numeric::ublas::matrix<int16_t> const &Y
            boost::numeric::ublas::matrix<int16_t> const &Cb,
            boost::numeric::ublas::matrix<int16_t> const &Cr) ->
   std::tuple<
-      boost::numeric::ublas::matrix<int16_t>,
-      boost::numeric::ublas::matrix<int16_t>,
-      boost::numeric::ublas::matrix<int16_t>
+      boost::numeric::ublas::matrix<uint16_t>,
+      boost::numeric::ublas::matrix<uint16_t>,
+      boost::numeric::ublas::matrix<uint16_t>
 > {
-    const auto normalize = []( double const Value ) -> int16_t {
-        return static_cast<int16_t>( std::clamp( Value, 0., 255. ) );
+    const auto normalize = []( double const Value ) -> uint16_t {
+        return static_cast<uint16_t>( std::clamp( Value, 0., 255. ) );
     };
 
-    boost::numeric::ublas::matrix<int16_t> R(16,16);
-    boost::numeric::ublas::matrix<int16_t> G(16,16);
-    boost::numeric::ublas::matrix<int16_t> B(16,16);
+    boost::numeric::ublas::matrix<uint16_t> R(16,16);
+    boost::numeric::ublas::matrix<uint16_t> G(16,16);
+    boost::numeric::ublas::matrix<uint16_t> B(16,16);
 
     for ( std::size_t i = 0; i < 16; i++ ) {
         for ( std::size_t j = 0; j < 16; j++ ) {

@@ -1181,7 +1181,7 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
     printMatrix(std::get<2>(res));
 
     auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
-        return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
+        return ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     };
 
     //---------------writing part------------------
@@ -1204,6 +1204,58 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
       }
 
       image.save_image("test09_000_combined.bmp");
+
+
+      //////////////////////////////////////////////////////////
+      {
+          auto width = 16;
+          auto height = 16;
+
+          uint8* buffer = (uint8 *)malloc(width*height * sizeof(uint8));
+
+
+          TIFF *image = TIFFOpen("outout_tiff.tif", "w");
+
+          //_TIFFmalloc
+          TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
+          TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
+          TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
+          TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 3);
+          TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
+          TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+          TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+          TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+          TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
+          TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+
+          auto scan_line = (uint8 *)malloc(width*(sizeof(uint8))*3);
+          uint8* it = scan_line;
+
+          int cx = 0;
+
+          for (int i = 0; i < height; i++) {
+              for ( auto j = 0; j < width; ++j ) {
+//                  			const auto RR = static_cast<uint8_t>(ARGB >> 16);
+//                  			const auto GG = static_cast<uint8_t>(ARGB >> 8);
+//                  			const auto BB = static_cast<uint8_t>(ARGB);
+
+                  *it = r(i,j);
+                  *(it + 1) = g(i,j);
+                  *(it + 2) = b(i,j);
+                  it += 3;;
+
+//                  scan_line[j] = createRGB(
+//                      r(i,j), g(i,j), b(i,j)
+//                  );
+              }
+              it = scan_line;
+              TIFFWriteScanline(image, scan_line, i, 0);
+          }
+
+          TIFFClose(image);
+          free(buffer);
+          free(scan_line);
+      }
 }
 
 

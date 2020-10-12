@@ -74,9 +74,9 @@ public:
              boost::numeric::ublas::matrix<int16_t> const &cb,
              boost::numeric::ublas::matrix<int16_t> const &cr) ->
     std::tuple<
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>
+        boost::numeric::ublas::matrix<uint16_t>,
+        boost::numeric::ublas::matrix<uint16_t>,
+        boost::numeric::ublas::matrix<uint16_t>
   >;
 
 private:
