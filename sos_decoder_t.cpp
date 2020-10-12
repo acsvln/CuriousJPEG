@@ -239,6 +239,49 @@ auto Reversed_Y1() {
     return Table;
 }
 
+auto Reversed_Y2() {
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    Table <<=
+            21,      -34,     -93,     -105,    -70,     -26,     -5,      -5,
+            33,      -21,     -81,     -97,     -68,     -34,     -22,     -27,
+            49,      -4,      -64,     -83,     -64,     -44,     -46,     -60,
+            54,      4,       -49,     -68,     -56,     -49,     -66,     -89,
+            42,      0,       -44,     -56,     -43,     -43,     -71,     -102,
+            13,      -19,     -49,     -47,     -28,     -29,     -61,     -96,
+            -20,     -44,     -59,     -43,     -15,     -11,     -44,     -80,
+            -42,     -60,     -67,     -42,     -6,      0,       -32,     -68;
+    return Table;
+}
+
+auto Reversed_Y3() {
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    Table <<=
+            -103,    -77 ,    -35 ,    12,      55,      85,      102,     109 ,
+            -43 ,    -25 ,    6   ,    41,      73,      96,      110,     116 ,
+            31  ,    38  ,    50  ,    66,      81,      95,      105,     110 ,
+            78  ,    72  ,    64  ,    59,      59,      66,      74 ,     80  ,
+            94  ,    78  ,    53  ,    32,      23,      28,      41 ,     51  ,
+            107 ,    83  ,    47  ,    18,      8 ,      18,      39 ,     55  ,
+            133 ,    105 ,    64  ,    33,      26,      44,      75 ,     98  ,
+            158 ,    129 ,    86  ,    55,      51,      76,      113,     140 ;
+    return Table;
+}
+
+auto Reversed_Y4() {
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    Table <<=
+            -30,     -61,    -86 ,    -78  ,   -50,     -41,     -65,     -94 ,
+            8  ,     -28,    -62 ,    -63  ,   -42,     -36,     -61,     -90 ,
+            66 ,     20 ,    -27 ,    -42  ,   -31,     -29,     -53,     -81 ,
+            116,     61 ,    -1  ,    -29  ,   -25,     -22,     -42,     -66 ,
+            137,     74 ,    1   ,    -34  ,   -29,     -19,     -28,     -45 ,
+            125,     59 ,    -18 ,    -55  ,   -43,     -20,     -14,     -21 ,
+            97 ,     29 ,    -49 ,    -81  ,   -60,     -23,     -3 ,     -1  ,
+            74 ,     6  ,    -71 ,    -100 ,   -72,     -25,     2  ,     10;
+    return Table;
+}
+
+
 auto Reversed_Cb() {
     boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= 60, 52, 38, 20, 0, -18, -32, -40, 48, 41, 29, 13, -3, -19, -31, -37,
@@ -688,6 +731,27 @@ BOOST_AUTO_TEST_CASE(reverseDQT_Y1) {
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
+BOOST_AUTO_TEST_CASE(reverseDQT_Y2) {
+  const auto Src = Quanted_Cs1_2_Table<int16_t>();
+  const auto Expected = Reversed_Y2();
+  const auto Reversed = TestedDecoder::reverseDQT(Src);
+  BOOST_REQUIRE_EQUAL(Expected, Reversed);
+}
+
+BOOST_AUTO_TEST_CASE(reverseDQT_Y3) {
+  const auto Src = Quanted_Cs1_3_Table<int16_t>();
+  const auto Expected = Reversed_Y3();
+  const auto Reversed = TestedDecoder::reverseDQT(Src);
+  BOOST_REQUIRE_EQUAL(Expected, Reversed);
+}
+
+BOOST_AUTO_TEST_CASE(reverseDQT_Y4) {
+  const auto Src = Quanted_Cs1_4_Table<int16_t>();
+  const auto Expected = Reversed_Y4();
+  const auto Reversed = TestedDecoder::reverseDQT(Src);
+  BOOST_REQUIRE_EQUAL(Expected, Reversed);
+}
+
 BOOST_AUTO_TEST_CASE(reverseDQT_XXX) {
     const auto q1 = Quanted_Cs1_2_Table();
     const auto q2 = Quanted_Cs1_3_Table();
@@ -778,13 +842,6 @@ BOOST_AUTO_TEST_CASE(reverseDQT_XXX2) {
     printMatrix(R2);
     printMatrix(R3);
     printMatrix(R4);
-}
-
-BOOST_AUTO_TEST_CASE(reverseDQT_Y2) {
-  const auto Src = Quanted_Cs1_1_Table<int16_t>();
-  const auto Expected = Reversed_Y1();
-  const auto Reversed = TestedDecoder::reverseDQT(Src);
-  BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_cb) {
@@ -1106,51 +1163,53 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_TIFF) {
 }
 
 BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
+    constexpr const auto HalfRowsCount = 8;
+    constexpr const auto HalfColsCount = 8;
 
-    boost::numeric::ublas::matrix<int16_t> Y1_Raw(8, 8);
-    Y1_Raw <<=
-            320,   0, 300, 0, 0, 0, 0, 0, /* | */
-              0, 120, 280, 0, 0, 0, 0, 0, /* | */
-              0,-130,-160, 0, 0, 0, 0, 0, /* | */
-            140,   0,   0, 0, 0, 0, 0, 0, /* | */
-              0,   0,   0, 0, 0, 0, 0, 0, /* | */
-              0,   0,   0, 0, 0, 0, 0, 0, /* | */
-              0,   0,   0, 0, 0, 0, 0, 0, /* | */
-              0,   0,   0, 0, 0, 0, 0, 0;  /* | */
+    constexpr const auto ColsCount = 16;
+    constexpr const auto RowsCount = 16;
 
-    boost::numeric::ublas::matrix<int16_t> Y2_Raw(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Y1_Raw(HalfRowsCount, HalfColsCount);
+    Y1_Raw <<=  320,   0, 300, 0, 0, 0, 0, 0,
+                  0, 120, 280, 0, 0, 0, 0, 0,
+                  0,-130,-160, 0, 0, 0, 0, 0,
+                140,   0,   0, 0, 0, 0, 0, 0,
+                  0,   0,   0, 0, 0, 0, 0, 0,
+                  0,   0,   0, 0, 0, 0, 0, 0,
+                  0,   0,   0, 0, 0, 0, 0, 0,
+                  0,   0,   0, 0, 0, 0, 0, 0;
+
+    boost::numeric::ublas::matrix<int16_t> Y2_Raw(HalfRowsCount, HalfColsCount);
     Y2_Raw <<= -320, 110, 100, 160, 0, 0, 0, 0,
-                0,   0, 140,   0, 0, 0, 0, 0,
-                0,-130,   0,   0, 0, 0, 0, 0,
-                0,   0,   0,   0, 0, 0, 0, 0,
-                0,   0,   0,   0, 0, 0, 0, 0,
-                0,   0,   0,   0, 0, 0, 0, 0,
-                0,   0,   0,   0, 0, 0, 0, 0,
-                 0,   0,   0,   0, 0, 0, 0, 0;
+                  0,   0, 140,   0, 0, 0, 0, 0,
+                  0,-130,   0,   0, 0, 0, 0, 0,
+                  0,   0,   0,   0, 0, 0, 0, 0,
+                  0,   0,   0,   0, 0, 0, 0, 0,
+                  0,   0,   0,   0, 0, 0, 0, 0,
+                  0,   0,   0,   0, 0, 0, 0, 0,
+                  0,   0,   0,   0, 0, 0, 0, 0;
 
-    boost::numeric::ublas::matrix<int16_t> Y3_Raw(8, 8);
-    Y3_Raw <<=
-            480,-110, 100,   0, 0, 0, 0, 0,
-           -120,-240,-140,   0, 0, 0, 0, 0,
-              0,-130,   0,   0, 0, 0, 0, 0,
-           -140,   0,   0,   0, 0, 0, 0, 0,
-              0,   0,   0,   0, 0, 0, 0, 0,
-              0,   0,   0,   0, 0, 0, 0, 0,
-              0,   0,   0,   0, 0, 0, 0, 0,
-              0,   0,   0,   0, 0, 0, 0, 0;
+    boost::numeric::ublas::matrix<int16_t> Y3_Raw(HalfRowsCount, HalfColsCount);
+    Y3_Raw <<=  480, -110,  100, 0, 0, 0, 0, 0,
+               -120, -240, -140, 0, 0, 0, 0, 0,
+                  0, -130,    0, 0, 0, 0, 0, 0,
+               -140,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0,
+                  0,    0,    0, 0, 0, 0, 0, 0;
 
-    boost::numeric::ublas::matrix<int16_t> Y4_Raw(8, 8);
-    Y4_Raw <<=
-            -160, 220,  200, 160, 0, 0, 0, 0,
-            -120,   0, -140,   0, 0, 0, 0, 0,
-            -140,-130,    0,   0, 0, 0, 0, 0,
-               0,   0,    0,   0, 0, 0, 0, 0,
-               0,   0,    0,   0, 0, 0, 0, 0,
-               0,   0,    0,   0, 0, 0, 0, 0,
-               0,   0,    0,   0, 0, 0, 0, 0,
-               0,   0,    0,   0, 0, 0, 0, 0;
+    boost::numeric::ublas::matrix<int16_t> Y4_Raw(HalfRowsCount, HalfColsCount);
+    Y4_Raw <<= -160, 220,  200, 160, 0, 0, 0, 0,
+               -120,   0, -140,   0, 0, 0, 0, 0,
+               -140,-130,    0,   0, 0, 0, 0, 0,
+                  0,   0,    0,   0, 0, 0, 0, 0,
+                  0,   0,    0,   0, 0, 0, 0, 0,
+                  0,   0,    0,   0, 0, 0, 0, 0,
+                  0,   0,    0,   0, 0, 0, 0, 0,
+                  0,   0,    0,   0, 0, 0, 0, 0;
 
-    boost::numeric::ublas::matrix<int16_t> Y_Raw(16, 16);
+    boost::numeric::ublas::matrix<int16_t> Y_Raw(RowsCount, ColsCount);
 
     const auto R1 = TestedDecoder::reverseDQT(Y1_Raw);
     const auto R2 = TestedDecoder::reverseDQT(Y2_Raw);
@@ -1162,12 +1221,12 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
     printMatrix(R3);
     printMatrix(R4);
 
-    for ( int i = 0; i < 8; i++ ) {
-        for ( int j = 0; j < 8; j++ ) {
-           Y_Raw(     i,     j ) = R1(i,j);
-           Y_Raw(     i, 8 + j ) = R2(i,j);
-           Y_Raw( 8 + i,     j ) = R3(i,j);
-           Y_Raw( 8 + i, 8 + j ) = R4(i,j);
+    for ( std::size_t Row = 0; Row < HalfRowsCount; Row++ ) {
+        for ( std::size_t Col = 0; Col < HalfColsCount; Col++ ) {
+           Y_Raw(     Row,     Col ) = R1(Row,Col);
+           Y_Raw(     Row, 8 + Col ) = R2(Row,Col);
+           Y_Raw( 8 + Row,     Col ) = R3(Row,Col);
+           Y_Raw( 8 + Row, 8 + Col ) = R4(Row,Col);
         }
     }
 
@@ -1175,89 +1234,39 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
     const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
     const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
 
-    const auto res = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
-    printMatrix(std::get<0>(res));
-    printMatrix(std::get<1>(res));
-    printMatrix(std::get<2>(res));
+    const auto [R,G,B] = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
 
-    auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
-        return ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
+    std::unique_ptr<TIFF, std::function<void(TIFF* const)>> Image{
+          TIFFOpen("outout_tiff.tif", "w")
+        , []( TIFF * const image){
+          TIFFClose(image);
+        }
     };
 
-    //---------------writing part------------------
+    TIFFSetField(Image.get(), TIFFTAG_IMAGEWIDTH, ColsCount);
+    TIFFSetField(Image.get(), TIFFTAG_IMAGELENGTH, RowsCount);
+    TIFFSetField(Image.get(), TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(Image.get(), TIFFTAG_SAMPLESPERPIXEL, 3);
+    TIFFSetField(Image.get(), TIFFTAG_ROWSPERSTRIP, 1);
+    TIFFSetField(Image.get(), TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(Image.get(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(Image.get(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+    TIFFSetField(Image.get(), TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
+    TIFFSetField(Image.get(), TIFFTAG_COMPRESSION, COMPRESSION_NONE);
 
-    const unsigned int dim = 16;
+    std::array<uint8, ColsCount * 3> ScanLine;
 
-      bitmap_image image(dim,dim);
-
-      int cx = 0;
-      auto r = std::get<0>(res);
-      auto g = std::get<1>(res);
-      auto b = std::get<2>(res);
-
-      for (unsigned int i = 0; i < dim; ++i)
-      {
-         for (unsigned int j = 0; j < dim; ++j)
-         {
-            image.set_pixel(j,i,r(i,j),g(i,j),b(i,j));
-         }
+    for ( std::size_t Row = 0; Row < RowsCount; Row++) {
+      auto It = std::begin(ScanLine);
+      for ( std::size_t Col = 0; Col < ColsCount; ++Col ) {
+          *It = R(Row,Col);
+          *(It + 1) = G(Row,Col);
+          *(It + 2) = B(Row,Col);
+          It += 3;
       }
-
-      image.save_image("test09_000_combined.bmp");
-
-
-      //////////////////////////////////////////////////////////
-      {
-          auto width = 16;
-          auto height = 16;
-
-          uint8* buffer = (uint8 *)malloc(width*height * sizeof(uint8));
-
-
-          TIFF *image = TIFFOpen("outout_tiff.tif", "w");
-
-          //_TIFFmalloc
-          TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
-          TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
-          TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
-          TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 3);
-          TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
-          TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-          TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-          TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
-          TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
-          TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
-
-          auto scan_line = (uint8 *)malloc(width*(sizeof(uint8))*3);
-          uint8* it = scan_line;
-
-          int cx = 0;
-
-          for (int i = 0; i < height; i++) {
-              for ( auto j = 0; j < width; ++j ) {
-//                  			const auto RR = static_cast<uint8_t>(ARGB >> 16);
-//                  			const auto GG = static_cast<uint8_t>(ARGB >> 8);
-//                  			const auto BB = static_cast<uint8_t>(ARGB);
-
-                  *it = r(i,j);
-                  *(it + 1) = g(i,j);
-                  *(it + 2) = b(i,j);
-                  it += 3;;
-
-//                  scan_line[j] = createRGB(
-//                      r(i,j), g(i,j), b(i,j)
-//                  );
-              }
-              it = scan_line;
-              TIFFWriteScanline(image, scan_line, i, 0);
-          }
-
-          TIFFClose(image);
-          free(buffer);
-          free(scan_line);
-      }
+      TIFFWriteScanline(Image.get(), &ScanLine[0], static_cast<uint32>(Row), 0);
+    }
 }
-
 
 BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
 
