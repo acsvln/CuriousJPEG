@@ -85,54 +85,48 @@ auto AC_Tree_1() {
   // clang-format on
 }
 
-template<class T = int8_t>
 auto Y1_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Y2_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= -4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Y3_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= 5, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Y4_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= -4, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Cb_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Cr_Table() {
-    boost::numeric::ublas::matrix<T> Table(8, 8);
+    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
     Table <<= 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -171,59 +165,48 @@ auto Cs1_4_Table() {
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cs1_1_Table() {
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<=   320, 0, 300, 0, 0, 0, 0, 0, 0, 120, 280, 0, 0, 0, 0, 0, 0, -130,
                         -160, 0, 0, 0, 0, 0, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cs1_2_Table() {
-//    TestedDecoder::DataUnit Table(8, 8);
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<= -320, 110, 100, 160, 0, 0, 0, 0, 0, 0, 140, 0, 0, 0, 0, 0, 0, -130,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cs1_3_Table() {
-//    TestedDecoder::DataUnit Table(8, 8);
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<=   480, -110, 100, 0, 0, 0, 0, 0, -120, -240, -140, 0, 0, 0, 0, 0, 0,
                         -130, 0, 0, 0, 0, 0, 0, -140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cs1_4_Table() {
-//    TestedDecoder::DataUnit Table(8, 8);
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<=  -160, 220, 200, 160, 0, 0, 0, 0, -120, 0, -140, 0, 0, 0, 0, 0, -140,
                         -130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cb_Table() {
-//    boost::numeric::ublas::matrix<T> Table(8, 8);
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<= -170, 0, 0, 0, 0, 0, 0, 0, 180, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
-template<class T = int8_t>
 auto Quanted_Cr_Table() {
-//    TestedDecoder::DataUnit Table(8, 8);
-    boost::numeric::ublas::matrix<T> Table(8,8);
+    boost::numeric::ublas::matrix<int16_t> Table(8,8);
     Table <<= 0, 0, 0, 0, 0, 0, 0, 0, 180, -210, 0, 0, 0, 0, 0, 0, 240, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -573,11 +556,11 @@ BOOST_AUTO_TEST_CASE(readMCU) {
     BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
     BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
 
-    const auto Expected_Cb = Cb_Table<int16_t>();
+    const auto Expected_Cb = Cb_Table();
     BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
     BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
 
-    const auto Expected_Cr = Cr_Table<int16_t>();
+    const auto Expected_Cr = Cr_Table();
     BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
     BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
 }
@@ -703,10 +686,10 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
 
   mcu = TestedDecoder::quantMCU( std::move( mcu ), components, {DQT1, DQT2});
 
-  const auto Expected_Cs1_1 = Quanted_Cs1_1_Table<int16_t>();
-  const auto Expected_Cs1_2 = Quanted_Cs1_2_Table<int16_t>();
-  const auto Expected_Cs1_3 = Quanted_Cs1_3_Table<int16_t>();
-  const auto Expected_Cs1_4 = Quanted_Cs1_4_Table<int16_t>();
+  const auto Expected_Cs1_1 = Quanted_Cs1_1_Table();
+  const auto Expected_Cs1_2 = Quanted_Cs1_2_Table();
+  const auto Expected_Cs1_3 = Quanted_Cs1_3_Table();
+  const auto Expected_Cs1_4 = Quanted_Cs1_4_Table();
 
   BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
   BOOST_REQUIRE_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
@@ -714,52 +697,52 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
   BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
   BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
 
-  const auto Expected_Cb = Quanted_Cb_Table<int16_t>();
+  const auto Expected_Cb = Quanted_Cb_Table();
   BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
   BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
 
-  const auto Expected_Cr = Quanted_Cr_Table<int16_t>();
+  const auto Expected_Cr = Quanted_Cr_Table();
   BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
   BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_Y1) {
-  const auto Src = Quanted_Cs1_1_Table<int16_t>();
+  const auto Src = Quanted_Cs1_1_Table();
   const auto Expected = Reversed_Y1();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_Y2) {
-  const auto Src = Quanted_Cs1_2_Table<int16_t>();
+  const auto Src = Quanted_Cs1_2_Table();
   const auto Expected = Reversed_Y2();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_Y3) {
-  const auto Src = Quanted_Cs1_3_Table<int16_t>();
+  const auto Src = Quanted_Cs1_3_Table();
   const auto Expected = Reversed_Y3();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_Y4) {
-  const auto Src = Quanted_Cs1_4_Table<int16_t>();
+  const auto Src = Quanted_Cs1_4_Table();
   const auto Expected = Reversed_Y4();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_cb) {
-  const auto Src = Quanted_Cb_Table<int16_t>();
+  const auto Src = Quanted_Cb_Table();
   const auto Expected = Reversed_Cb();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_cr) {
-  const auto Src = Quanted_Cr_Table<int16_t>();
+  const auto Src = Quanted_Cr_Table();
 
   boost::numeric::ublas::matrix<int16_t> Expected(8, 8);
   Expected <<=  19,  27,  41,  60,  80,  99, 113, 120,
