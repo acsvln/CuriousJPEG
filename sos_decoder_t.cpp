@@ -19,8 +19,8 @@ namespace ios = boost::iostreams;
 class TestedDecoder final : public SOSDecoder {
 public:
   using SOSDecoder::Channel;
-  using SOSDecoder::MinimumCodedUnit;
-  using SOSDecoder::DataUnit;
+//  using SOSDecoder::MinimumCodedUnit;
+//  using /* TestedDecoder:: */ DataUnit;
   using SOSDecoder::locateNodeInHuffmanTree;
   using SOSDecoder::readDU;
   using SOSDecoder::readMCU;
@@ -89,48 +89,54 @@ auto AC_Tree_1() {
   // clang-format on
 }
 
+template<class T = int8_t>
 auto Y1_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
+template<class T = int8_t>
 auto Y2_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= -4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
+template<class T = int8_t>
 auto Y3_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= 5, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
+template<class T = int8_t>
 auto Y4_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= -4, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
+template<class T = int8_t>
 auto Cb_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
     return Table;
 }
 
+template<class T = int8_t>
 auto Cr_Table() {
-    boost::numeric::ublas::matrix<int8_t> Table(8, 8);
+    boost::numeric::ublas::matrix<T> Table(8, 8);
     Table <<= 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -138,7 +144,7 @@ auto Cr_Table() {
 }
 
 auto Cs1_1_Table() {
-    TestedDecoder::DataUnit Table(8, 8);
+    /*TestedDecoder::*/DataUnit Table(8, 8);
     Table <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0,
               0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -146,7 +152,7 @@ auto Cs1_1_Table() {
 }
 
 auto Cs1_2_Table() {
-    TestedDecoder::DataUnit Table(8, 8);
+    /*TestedDecoder::*/DataUnit Table(8, 8);
     Table <<= -2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -154,7 +160,7 @@ auto Cs1_2_Table() {
 }
 
 auto Cs1_3_Table() {
-    TestedDecoder::DataUnit Table(8, 8);
+    /*TestedDecoder::*/DataUnit Table(8, 8);
     Table <<= 3, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -162,7 +168,7 @@ auto Cs1_3_Table() {
 }
 
 auto Cs1_4_Table() {
-    TestedDecoder::DataUnit Table(8, 8);
+    /*TestedDecoder::*/DataUnit Table(8, 8);
     Table <<= -1, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -377,7 +383,7 @@ template <class Container>
 void testReadDU(std::shared_ptr<HuffmanTree::Node> const &DC_Root,
                 std::shared_ptr<HuffmanTree::Node> const &AC_Root,
                 Container const &Source,
-                boost::numeric::ublas::matrix<int8_t> const &Expected) {
+                boost::numeric::ublas::matrix<int16_t> const &Expected) {
   const auto Buffer = charVectorForBuffer(Source);
   ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
@@ -574,11 +580,11 @@ BOOST_AUTO_TEST_CASE(readMCU) {
     BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
     BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
 
-    const auto Expected_Cb = Cb_Table();
+    const auto Expected_Cb = Cb_Table<int16_t>();
     BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
     BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
 
-    const auto Expected_Cr = Cr_Table();
+    const auto Expected_Cr = Cr_Table<int16_t>();
     BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
     BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
 }
@@ -657,7 +663,7 @@ BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
 }
 
 BOOST_AUTO_TEST_CASE(quantMCU) {
-  TestedDecoder::MinimumCodedUnit mcu;
+  /* TestedDecoder:: */ MinimumCodedUnit mcu;
 
   mcu.Cs1.push_back(Cs1_1_Table());
   mcu.Cs1.push_back(Cs1_2_Table());
@@ -704,10 +710,10 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
 
   mcu = TestedDecoder::quantMCU( std::move( mcu ), components, {DQT1, DQT2});
 
-  const auto Expected_Cs1_1 = Quanted_Cs1_1_Table();
-  const auto Expected_Cs1_2 = Quanted_Cs1_2_Table();
-  const auto Expected_Cs1_3 = Quanted_Cs1_3_Table();
-  const auto Expected_Cs1_4 = Quanted_Cs1_4_Table();
+  const auto Expected_Cs1_1 = Quanted_Cs1_1_Table<int16_t>();
+  const auto Expected_Cs1_2 = Quanted_Cs1_2_Table<int16_t>();
+  const auto Expected_Cs1_3 = Quanted_Cs1_3_Table<int16_t>();
+  const auto Expected_Cs1_4 = Quanted_Cs1_4_Table<int16_t>();
 
   BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
   BOOST_REQUIRE_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
@@ -715,11 +721,11 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
   BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
   BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
 
-  const auto Expected_Cb = Quanted_Cb_Table();
+  const auto Expected_Cb = Quanted_Cb_Table<int16_t>();
   BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
   BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
 
-  const auto Expected_Cr = Quanted_Cr_Table();
+  const auto Expected_Cr = Quanted_Cr_Table<int16_t>();
   BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
   BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
 }
@@ -777,6 +783,12 @@ BOOST_AUTO_TEST_CASE(reverseDQT_cr) {
 }
 
 BOOST_AUTO_TEST_CASE(Invoke) {
+    constexpr const auto HalfRowsCount = 8;
+    constexpr const auto HalfColsCount = 8;
+
+    constexpr const auto ColsCount = 16;
+    constexpr const auto RowsCount = 16;
+
     std::array<uint8_t, 29> const Source{
         0x00, 0x0c, 0x03, 0x01, 0x00, 0x02, 0x11,
         0x03, 0x11, 0x00, 0x3f, 0x00, 0xae, 0xe7,
@@ -839,60 +851,69 @@ BOOST_AUTO_TEST_CASE(Invoke) {
 
     invokeDecoderWithDataBuffer<SOSDecoder>(Ctx, Source);
 
+    {
+        const auto& mcu = Ctx.mcu;
+
+        const auto Expected_Cs1_1 = Quanted_Cs1_1_Table<int16_t>();
+        const auto Expected_Cs1_2 = Quanted_Cs1_2_Table<int16_t>();
+        const auto Expected_Cs1_3 = Quanted_Cs1_3_Table<int16_t>();
+        const auto Expected_Cs1_4 = Quanted_Cs1_4_Table<int16_t>();
+
+        BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
+        BOOST_REQUIRE_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
+        BOOST_REQUIRE_EQUAL(Expected_Cs1_2, mcu.Cs1.at(1));
+        BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
+        BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
+
+        const auto Expected_Cb = Quanted_Cb_Table<int16_t>();
+        BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
+        BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
+
+        const auto Expected_Cr = Quanted_Cr_Table<int16_t>();
+        BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
+        BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
+    }
+
     std::cout << "!!!!" << std::endl;
 
     auto createRGB = [](uint32 r, uint32 g, uint32 b) -> uint32 {
         return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
     };
 
+    int cx = 0;
+    auto& rgb = Ctx.Image.at( cx );
     //---------------writing part------------------
 
-    uint32* buffer = (uint32 *)malloc(width*height * sizeof(uint32));
-
-    TIFF *image = TIFFOpen("input.tif", "w");
-    /*
-    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
-    TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
-    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 32);
-    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 1);
-    TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
-    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
-    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-    TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT);
-    TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
-    */
-
-    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, width);
-    TIFFSetField(image, TIFFTAG_IMAGELENGTH, height);
-    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, 8);
-    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, 4);
-    TIFFSetField(image, TIFFTAG_ROWSPERSTRIP, 1);
-    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_BOTRIGHT);
-    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-    TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
-    TIFFSetField(image, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
-    TIFFSetField(image, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
-
-    auto scan_line = (uint32 *)malloc(width*(sizeof(uint32)));
-
-    int cx = 0;
-
-    std::cout << "size" << Ctx.Image.size() << "height" << height;
-    auto rgb = Ctx.Image.at( cx );
-
-    for (int i = 0; i < height; i++) {
-        for ( auto j = 0; j < width; ++j ) {
-            scan_line[j] = createRGB(
-                rgb.R(i,j), rgb.G(i,j), rgb.B(i,j)
-            );
+    std::unique_ptr<TIFF, std::function<void(TIFF* const)>> Image{
+          TIFFOpen("outout_tiff_inv.tif", "w")
+        , []( TIFF * const image){
+          TIFFClose(image);
         }
-        TIFFWriteScanline(image, scan_line, i, 0);
-    }
+    };
 
-    TIFFClose(image);
-    free(buffer);
-    free(scan_line);
+    TIFFSetField(Image.get(), TIFFTAG_IMAGEWIDTH, ColsCount);
+    TIFFSetField(Image.get(), TIFFTAG_IMAGELENGTH, RowsCount);
+    TIFFSetField(Image.get(), TIFFTAG_BITSPERSAMPLE, 8);
+    TIFFSetField(Image.get(), TIFFTAG_SAMPLESPERPIXEL, 3);
+    TIFFSetField(Image.get(), TIFFTAG_ROWSPERSTRIP, 1);
+    TIFFSetField(Image.get(), TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+    TIFFSetField(Image.get(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(Image.get(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+    TIFFSetField(Image.get(), TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
+    TIFFSetField(Image.get(), TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+
+    std::array<uint8, ColsCount * 3> ScanLine;
+
+    for ( std::size_t Row = 0; Row < RowsCount; Row++) {
+      auto It = std::begin(ScanLine);
+      for ( std::size_t Col = 0; Col < ColsCount; ++Col ) {
+          *It = rgb.R(Row,Col);
+          *(It + 1) = rgb.G(Row,Col);
+          *(It + 2) = rgb.B(Row,Col);
+          It += 3;
+      }
+      TIFFWriteScanline(Image.get(), &ScanLine[0], static_cast<uint32>(Row), 0);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(Invoke_BMP) {
@@ -1124,11 +1145,6 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
     const auto R3 = TestedDecoder::reverseDQT(Y3_Raw);
     const auto R4 = TestedDecoder::reverseDQT(Y4_Raw);
 
-    printMatrix(R1);
-    printMatrix(R2);
-    printMatrix(R3);
-    printMatrix(R4);
-
     for ( std::size_t Row = 0; Row < HalfRowsCount; Row++ ) {
         for ( std::size_t Col = 0; Col < HalfColsCount; Col++ ) {
            Y_Raw(     Row,     Col ) = R1(Row,Col);
@@ -1138,11 +1154,21 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
         }
     }
 
+//    printMatrix(R1);
+//    printMatrix(R2);
+//    printMatrix(R3);
+//    printMatrix(R4);
+
     const auto Y = TestedDecoder::normalizeReversedDQT( std::move( Y_Raw ) );
     const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
     const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
 
+    printMatrix(Y);
+    printMatrix(Cb);
+    printMatrix(Cr);
+
     const auto [R,G,B] = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
+
 
     std::unique_ptr<TIFF, std::function<void(TIFF* const)>> Image{
           TIFFOpen("outout_tiff.tif", "w")

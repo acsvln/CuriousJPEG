@@ -14,8 +14,9 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/assert.hpp>
-
+#include <tiffio.h>
 #include "data_reader.hpp"
+#include "testing_utility.hpp"
 
 auto SOSDecoder::locateNodeInHuffmanTree(
     BitExtractor &Extractor, std::shared_ptr<HuffmanTree::Node> const &Tree)
@@ -191,7 +192,7 @@ reverseDQT_Impl3(boost::numeric::ublas::matrix<T> const& Matrix) ->boost::numeri
 auto SOSDecoder::readDU(BitExtractor &Extractor,
                         std::shared_ptr<HuffmanTree::Node> const &DC_Tree,
                         std::shared_ptr<HuffmanTree::Node> const &AC_Tree)
-    -> boost::numeric::ublas::matrix<int8_t> {
+    -> boost::numeric::ublas::matrix<int16_t> {
   std::array<int16_t, 64> Buffer = {0};
 
   const auto extractAndNorm = [&](std::size_t const BitCount) -> int16_t {
@@ -303,7 +304,7 @@ auto SOSDecoder::readMCU(
 
 // TODO: проверить размерность матриц в QuantVector'e
 auto SOSDecoder::quantMCU(
-      SOSDecoder::MinimumCodedUnit&& MCU
+      /*SOSDecoder::*/MinimumCodedUnit&& MCU
     , std::vector<DCTComponent> const& Components
     , std::vector<boost::numeric::ublas::matrix<uint16_t>> const& QuantVector ) -> MinimumCodedUnit
 {
@@ -484,43 +485,119 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
 
         MCU = quantMCU( std::move( MCU ), Ctx.dct.Components, Ctx.DQT_Vector );
 
+        Ctx.mcu = MCU;
+
         BOOST_ASSERT_MSG( ( MCU.Cs1.size() == MCU.Cs2.size() ) && ( MCU.Cs2.size() == MCU.Cs3.size() ),
                          "Channel size is different" );
 
         Matrix matrix( 16, 16 );
+////////////////////////////////////////////
 
-        for ( std::size_t i = 0; i < MCU.Cs2.size(); ++i ) {
-            auto Y1 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i) ) );
-            auto Y2 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 1) ) );
-            auto Y3 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 2) ) );
-            auto Y4 = normalizeReversedDQT( reverseDQT_Impl( MCU.Cs1.at(i + 3) ) );
+//        const auto R1 = TestedDecoder::reverseDQT(Y1_Raw);
+//        const auto R2 = TestedDecoder::reverseDQT(Y2_Raw);
+//        const auto R3 = TestedDecoder::reverseDQT(Y3_Raw);
+//        const auto R4 = TestedDecoder::reverseDQT(Y4_Raw);
 
+//        printMatrix(R1);
+//        printMatrix(R2);
+//        printMatrix(R3);
+//        printMatrix(R4);
+
+//        for ( std::size_t Row = 0; Row < HalfRowsCount; Row++ ) {
+//            for ( std::size_t Col = 0; Col < HalfColsCount; Col++ ) {
+//               Y_Raw(     Row,     Col ) = R1(Row,Col);
+//               Y_Raw(     Row, 8 + Col ) = R2(Row,Col);
+//               Y_Raw( 8 + Row,     Col ) = R3(Row,Col);
+//               Y_Raw( 8 + Row, 8 + Col ) = R4(Row,Col);
+//            }
+//        }
+////////////////////////////////////////////////
+        for ( std::size_t i = 0; i < MCU.Cs2.size(); i += 4 ) {
+            auto Y1 = reverseDQT( MCU.Cs1.at(i) );
+            auto Y2 = reverseDQT( MCU.Cs1.at(i + 1) );
+            auto Y3 = reverseDQT( MCU.Cs1.at(i + 2) );
+            auto Y4 = reverseDQT( MCU.Cs1.at(i + 3) );
             auto Cb = MCU.Cs2.at(i);
-
             auto Cr = MCU.Cs3.at(i);
 
-            Matrix Y( 160, 160 );
+            Matrix Y( 16, 16 );
 
-            for ( int i = 0; i < 8; i++ ) {
-                for ( int j = 0; j < 8; j++ ) {
-                   Y(     i,     j ) = Y1(i,j);
-                   Y(     i, 7 + j ) = Y3(i,j);
-                   Y( 7 + i,     j ) = Y2(i,j);
-                   Y( 7 + i, 7 + j ) = Y4(i,j);
+            const auto HalfRowsCount = 8;
+            const auto HalfColsCount = 8;
+
+            for ( std::size_t Row = 0; Row < HalfRowsCount; Row++ ) {
+                for ( std::size_t Col = 0; Col < HalfColsCount; Col++ ) {
+                   Y(     Row,     Col ) = Y1(Row,Col);
+                   Y(     Row, 8 + Col ) = Y2(Row,Col);
+                   Y( 8 + Row,     Col ) = Y3(Row,Col);
+                   Y( 8 + Row, 8 + Col ) = Y4(Row,Col);
                 }
             }
 
-            auto RevercedY = Y;
-            auto RevercedCb = normalizeReversedDQT( reverseDQT_Impl( Cb ) );
-            auto RevercedCr = normalizeReversedDQT( reverseDQT_Impl( Cr ) );
-            const auto rgb = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+//            for ( std::size_t i = 0; i < 8; i++ ) {
+//                for ( std::size_t j = 0; j < 8; j++ ) {
+//                   Y(     i,     j ) = Y1(i,j);
+//                   Y(     i, 8 + j ) = Y3(i,j);
+//                   Y( 8 + i,     j ) = Y2(i,j);
+//                   Y( 8 + i, 8 + j ) = Y4(i,j);
+//                }
+//            }
+
+            auto RevercedY = normalizeReversedDQT( std::move( Y ) );
+            auto RevercedCb = normalizeReversedDQT( reverseDQT( Cb ) );
+            auto RevercedCr = normalizeReversedDQT( reverseDQT( Cr ) );
+
+            printMatrix(RevercedY);
+            printMatrix(RevercedCb);
+            printMatrix(RevercedCr);
+
+            const auto [R,G,B] = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+
+            {
+                constexpr const auto HalfRowsCount = 8;
+                constexpr const auto HalfColsCount = 8;
+
+                constexpr const auto ColsCount = 16;
+                constexpr const auto RowsCount = 16;
+
+
+                std::unique_ptr<TIFF, std::function<void(TIFF* const)>> Image{
+                      TIFFOpen("outout_tiff_in2v.tif", "w")
+                    , []( TIFF * const image){
+                      TIFFClose(image);
+                    }
+                };
+
+                TIFFSetField(Image.get(), TIFFTAG_IMAGEWIDTH, ColsCount);
+                TIFFSetField(Image.get(), TIFFTAG_IMAGELENGTH, RowsCount);
+                TIFFSetField(Image.get(), TIFFTAG_BITSPERSAMPLE, 8);
+                TIFFSetField(Image.get(), TIFFTAG_SAMPLESPERPIXEL, 3);
+                TIFFSetField(Image.get(), TIFFTAG_ROWSPERSTRIP, 1);
+                TIFFSetField(Image.get(), TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+                TIFFSetField(Image.get(), TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+                TIFFSetField(Image.get(), TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB); //
+                TIFFSetField(Image.get(), TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_UINT );
+                TIFFSetField(Image.get(), TIFFTAG_COMPRESSION, COMPRESSION_NONE);
+
+                std::array<uint8, ColsCount * 3> ScanLine;
+
+                for ( std::size_t Row = 0; Row < RowsCount; Row++) {
+                  auto It = std::begin(ScanLine);
+                  for ( std::size_t Col = 0; Col < ColsCount; ++Col ) {
+                      *It = R(Row,Col);
+                      *(It + 1) = G(Row,Col);
+                      *(It + 2) = B(Row,Col);
+                      It += 3;
+                  }
+                  TIFFWriteScanline(Image.get(), &ScanLine[0], static_cast<uint32>(Row), 0);
+                }
+            }
+
             Context::RGB r;
-            r.R = std::get<0>(rgb);
-            r.G = std::get<1>(rgb);
-            r.B = std::get<2>(rgb);
+            r.R = R;
+            r.G = G;
+            r.B = B;
             Ctx.Image.push_back(r);
-
-
         }
     } while (false);
     std::cout << "while (false)" << std::endl;

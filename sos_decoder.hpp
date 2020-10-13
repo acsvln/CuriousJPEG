@@ -8,15 +8,13 @@
 #include "bit_extractor.hpp"
 
 class SOSDecoder : public Decoder {
-protected:
-  using DataUnit = boost::numeric::ublas::matrix<int8_t>;
+public:
 
-  struct MinimumCodedUnit {
-    std::vector<DataUnit> Cs1;
-    std::vector<DataUnit> Cs2;
-    std::vector<DataUnit> Cs3;
-    std::vector<DataUnit> Cs4;
-  };
+
+protected:
+
+
+
 
   struct Channel {
     std::size_t Id;

@@ -9,6 +9,15 @@
 
 #include "huffman_tree.hpp"
 
+using DataUnit = boost::numeric::ublas::matrix<int16_t>;
+
+struct MinimumCodedUnit {
+  std::vector<DataUnit> Cs1;
+  std::vector<DataUnit> Cs2;
+  std::vector<DataUnit> Cs3;
+  std::vector<DataUnit> Cs4;
+};
+
 using DQTMatrix = boost::numeric::ublas::matrix<uint16_t>;
 
 struct DCTComponent
@@ -35,11 +44,13 @@ struct Context
     std::vector<std::shared_ptr<HuffmanTree::Node>> AC_HuffmanTables;
     std::vector<std::shared_ptr<HuffmanTree::Node>> DC_HuffmanTables;
     struct RGB {
-        using Matr = boost::numeric::ublas::matrix<uint16_t>;
+        using Matr = boost::numeric::ublas::matrix<uint8_t>;
         Matr R;
         Matr G;
         Matr B;
     };
+
+ MinimumCodedUnit mcu;
 
     std::vector<RGB> Image;
     DCTTable dct;
