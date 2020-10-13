@@ -375,51 +375,8 @@ SOSDecoder::normalizeReversedDQT(boost::numeric::ublas::matrix<int16_t>&& Table)
     return Table;
 }
 
-//-------------------------------------
-
-//ivect4 ycrcb2rgb(int y, int cr, int cb)
-//{
-//    int r = round(1.402*(cr-128) + y);
-//    int g = round(-0.34414*(cb-128)-0.71414*(cr-128) + y);
-//    int b = round(1.772*(cb-128) + y);
-//    return ivect4(r, g, b, 255);
-//}
-
-// https://impulseadventure.com/photo/jpeg-color-space.html
-//  R = round(Y                      + 1.402   * (Cr-128))
-//  G = round(Y - 0.34414 * (Cb-128) - 0.71414 * (Cr-128))
-//  B = round(Y + 1.772   * (Cb-128)                     )
 auto
-SOSDecoder::convertYCbCrToRGB(
-      boost::numeric::ublas::matrix<int16_t> const& Y
-    , boost::numeric::ublas::matrix<int16_t> const& Cb
-    , boost::numeric::ublas::matrix<int16_t> const& Cr ) -> std::tuple<
-      boost::numeric::ublas::matrix<int16_t>
-    , boost::numeric::ublas::matrix<int16_t>
-    , boost::numeric::ublas::matrix<int16_t>
->
-{
-    const auto normalize = []( double const Value ) -> int16_t {
-        return static_cast<int16_t>( std::clamp( Value, 0., 255. ) );
-    };
-
-    boost::numeric::ublas::matrix<int16_t> R(8,8);
-    boost::numeric::ublas::matrix<int16_t> G(8,8);
-    boost::numeric::ublas::matrix<int16_t> B(8,8);
-
-    for ( std::size_t i = 0; i < 8; i++ ) {
-        for ( std::size_t j = 0; j < 8; j++ ) {
-            R(i,j) = normalize( std::round( Y(i,j)                               + 1.402   * ( Cr(i,j) - 128. ) ) );
-            G(i,j) = normalize( std::round( Y(i,j) - 0.34414 * ( Cb(i,j) - 128. ) - 0.71414 * ( Cr(i,j) - 128. ) ) );
-            B(i,j) = normalize( std::round( Y(i,j) + 1.772   * ( Cb(i,j) - 128. ) ) );
-        }
-    }
-
-    return {R, G, B};
-}
-
-auto
-SOSDecoder::convertYCbCrToRGB_AL(boost::numeric::ublas::matrix<int16_t> const &Y,
+SOSDecoder::convertYCbCrToRGB(boost::numeric::ublas::matrix<int16_t> const &Y,
            boost::numeric::ublas::matrix<int16_t> const &Cb,
            boost::numeric::ublas::matrix<int16_t> const &Cr) ->
   std::tuple<
@@ -520,7 +477,7 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
             printMatrix(RevercedCb);
             printMatrix(RevercedCr);
 
-            const auto [R,G,B] = convertYCbCrToRGB_AL(RevercedY, RevercedCb, RevercedCr);
+            const auto [R,G,B] = convertYCbCrToRGB(RevercedY, RevercedCb, RevercedCr);
             Context::RGB r;
             r.R = R;
             r.G = G;

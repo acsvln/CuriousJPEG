@@ -86,7 +86,7 @@ auto AC_Tree_1() {
 }
 
 auto Y1_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -94,7 +94,7 @@ auto Y1_Table() {
 }
 
 auto Y2_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= -4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -102,7 +102,7 @@ auto Y2_Table() {
 }
 
 auto Y3_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 5, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -110,7 +110,7 @@ auto Y3_Table() {
 }
 
 auto Y4_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= -4, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -118,7 +118,7 @@ auto Y4_Table() {
 }
 
 auto Cb_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -126,7 +126,7 @@ auto Cb_Table() {
 }
 
 auto Cr_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -166,7 +166,7 @@ auto Cs1_4_Table() {
 }
 
 auto Quanted_Cs1_1_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<=   320, 0, 300, 0, 0, 0, 0, 0, 0, 120, 280, 0, 0, 0, 0, 0, 0, -130,
                         -160, 0, 0, 0, 0, 0, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -174,7 +174,7 @@ auto Quanted_Cs1_1_Table() {
 }
 
 auto Quanted_Cs1_2_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<= -320, 110, 100, 160, 0, 0, 0, 0, 0, 0, 140, 0, 0, 0, 0, 0, 0, -130,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -182,7 +182,7 @@ auto Quanted_Cs1_2_Table() {
 }
 
 auto Quanted_Cs1_3_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<=   480, -110, 100, 0, 0, 0, 0, 0, -120, -240, -140, 0, 0, 0, 0, 0, 0,
                         -130, 0, 0, 0, 0, 0, 0, -140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -190,7 +190,7 @@ auto Quanted_Cs1_3_Table() {
 }
 
 auto Quanted_Cs1_4_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<=  -160, 220, 200, 160, 0, 0, 0, 0, -120, 0, -140, 0, 0, 0, 0, 0, -140,
                         -130, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -198,7 +198,7 @@ auto Quanted_Cs1_4_Table() {
 }
 
 auto Quanted_Cb_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<= -170, 0, 0, 0, 0, 0, 0, 0, 180, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -206,7 +206,7 @@ auto Quanted_Cb_Table() {
 }
 
 auto Quanted_Cr_Table() {
-    boost::numeric::ublas::matrix<int16_t> Table(8,8);
+    TestedDecoder::DataUnit Table(8,8);
     Table <<= 0, 0, 0, 0, 0, 0, 0, 0, 180, -210, 0, 0, 0, 0, 0, 0, 240, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -214,7 +214,7 @@ auto Quanted_Cr_Table() {
 }
 
 auto Reversed_Y1() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 138, 92, 27, -17, -17, 28, 93, 139, 136, 82, 5, -51, -55, -8, 61,
         111, 143, 80, -9, -77, -89, -41, 32, 86, 157, 95, 6, -62, -76, -33, 36,
         86, 147, 103, 37, -12, -21, 11, 62, 100, 87, 72, 50, 36, 37, 55, 79, 95,
@@ -223,7 +223,7 @@ auto Reversed_Y1() {
 }
 
 auto Reversed_Y2() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<=
             21,      -34,     -93,     -105,    -70,     -26,     -5,      -5,
             33,      -21,     -81,     -97,     -68,     -34,     -22,     -27,
@@ -237,7 +237,7 @@ auto Reversed_Y2() {
 }
 
 auto Reversed_Y3() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<=
             -103,    -77 ,    -35 ,    12,      55,      85,      102,     109 ,
             -43 ,    -25 ,    6   ,    41,      73,      96,      110,     116 ,
@@ -251,21 +251,21 @@ auto Reversed_Y3() {
 }
 
 auto Reversed_Y4() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<=
-            -30,     -61,    -86 ,    -78  ,   -50,     -41,     -65,     -94 ,
-            8  ,     -28,    -62 ,    -63  ,   -42,     -36,     -61,     -90 ,
-            66 ,     20 ,    -27 ,    -42  ,   -31,     -29,     -53,     -81 ,
-            116,     61 ,    -1  ,    -29  ,   -25,     -22,     -42,     -66 ,
-            137,     74 ,    1   ,    -34  ,   -29,     -19,     -28,     -45 ,
-            125,     59 ,    -18 ,    -55  ,   -43,     -20,     -14,     -21 ,
-            97 ,     29 ,    -49 ,    -81  ,   -60,     -23,     -3 ,     -1  ,
+            -30,     -61,    -86 ,    -78  ,   -50,     -41,     -65,     -94,
+            8  ,     -28,    -62 ,    -63  ,   -42,     -36,     -61,     -90,
+            66 ,     20 ,    -27 ,    -42  ,   -31,     -29,     -53,     -81,
+            116,     61 ,    -1  ,    -29  ,   -25,     -22,     -42,     -66,
+            137,     74 ,    1   ,    -34  ,   -29,     -19,     -28,     -45,
+            125,     59 ,    -18 ,    -55  ,   -43,     -20,     -14,     -21,
+            97 ,     29 ,    -49 ,    -81  ,   -60,     -23,     -3 ,     -1,
             74 ,     6  ,    -71 ,    -100 ,   -72,     -25,     2  ,     10;
     return Table;
 }
 
 auto Reversed_Cb() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 60, 52, 38, 20, 0, -18, -32, -40, 48, 41, 29, 13, -3, -19, -31, -37,
               25, 20, 12, 2, -9, -19, -27, -32, -4, -6, -9, -13, -17, -20, -23, -25,
               -37, -35, -33, -29, -25, -21, -18, -17, -67, -63, -55, -44, -33, -22, -14,
@@ -275,7 +275,7 @@ auto Reversed_Cb() {
 }
 
 auto Reversed_Cr() {
-    boost::numeric::ublas::matrix<int16_t> Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 19, 27, 41, 60, 80, 99, 113, 120, 0, 6, 18, 34, 51, 66, 78, 85, -27,
         -22, -14, -4, 7, 17, 25, 30, -43, -41, -38, -34, -30, -27, -24, -22, -35,
         -36, -39, -43, -47, -51, -53, -55, -5, -9, -17, -28, -39, -50, -58, -62,
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(locateNodeInHuffmanTree_AC_1) {
                               Root->right()->right()->left());
 }
 
-BOOST_AUTO_TEST_CASE(locateNodeInHuffmanTree_exception) {
+BOOST_AUTO_TEST_CASE(locateNodeInHuffmanTree_ThrowException) {
   const auto Root_DC0 = DC_Tree_0();
   const auto Root_AC0 = AC_Tree_0();
   const auto Root_DC1 = DC_Tree_1();
@@ -359,7 +359,7 @@ template <class Container>
 void testReadDU(std::shared_ptr<HuffmanTree::Node> const &DC_Root,
                 std::shared_ptr<HuffmanTree::Node> const &AC_Root,
                 Container const &Source,
-                boost::numeric::ublas::matrix<int16_t> const &Expected) {
+                TestedDecoder::DataUnit const &Expected) {
   const auto Buffer = charVectorForBuffer(Source);
   ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
@@ -734,17 +734,17 @@ BOOST_AUTO_TEST_CASE(reverseDQT_Y4) {
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
-BOOST_AUTO_TEST_CASE(reverseDQT_cb) {
+BOOST_AUTO_TEST_CASE(reverseDQT_Cb) {
   const auto Src = Quanted_Cb_Table();
   const auto Expected = Reversed_Cb();
   const auto Reversed = TestedDecoder::reverseDQT(Src);
   BOOST_REQUIRE_EQUAL(Expected, Reversed);
 }
 
-BOOST_AUTO_TEST_CASE(reverseDQT_cr) {
+BOOST_AUTO_TEST_CASE(reverseDQT_Cr) {
   const auto Src = Quanted_Cr_Table();
 
-  boost::numeric::ublas::matrix<int16_t> Expected(8, 8);
+  TestedDecoder::DataUnit Expected(8, 8);
   Expected <<=  19,  27,  41,  60,  80,  99, 113, 120,
           0,   6,  18,  34,  51,  66,  78,  85,
         -27, -22, -14,  -4,   7,  17,  25,  30,
@@ -829,85 +829,35 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     saveRGBToImage( RGB.R, RGB.G, RGB.B, "SOSDecoderTests_Invoke.tif" );
 }
 
-BOOST_AUTO_TEST_CASE(convertYCbCrToRGB_Combined) {
+BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
     constexpr const auto HalfRowsCount = 8;
     constexpr const auto HalfColsCount = 8;
 
     constexpr const auto ColsCount = 16;
     constexpr const auto RowsCount = 16;
 
-    boost::numeric::ublas::matrix<int16_t> Y1_Raw(HalfRowsCount, HalfColsCount);
-    Y1_Raw <<=  320,   0, 300, 0, 0, 0, 0, 0,
-                  0, 120, 280, 0, 0, 0, 0, 0,
-                  0,-130,-160, 0, 0, 0, 0, 0,
-                140,   0,   0, 0, 0, 0, 0, 0,
-                  0,   0,   0, 0, 0, 0, 0, 0,
-                  0,   0,   0, 0, 0, 0, 0, 0,
-                  0,   0,   0, 0, 0, 0, 0, 0,
-                  0,   0,   0, 0, 0, 0, 0, 0;
+    const auto Y1_Raw = Reversed_Y1();
+    const auto Y2_Raw = Reversed_Y2();
+    const auto Y3_Raw = Reversed_Y3();
+    const auto Y4_Raw = Reversed_Y4();
 
-    boost::numeric::ublas::matrix<int16_t> Y2_Raw(HalfRowsCount, HalfColsCount);
-    Y2_Raw <<= -320, 110, 100, 160, 0, 0, 0, 0,
-                  0,   0, 140,   0, 0, 0, 0, 0,
-                  0,-130,   0,   0, 0, 0, 0, 0,
-                  0,   0,   0,   0, 0, 0, 0, 0,
-                  0,   0,   0,   0, 0, 0, 0, 0,
-                  0,   0,   0,   0, 0, 0, 0, 0,
-                  0,   0,   0,   0, 0, 0, 0, 0,
-                  0,   0,   0,   0, 0, 0, 0, 0;
-
-    boost::numeric::ublas::matrix<int16_t> Y3_Raw(HalfRowsCount, HalfColsCount);
-    Y3_Raw <<=  480, -110,  100, 0, 0, 0, 0, 0,
-               -120, -240, -140, 0, 0, 0, 0, 0,
-                  0, -130,    0, 0, 0, 0, 0, 0,
-               -140,    0,    0, 0, 0, 0, 0, 0,
-                  0,    0,    0, 0, 0, 0, 0, 0,
-                  0,    0,    0, 0, 0, 0, 0, 0,
-                  0,    0,    0, 0, 0, 0, 0, 0,
-                  0,    0,    0, 0, 0, 0, 0, 0;
-
-    boost::numeric::ublas::matrix<int16_t> Y4_Raw(HalfRowsCount, HalfColsCount);
-    Y4_Raw <<= -160, 220,  200, 160, 0, 0, 0, 0,
-               -120,   0, -140,   0, 0, 0, 0, 0,
-               -140,-130,    0,   0, 0, 0, 0, 0,
-                  0,   0,    0,   0, 0, 0, 0, 0,
-                  0,   0,    0,   0, 0, 0, 0, 0,
-                  0,   0,    0,   0, 0, 0, 0, 0,
-                  0,   0,    0,   0, 0, 0, 0, 0,
-                  0,   0,    0,   0, 0, 0, 0, 0;
-
-    boost::numeric::ublas::matrix<int16_t> Y_Raw(RowsCount, ColsCount);
-
-    const auto R1 = TestedDecoder::reverseDQT(Y1_Raw);
-    const auto R2 = TestedDecoder::reverseDQT(Y2_Raw);
-    const auto R3 = TestedDecoder::reverseDQT(Y3_Raw);
-    const auto R4 = TestedDecoder::reverseDQT(Y4_Raw);
+    TestedDecoder::DataUnit Y_Raw(RowsCount, ColsCount);
 
     for ( std::size_t Row = 0; Row < HalfRowsCount; Row++ ) {
         for ( std::size_t Col = 0; Col < HalfColsCount; Col++ ) {
-           Y_Raw(     Row,     Col ) = R1(Row,Col);
-           Y_Raw(     Row, 8 + Col ) = R2(Row,Col);
-           Y_Raw( 8 + Row,     Col ) = R3(Row,Col);
-           Y_Raw( 8 + Row, 8 + Col ) = R4(Row,Col);
+           Y_Raw(     Row,     Col ) = Y1_Raw(Row,Col);
+           Y_Raw(     Row, 8 + Col ) = Y2_Raw(Row,Col);
+           Y_Raw( 8 + Row,     Col ) = Y3_Raw(Row,Col);
+           Y_Raw( 8 + Row, 8 + Col ) = Y4_Raw(Row,Col);
         }
     }
-
-//    printMatrix(R1);
-//    printMatrix(R2);
-//    printMatrix(R3);
-//    printMatrix(R4);
 
     const auto Y = TestedDecoder::normalizeReversedDQT( std::move( Y_Raw ) );
     const auto Cb = TestedDecoder::normalizeReversedDQT( Reversed_Cb() );
     const auto Cr = TestedDecoder::normalizeReversedDQT( Reversed_Cr() );
 
-    printMatrix(Y);
-    printMatrix(Cb);
-    printMatrix(Cr);
-
-    const auto [R,G,B] = TestedDecoder::convertYCbCrToRGB_AL(Y, Cb, Cr);
-
-    saveRGBToImage( R, G, B, "SOSDecoderTests_convertYCbCrToRGB_Combined.tif" );
+    const auto [R,G,B] = TestedDecoder::convertYCbCrToRGB(Y, Cb, Cr);
+    saveRGBToImage( R, G, B, "SOSDecoderTests_convertYCbCrToRGB.tif" );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

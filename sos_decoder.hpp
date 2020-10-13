@@ -60,24 +60,16 @@ protected:
              boost::numeric::ublas::matrix<int16_t> const &cb,
              boost::numeric::ublas::matrix<int16_t> const &cr) ->
     std::tuple<
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>,
-        boost::numeric::ublas::matrix<int16_t>
-  >;  
+        boost::numeric::ublas::matrix<uint8_t>,
+        boost::numeric::ublas::matrix<uint8_t>,
+        boost::numeric::ublas::matrix<uint8_t>
+    >;
 
 public:
   ~SOSDecoder() override = default;
   SOSDecoder();
 
-  static auto
-  convertYCbCrToRGB_AL(boost::numeric::ublas::matrix<int16_t> const &y,
-             boost::numeric::ublas::matrix<int16_t> const &cb,
-             boost::numeric::ublas::matrix<int16_t> const &cr) ->
-    std::tuple<
-        boost::numeric::ublas::matrix<uint8_t>,
-        boost::numeric::ublas::matrix<uint8_t>,
-        boost::numeric::ublas::matrix<uint8_t>
-    >;
+
 
 private:
   void InvokeImpl(std::istream &Stream, Context &Ctx) final;
