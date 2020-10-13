@@ -485,8 +485,6 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
 
         MCU = quantMCU( std::move( MCU ), Ctx.dct.Components, Ctx.DQT_Vector );
 
-        Ctx.mcu = MCU;
-
         BOOST_ASSERT_MSG( ( MCU.Cs1.size() == MCU.Cs2.size() ) && ( MCU.Cs2.size() == MCU.Cs3.size() ),
                          "Channel size is different" );
 

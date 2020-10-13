@@ -19,8 +19,8 @@ namespace ios = boost::iostreams;
 class TestedDecoder final : public SOSDecoder {
 public:
   using SOSDecoder::Channel;
-//  using SOSDecoder::MinimumCodedUnit;
-//  using /* TestedDecoder:: */ DataUnit;
+  using SOSDecoder::MinimumCodedUnit;
+  using SOSDecoder::DataUnit;
   using SOSDecoder::locateNodeInHuffmanTree;
   using SOSDecoder::readDU;
   using SOSDecoder::readMCU;
@@ -144,7 +144,7 @@ auto Cr_Table() {
 }
 
 auto Cs1_1_Table() {
-    /*TestedDecoder::*/DataUnit Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 2, 0, 3, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, -1, -1, 0, 0,
               0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -152,7 +152,7 @@ auto Cs1_1_Table() {
 }
 
 auto Cs1_2_Table() {
-    /*TestedDecoder::*/DataUnit Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= -2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -160,7 +160,7 @@ auto Cs1_2_Table() {
 }
 
 auto Cs1_3_Table() {
-    /*TestedDecoder::*/DataUnit Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= 3, -1, 1, 0, 0, 0, 0, 0, -1, -2, -1, 0, 0, 0, 0, 0, 0, -1, 0, 0,
         0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -168,7 +168,7 @@ auto Cs1_3_Table() {
 }
 
 auto Cs1_4_Table() {
-    /*TestedDecoder::*/DataUnit Table(8, 8);
+    TestedDecoder::DataUnit Table(8, 8);
     Table <<= -1, 2, 2, 1, 0, 0, 0, 0, -1, 0, -1, 0, 0, 0, 0, 0, -1, -1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0;
@@ -663,7 +663,7 @@ BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
 }
 
 BOOST_AUTO_TEST_CASE(quantMCU) {
-  /* TestedDecoder:: */ MinimumCodedUnit mcu;
+  TestedDecoder::MinimumCodedUnit mcu;
 
   mcu.Cs1.push_back(Cs1_1_Table());
   mcu.Cs1.push_back(Cs1_2_Table());
@@ -850,29 +850,6 @@ BOOST_AUTO_TEST_CASE(Invoke) {
     std::cout << "????" << std::endl;
 
     invokeDecoderWithDataBuffer<SOSDecoder>(Ctx, Source);
-
-    {
-        const auto& mcu = Ctx.mcu;
-
-        const auto Expected_Cs1_1 = Quanted_Cs1_1_Table<int16_t>();
-        const auto Expected_Cs1_2 = Quanted_Cs1_2_Table<int16_t>();
-        const auto Expected_Cs1_3 = Quanted_Cs1_3_Table<int16_t>();
-        const auto Expected_Cs1_4 = Quanted_Cs1_4_Table<int16_t>();
-
-        BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
-        BOOST_REQUIRE_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
-        BOOST_REQUIRE_EQUAL(Expected_Cs1_2, mcu.Cs1.at(1));
-        BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
-        BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
-
-        const auto Expected_Cb = Quanted_Cb_Table<int16_t>();
-        BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
-        BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
-
-        const auto Expected_Cr = Quanted_Cr_Table<int16_t>();
-        BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
-        BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
-    }
 
     std::cout << "!!!!" << std::endl;
 
