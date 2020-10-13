@@ -56,18 +56,20 @@ void invokeDecoderWithDataBuffer(Context &Ctx, Container &Buff) {
 }
 
 template <class Type>
-void printMatrix(boost::numeric::ublas::matrix<Type> const &matrix) {
-  const auto RowCount = matrix.size1();
-  const auto ColCount = matrix.size2();
+void printMatrix(MatrixT<Type> const& Matrix, bool const HexMode = false) {
+  const auto RowCount =  Matrix.size1();
+  const auto ColCount =  Matrix.size2();
 
   std::cout << RowCount << 'x' << ColCount << ':' << std::endl;
 
-  for (std::size_t RowIt = 0; RowIt < RowCount; ++RowIt) {
+  for (std::size_t Row = 0; Row  < RowCount; ++Row ) {
     std::cout << '\t';
-    for (std::size_t ColIt = 0; ColIt < ColCount; ++ColIt) {
-        // TODO: unsigned
-//      std::cout << std::hex << std::uppercase << static_cast<unsigned>(matrix(RowIt, ColIt)) << '\t';
-      std::cout << static_cast<signed>(matrix(RowIt, ColIt)) << '\t';
+    for (std::size_t Col = 0; Col < ColCount; ++Col) {
+        if ( true == HexMode ) {
+            std::cout << std::hex << std::uppercase << static_cast<unsigned>( Matrix(Row, Col) ) << '\t';
+        } else {
+            std::cout << static_cast<signed>( Matrix(Row, Col) ) << '\t';
+        }
     }
     std::cout << std::endl;
   }
