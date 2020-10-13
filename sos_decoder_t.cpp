@@ -7,10 +7,6 @@
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
-#include "bitmap_image.hpp"
-
-#include <tiffio.h>
-
 //-------------------------------------
 BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
 
@@ -29,8 +25,6 @@ public:
   using SOSDecoder::convertYCbCrToRGB;
   using SOSDecoder::normalizeReversedDQT;
 };
-
-
 
 //-------------------------------------
 auto DC_Tree_0() {
