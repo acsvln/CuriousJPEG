@@ -12,6 +12,9 @@
 #include "idecoder.hpp"
 #include "utility.hpp"
 
+template<typename T>
+using MatrixT = boost::numeric::ublas::matrix<T>;
+
 namespace boost::numeric::ublas {
 auto operator==(matrix<uint16_t> const &left, matrix<uint16_t> const &right)
     -> bool;
@@ -69,5 +72,11 @@ void printMatrix(boost::numeric::ublas::matrix<Type> const &matrix) {
     std::cout << std::endl;
   }
 }
+
+void saveRGBToImage(
+        MatrixT<uint8_t> const& R,
+        MatrixT<uint8_t> const& G,
+        MatrixT<uint8_t> const& B,
+        std::string const& path );
 
 #endif // TESTING_UTILITY_HPP
