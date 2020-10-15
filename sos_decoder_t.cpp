@@ -5,6 +5,7 @@
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include "testing_shared_data.hpp"
 #include "testing_utility.hpp"
 
 //-------------------------------------
@@ -441,6 +442,60 @@ auto Reversed_Cr() {
   return Table;
 }
 
+auto ComponentsForDCT() {
+  std::vector<DCTComponent> Components;
+
+  Components.resize(3);
+
+  Components[0].Id = 1;
+  Components[0].H = 2;
+  Components[0].V = 2;
+  Components[0].DQT_Id = 0;
+
+  Components[1].Id = 2;
+  Components[1].H = 1;
+  Components[1].V = 1;
+  Components[1].DQT_Id = 1;
+
+  Components[2].Id = 3;
+  Components[2].H = 1;
+  Components[2].V = 1;
+  Components[2].DQT_Id = 1;
+
+  return Components;
+}
+
+auto DCT_Table() {
+  DCTTable DCT;
+
+  DCT.Precision = 8;
+  DCT.Width = 16;
+  DCT.Height = 16;
+  DCT.Components = ComponentsForDCT();
+
+  return DCT;
+}
+
+auto ChannelsForMCU() {
+  std::vector<TestedDecoder::Channel> Channels;
+
+  Channels.resize(3);
+
+  Channels[0].Id = 1;
+  Channels[0].AC_Id = 0;
+  Channels[0].DC_Id = 0;
+
+  Channels[1].Id = 2;
+  Channels[1].AC_Id = 1;
+  Channels[1].DC_Id = 1;
+
+  Channels[2].Id = 3;
+  Channels[2].AC_Id = 1;
+  Channels[2].DC_Id = 1;
+
+  return Channels;
+}
+
 void testLocateNodeInHuffmanTree(
     std::shared_ptr<HuffmanTree::Node> const &Root,
     std::array<uint8_t, 1> const &Source,
@@ -629,48 +684,13 @@ BOOST_AUTO_TEST_CASE(readMCU) {
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
   BitExtractor Extractor{InputStream};
 
-  DCTTable DCT;
-
-  DCT.Precision = 8;
-  DCT.Width = 16;
-  DCT.Height = 16;
-
-  DCT.Components.resize(3);
-
-  DCT.Components[0].Id = 1;
-  DCT.Components[0].H = 2;
-  DCT.Components[0].V = 2;
-  DCT.Components[0].DQT_Id = 0;
-
-  DCT.Components[1].Id = 2;
-  DCT.Components[1].H = 1;
-  DCT.Components[1].V = 1;
-  DCT.Components[1].DQT_Id = 1;
-
-  DCT.Components[2].Id = 3;
-  DCT.Components[2].H = 1;
-  DCT.Components[2].V = 1;
-  DCT.Components[2].DQT_Id = 1;
-
-  std::vector<TestedDecoder::Channel> Channels;
-  Channels.resize(3);
-
-  Channels[0].Id = 1;
-  Channels[0].AC_Id = 0;
-  Channels[0].DC_Id = 0;
-
-  Channels[1].Id = 2;
-  Channels[1].AC_Id = 1;
-  Channels[1].DC_Id = 1;
-
-  Channels[2].Id = 3;
-  Channels[2].AC_Id = 1;
-  Channels[2].DC_Id = 1;
+  const auto Channels = ChannelsForMCU();
 
   std::vector<std::shared_ptr<HuffmanTree::Node>> const AC_Tables{AC_Tree_0(),
                                                                   AC_Tree_1()};
   std::vector<std::shared_ptr<HuffmanTree::Node>> const DC_Tables{DC_Tree_0(),
                                                                   DC_Tree_1()};
+  const auto DCT = DCT_Table();
 
   const auto mcu =
       TestedDecoder::readMCU(Extractor, DCT, Channels, AC_Tables, DC_Tables);
@@ -716,53 +736,16 @@ BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
         std::exception);
   };
 
-  DCTTable DCT;
+  auto DCT = DCT_Table();
 
-  DCT.Precision = 8;
-  DCT.Width = 16;
-  DCT.Height = 16;
+  DCT.Components.push_back({4, 1, 1, 1});
 
-  DCT.Components.resize(4);
-
-  DCT.Components[0].Id = 1;
-  DCT.Components[0].H = 2;
-  DCT.Components[0].V = 2;
-  DCT.Components[0].DQT_Id = 0;
-
-  DCT.Components[1].Id = 2;
-  DCT.Components[1].H = 1;
-  DCT.Components[1].V = 1;
-  DCT.Components[1].DQT_Id = 1;
-
-  DCT.Components[2].Id = 3;
-  DCT.Components[2].H = 1;
-  DCT.Components[2].V = 1;
-  DCT.Components[2].DQT_Id = 1;
-
-  DCT.Components[3].Id = 4;
-  DCT.Components[3].H = 1;
-  DCT.Components[3].V = 1;
-  DCT.Components[3].DQT_Id = 1;
-
-  std::vector<TestedDecoder::Channel> Channels;
-  Channels.resize(3);
-
-  Channels[0].Id = 1;
-  Channels[0].AC_Id = 0;
-  Channels[0].DC_Id = 0;
-
-  Channels[1].Id = 2;
-  Channels[1].AC_Id = 1;
-  Channels[1].DC_Id = 1;
+  auto Channels = ChannelsForMCU();
 
   Channels[2].Id = 5;
-  Channels[2].AC_Id = 1;
-  Channels[2].DC_Id = 1;
-
   checkThrow(DCT, Channels);
 
   Channels[2].Id = 4;
-
   checkThrow(DCT, Channels);
 }
 
@@ -777,50 +760,10 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
   MCU.Cs2.push_back(Cb_Table());
   MCU.Cs3.push_back(Cr_Table());
 
-  std::vector<DCTComponent> Components;
+  const auto Components = ComponentsForDCT();
 
-  Components.resize(3);
-
-  Components[0].Id = 1;
-  Components[0].H = 2;
-  Components[0].V = 2;
-  Components[0].DQT_Id = 0;
-
-  Components[1].Id = 2;
-  Components[1].H = 1;
-  Components[1].V = 1;
-  Components[1].DQT_Id = 1;
-
-  Components[2].Id = 3;
-  Components[2].H = 1;
-  Components[2].V = 1;
-  Components[2].DQT_Id = 1;
-
-  boost::numeric::ublas::matrix<uint16_t> DQT1(8, 8);
-  // clang-format off
-  DQT1 <<=
-    0xA0, 0x6E, 0x64, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF,
-    0x78, 0x78, 0x8C, 0xBE, 0xFF, 0xFF, 0xFF, 0xFF,
-    0x8C, 0x82, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF,
-    0x8C, 0xAA, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xB4, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
-  // clang-format on
-
-  boost::numeric::ublas::matrix<uint16_t> DQT2(8, 8);
-  // clang-format off
-  DQT2 <<=
-    0xAA, 0xB4, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xB4, 0xD2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
-  // clang-format on
+  const auto DQT1 = DefineQuantizationTable1();
+  const auto DQT2 = DefineQuantizationTable2();
 
   const auto QuantedMCU =
       TestedDecoder::quantMCU(std::move(MCU), Components, {DQT1, DQT2});
@@ -888,21 +831,28 @@ BOOST_AUTO_TEST_CASE(reverseDQT_Cr) {
 }
 
 BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
-  constexpr const auto HalfRowsCount = 8;
-  constexpr const auto HalfColsCount = 8;
-
-  constexpr const auto ColsCount = 16;
-  constexpr const auto RowsCount = 16;
-
   const auto Y1_Raw = Reversed_Y1();
   const auto Y2_Raw = Reversed_Y2();
   const auto Y3_Raw = Reversed_Y3();
   const auto Y4_Raw = Reversed_Y4();
 
-  TestedDecoder::DataUnit Y_Raw(RowsCount, ColsCount);
+  TestedDecoder::DataUnit Y_Raw(16, 16);
 
-  for (std::size_t Row = 0; Row < HalfRowsCount; Row++) {
-    for (std::size_t Col = 0; Col < HalfColsCount; Col++) {
+  const auto RowCount = Y_Raw.size1() / 2;
+  const auto ColCount = Y_Raw.size2() / 2;
+
+  BOOST_REQUIRE_EQUAL(Y1_Raw.size1(), RowCount);
+  BOOST_REQUIRE_EQUAL(Y2_Raw.size1(), RowCount);
+  BOOST_REQUIRE_EQUAL(Y3_Raw.size1(), RowCount);
+  BOOST_REQUIRE_EQUAL(Y4_Raw.size1(), RowCount);
+
+  BOOST_REQUIRE_EQUAL(Y1_Raw.size2(), ColCount);
+  BOOST_REQUIRE_EQUAL(Y2_Raw.size2(), ColCount);
+  BOOST_REQUIRE_EQUAL(Y3_Raw.size2(), ColCount);
+  BOOST_REQUIRE_EQUAL(Y4_Raw.size2(), ColCount);
+
+  for (std::size_t Row = 0; Row < RowCount; Row++) {
+    for (std::size_t Col = 0; Col < ColCount; Col++) {
       Y_Raw(Row, Col) = Y1_Raw(Row, Col);
       Y_Raw(Row, 8 + Col) = Y2_Raw(Row, Col);
       Y_Raw(8 + Row, Col) = Y3_Raw(Row, Col);
@@ -919,73 +869,16 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
 }
 
 BOOST_AUTO_TEST_CASE(Invoke) {
-  constexpr const auto HalfRowsCount = 8;
-  constexpr const auto HalfColsCount = 8;
-
-  constexpr const auto ColsCount = 16;
-  constexpr const auto RowsCount = 16;
-
   std::array<uint8_t, 29> const Source{
       0x00, 0x0c, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00,
       0x3f, 0x00, 0xae, 0xe7, 0x61, 0xf2, 0x1b, 0xd5, 0x22, 0x85,
       0x5d, 0x04, 0x3c, 0x82, 0xc8, 0x48, 0xb1, 0xdc, 0xbf};
 
-  const auto width = 16;
-  const auto height = 16;
-
   Context Ctx;
-
-  Ctx.dct.Precision = 8;
-  Ctx.dct.Width = width;
-  Ctx.dct.Height = height;
-
-  Ctx.dct.Components.resize(3);
-
-  Ctx.dct.Components[0].Id = 1;
-  Ctx.dct.Components[0].H = 2;
-  Ctx.dct.Components[0].V = 2;
-  Ctx.dct.Components[0].DQT_Id = 0;
-
-  Ctx.dct.Components[1].Id = 2;
-  Ctx.dct.Components[1].H = 1;
-  Ctx.dct.Components[1].V = 1;
-  Ctx.dct.Components[1].DQT_Id = 1;
-
-  Ctx.dct.Components[2].Id = 3;
-  Ctx.dct.Components[2].H = 1;
-  Ctx.dct.Components[2].V = 1;
-  Ctx.dct.Components[2].DQT_Id = 1;
-
+  Ctx.dct = DCT_Table();
   Ctx.AC_HuffmanTables = {AC_Tree_0(), AC_Tree_1()};
   Ctx.DC_HuffmanTables = {DC_Tree_0(), DC_Tree_1()};
-
-  boost::numeric::ublas::matrix<uint16_t> DQT1(8, 8);
-  // clang-format off
-  DQT1 <<=
-    0xA0, 0x6E, 0x64, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF,
-    0x78, 0x78, 0x8C, 0xBE, 0xFF, 0xFF, 0xFF, 0xFF,
-    0x8C, 0x82, 0xA0, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF,
-    0x8C, 0xAA, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xB4, 0xDC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
-  // clang-format on
-
-  boost::numeric::ublas::matrix<uint16_t> DQT2(8, 8);
-  // clang-format off
-  DQT2 <<=
-    0xAA, 0xB4, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xB4, 0xD2, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF;
-  // clang-format on
-
-  Ctx.DQT_Vector = {DQT1, DQT2};
+  Ctx.DQT_Vector = {DefineQuantizationTable1(), DefineQuantizationTable2()};
 
   invokeDecoderWithDataBuffer<SOSDecoder>(Ctx, Source);
 
