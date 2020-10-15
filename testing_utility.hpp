@@ -75,6 +75,8 @@ void printMatrix(MatrixT<Type> const& Matrix, bool const HexMode = false) {
   }
 }
 
+void printVector( const std::array<int16_t, 64>& vector );
+
 void saveRGBToImage(
         MatrixT<uint8_t> const& R,
         MatrixT<uint8_t> const& G,

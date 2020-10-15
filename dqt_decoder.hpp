@@ -3,11 +3,10 @@
 
 #include "decoder.hpp"
 
-class DQTDecoder : public Decoder
-{
+class DQTDecoder : public Decoder {
 public:
-    ~DQTDecoder() final = default;
-    DQTDecoder();
+  ~DQTDecoder() final = default;
+  DQTDecoder();
 
 private:
   void InvokeImpl(std::istream &Stream, Context &Ctx);

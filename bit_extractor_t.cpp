@@ -1,7 +1,5 @@
 #include <boost/test/unit_test.hpp>
 
-#include <boost/iostreams/stream.hpp>
-
 #include "bit_extractor.hpp"
 #include "testing_utility.hpp"
 
@@ -60,7 +58,7 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
 }
 
-BOOST_AUTO_TEST_CASE(getNextBits) {
+BOOST_AUTO_TEST_CASE(getFewBits) {
   std::array<std::uint8_t, 4> const Source{0b10101001, 0b01111011, 0b01100101,
                                            0b00000001};
 

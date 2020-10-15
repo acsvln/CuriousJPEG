@@ -9,14 +9,14 @@
 
 class SOSDecoder : public Decoder {
 protected:
-    using DataUnit = boost::numeric::ublas::matrix<int16_t>;
+  using DataUnit = boost::numeric::ublas::matrix<int16_t>;
 
-    struct MinimumCodedUnit {
-      std::vector<DataUnit> Cs1;
-      std::vector<DataUnit> Cs2;
-      std::vector<DataUnit> Cs3;
-      std::vector<DataUnit> Cs4;
-    };
+  struct MinimumCodedUnit {
+    std::vector<DataUnit> Cs1;
+    std::vector<DataUnit> Cs2;
+    std::vector<DataUnit> Cs3;
+    std::vector<DataUnit> Cs4;
+  };
 
   struct Channel {
     std::size_t Id;
@@ -29,8 +29,7 @@ protected:
                           std::shared_ptr<HuffmanTree::Node> const &Tree)
       -> std::shared_ptr<HuffmanTree::Node>;
 
-  static auto
-  readDU(BitExtractor &,
+  static auto readDU(BitExtractor &Extractor,
                      const std::shared_ptr<HuffmanTree::Node> &DC_Table,
                      const std::shared_ptr<HuffmanTree::Node> &AC_Table)
       -> DataUnit;
@@ -38,42 +37,36 @@ protected:
   static auto
   readMCU(BitExtractor &m, DCTTable const &dct,
           std::vector<Channel> const &channels,
-          std::vector<std::shared_ptr<HuffmanTree::Node>> const& AC_Tables,
-          std::vector<std::shared_ptr<HuffmanTree::Node>> const& DC_Tables)
-  -> MinimumCodedUnit;
+          std::vector<std::shared_ptr<HuffmanTree::Node>> const &AC_Tables,
+          std::vector<std::shared_ptr<HuffmanTree::Node>> const &DC_Tables)
+      -> MinimumCodedUnit;
 
   static auto
-  quantMCU(MinimumCodedUnit&& mcu, std::vector<DCTComponent> const& components,
-                     std::vector<boost::numeric::ublas::matrix<uint16_t>> const& Quant) -> MinimumCodedUnit;
+  quantMCU(MinimumCodedUnit &&mcu, std::vector<DCTComponent> const &components,
+           std::vector<boost::numeric::ublas::matrix<uint16_t>> const &Quant)
+      -> MinimumCodedUnit;
+
+  static auto reverseDQT(boost::numeric::ublas::matrix<int16_t> const &matrix)
+      -> boost::numeric::ublas::matrix<int16_t>;
 
   static auto
-  reverseDQT(boost::numeric::ublas::matrix<int16_t> const& matrix) -> boost::numeric::ublas::matrix<int16_t>;
-
-  static auto
-  reverseDQT2(boost::numeric::ublas::matrix<int16_t> const& matrix) -> boost::numeric::ublas::matrix<int16_t>;
-
-  static auto
-  normalizeReversedDQT(boost::numeric::ublas::matrix<int16_t>&& Table) -> boost::numeric::ublas::matrix<int16_t>;
+  normalizeReversedDQT(boost::numeric::ublas::matrix<int16_t> &&Table)
+      -> boost::numeric::ublas::matrix<int16_t>;
 
   static auto
   convertYCbCrToRGB(boost::numeric::ublas::matrix<int16_t> const &y,
-             boost::numeric::ublas::matrix<int16_t> const &cb,
-             boost::numeric::ublas::matrix<int16_t> const &cr) ->
-    std::tuple<
-        boost::numeric::ublas::matrix<uint8_t>,
-        boost::numeric::ublas::matrix<uint8_t>,
-        boost::numeric::ublas::matrix<uint8_t>
-    >;
+                    boost::numeric::ublas::matrix<int16_t> const &cb,
+                    boost::numeric::ublas::matrix<int16_t> const &cr)
+      -> std::tuple<boost::numeric::ublas::matrix<uint8_t>,
+                    boost::numeric::ublas::matrix<uint8_t>,
+                    boost::numeric::ublas::matrix<uint8_t>>;
 
 public:
   ~SOSDecoder() override = default;
   SOSDecoder();
 
-
-
 private:
   void InvokeImpl(std::istream &Stream, Context &Ctx) final;
-
 };
 
 #endif // SOS_DECODER_HPP

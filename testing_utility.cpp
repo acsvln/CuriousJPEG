@@ -95,3 +95,11 @@ void saveRGBToImage(
         TIFFWriteScanline(Image.get(), &ScanLine[0], static_cast<uint32>(Row), 0);
     }
 }
+
+void printVector(const std::array<int16_t, 64> &vector) {
+    std::cout << vector.size() << ':' << std::endl;
+    for ( const auto& el : vector ) {
+        std::cout << el << '\t';
+    }
+    std::cout << std::endl;
+}

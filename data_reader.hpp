@@ -1,13 +1,8 @@
 #ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
-#include <istream>
-#include <string>
-#include <type_traits>
-
-#include <iostream>
-
 #include <boost/endian/conversion.hpp>
+#include <istream>
 
 class DataReader final {
   ~DataReader() = delete;
@@ -15,7 +10,6 @@ class DataReader final {
 public:
   using StreamT = std::istream;
   using CharT = StreamT::char_type;
-  using UCharT = typename std::make_unsigned<CharT>::type;
   using StreamSizeT = std::streamsize;
 
   template <class NumberT> static auto readNumber(StreamT &Stream) -> NumberT {
@@ -36,7 +30,6 @@ public:
     Stream.read(reinterpret_cast<CharT *>(Buffer.data()), Buffer.size());
   }
 
-  static auto getRawChar(StreamT &Stream) -> UCharT;
   static void skipChars(StreamT &Stream, StreamSizeT const Count);
 };
 
