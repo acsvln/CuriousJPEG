@@ -3,7 +3,6 @@
 #include <boost/assert.hpp>
 
 #include "data_reader.hpp"
-#include "utility.hpp"
 
 Decoder::Decoder(const std::string &Header) : DecoderHeader{Header} {}
 

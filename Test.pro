@@ -5,11 +5,11 @@ CONFIG -= app_bundle
 
 # THIS
 
-QMAKE_CXXFLAGS += -stdlib=libc++
-QMAKE_CC = clang-9
-QMAKE_CXX = clang-9
-QMAKE_CXXFLAGS  += -Wno-unknown-pragmas
-QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas #последняя попытка
+#QMAKE_CXXFLAGS += -stdlib=libstdc++
+#QMAKE_CC = clang-8
+#QMAKE_CXX = clang++-8
+# QMAKE_CXXFLAGS  += -Wno-unknown-pragmas
+# QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas #последняя попытка
 
 #QMAKE_CXXFLAGS=-D_GLIBCXX_USE_CXX11_ABI=0
 
@@ -43,6 +43,7 @@ SOURCES += \
     sof0_decoder.cpp \
     sos_decoder.cpp \
     sos_decoder_t.cpp \
+    testing_shared_data.cpp \
     testing_utility.cpp \
     utility.cpp \
     utility_t.cpp
@@ -63,6 +64,7 @@ HEADERS += \
     sof0_decoder.hpp \
     context.hpp \
     sos_decoder.hpp \
+    testing_shared_data.hpp \
     testing_utility.hpp \
     utility.hpp
 

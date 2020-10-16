@@ -1,16 +1,16 @@
+#include "sof0_decoder.hpp"
 #include <boost/test/unit_test.hpp>
 
 #include <array>
 
-#include "sof0_decoder.hpp"
 #include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(SOF0DecoderTests)
 
 BOOST_AUTO_TEST_CASE(Invoke) {
-  std::array<char, 17> const Source{0x00, 0x11, 0x08, 0x00, 0x10, 0x00,
-                                    0x10, 0x03, 0x01, 0x22, 0x00, 0x02,
-                                    0x11, 0x01, 0x03, 0x11, 0x01};
+  std::array<char, 17> const Source = {0x00, 0x11, 0x08, 0x00, 0x10, 0x00,
+                                       0x10, 0x03, 0x01, 0x22, 0x00, 0x02,
+                                       0x11, 0x01, 0x03, 0x11, 0x01};
 
   Context Ctx;
   invokeDecoderWithDataBuffer<SOF0Decoder>(Ctx, Source);
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(Invoke) {
   BOOST_CHECK_EQUAL(Ctx.dct.MaxH, 2u);
   BOOST_CHECK_EQUAL(Ctx.dct.MaxV, 2u);
 
-  BOOST_CHECK_EQUAL(Ctx.dct.Components.size(), 3u);
+  BOOST_REQUIRE_EQUAL(Ctx.dct.Components.size(), 3);
 
   BOOST_CHECK_EQUAL(Ctx.dct.Components[0].Id, 1);
   BOOST_CHECK_EQUAL(Ctx.dct.Components[0].H, 2);

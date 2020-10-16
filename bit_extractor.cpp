@@ -9,7 +9,8 @@
 BitExtractor::BitExtractor(std::istream &Strm) : Stream{Strm} {}
 
 auto BitExtractor::nextNumber(std::size_t const BitCnt) -> uint16_t {
-  BOOST_ASSERT_MSG(BitCnt > 0 && BitCnt <= 16,
+  BOOST_ASSERT_MSG(BitCnt > 0 &&
+                       BitCnt <= std::numeric_limits<uint16_t>::digits,
                    "Bit count must be between 0 and 16");
 
   std::bitset<16> Result;

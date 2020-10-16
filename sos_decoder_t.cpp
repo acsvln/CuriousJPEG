@@ -1,7 +1,6 @@
 #include "sos_decoder.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include <boost/iostreams/stream.hpp>
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
@@ -595,41 +594,41 @@ void testReadDUWithException(std::shared_ptr<HuffmanTree::Node> const &DC_Root,
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Y1) {
-  std::array<uint8_t, 5> const Source{0b10101110, 0b11100111, 0b01100001,
-                                      0b11110010, 0b0};
+  std::array<uint8_t, 5> const Source = {0b10101110, 0b11100111, 0b01100001,
+                                         0b11110010, 0b0};
   const auto Expected = Y1_Table();
   testReadDU(DC_Tree_0(), AC_Tree_0(), Source, Expected);
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Y2) {
-  std::array<uint8_t, 3> const Source{0b00110111, 0b10101010, 0b01000000};
+  std::array<uint8_t, 3> const Source = {0b00110111, 0b10101010, 0b01000000};
   const auto Expected = Y2_Table();
   testReadDU(DC_Tree_0(), AC_Tree_0(), Source, Expected);
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Y3) {
-  std::array<uint8_t, 4> const Source{0b01010000, 0b10101011, 0b10100000,
-                                      0b10000000};
+  std::array<uint8_t, 4> const Source = {0b01010000, 0b10101011, 0b10100000,
+                                         0b10000000};
   const auto Expected = Y3_Table();
   testReadDU(DC_Tree_0(), AC_Tree_0(), Source, Expected);
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Y4) {
-  std::array<uint8_t, 4> const Source{0b00111100, 0b10000010, 0b11001000,
-                                      0b01000000};
+  std::array<uint8_t, 4> const Source = {0b00111100, 0b10000010, 0b11001000,
+                                         0b01000000};
   const auto Expected = Y4_Table();
 
   testReadDU(DC_Tree_0(), AC_Tree_0(), Source, Expected);
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Cb) {
-  std::array<uint8_t, 2> const Source{0b10001011, 0b00000000};
+  std::array<uint8_t, 2> const Source = {0b10001011, 0b00000000};
   const auto Expected = Cb_Table();
   testReadDU(DC_Tree_1(), AC_Tree_1(), Source, Expected);
 }
 
 BOOST_AUTO_TEST_CASE(readDU_Cr) {
-  std::array<uint8_t, 3> const Source{0b00111011, 0b10010111, 0b111};
+  std::array<uint8_t, 3> const Source = {0b00111011, 0b10010111, 0b111};
   const auto Expected = Cr_Table();
   testReadDU(DC_Tree_1(), AC_Tree_1(), Source, Expected);
 }
@@ -656,7 +655,7 @@ BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
 
   // No space for Null's
   {
-    std::array<uint8_t, 12> const Source{
+    std::array<uint8_t, 12> const Source = {
         0b01111111, 0b11111111, 0b10111111, 0b11101111, 0b11111111, 0b11110111,
         0b11111111, 0b11111011, 0b11111111, 0b11111101, 0b11111111, 0b11111100};
 
@@ -665,7 +664,7 @@ BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
 
   // No space for values
   {
-    std::array<uint8_t, 12> const Source{
+    std::array<uint8_t, 12> const Source = {
         0b01111111, 0b11111111, 0b10111111, 0b11101111, 0b11111111, 0b11110111,
         0b11111111, 0b11111011, 0b11111111, 0b11111110, 0b11111111, 0b11111110};
 
@@ -674,7 +673,7 @@ BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
 }
 
 BOOST_AUTO_TEST_CASE(readMCU) {
-  std::array<uint8_t, 19> const Source{
+  std::array<uint8_t, 19> const Source = {
       0b10101110, 0b11100111, 0b01100001, 0b11110010, 0b00011011,
       0b11010101, 0b00100010, 0b10000101, 0b01011101, 0b00000100,
       0b00111100, 0b10000010, 0b11001000, 0b01001000, 0b10110001,
@@ -701,18 +700,18 @@ BOOST_AUTO_TEST_CASE(readMCU) {
   const auto Expected_Cs1_4 = Cs1_4_Table();
 
   BOOST_REQUIRE_EQUAL(mcu.Cs1.size(), 4);
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_2, mcu.Cs1.at(1));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
+  BOOST_CHECK_EQUAL(Expected_Cs1_1, mcu.Cs1.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cs1_2, mcu.Cs1.at(1));
+  BOOST_CHECK_EQUAL(Expected_Cs1_3, mcu.Cs1.at(2));
+  BOOST_CHECK_EQUAL(Expected_Cs1_4, mcu.Cs1.at(3));
 
   const auto Expected_Cb = Cb_Table();
   BOOST_REQUIRE_EQUAL(mcu.Cs2.size(), 1);
-  BOOST_REQUIRE_EQUAL(Expected_Cb, mcu.Cs2.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cb, mcu.Cs2.at(0));
 
   const auto Expected_Cr = Cr_Table();
   BOOST_REQUIRE_EQUAL(mcu.Cs3.size(), 1);
-  BOOST_REQUIRE_EQUAL(Expected_Cr, mcu.Cs3.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cr, mcu.Cs3.at(0));
 }
 
 BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
@@ -722,7 +721,7 @@ BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
     std::vector<std::shared_ptr<HuffmanTree::Node>> const DC_Tables{
         DC_Tree_0(), DC_Tree_1()};
 
-    std::array<uint8_t, 19> const Source{
+    std::array<uint8_t, 19> const Source = {
         0b10101110, 0b11100111, 0b01100001, 0b11110010, 0b00011011,
         0b11010101, 0b00100010, 0b10000101, 0b01011101, 0b00000100,
         0b00111100, 0b10000010, 0b11001000, 0b01001000, 0b10110001,
@@ -774,18 +773,18 @@ BOOST_AUTO_TEST_CASE(quantMCU) {
   const auto Expected_Cs1_4 = Quanted_Cs1_4_Table();
 
   BOOST_REQUIRE_EQUAL(QuantedMCU.Cs1.size(), 4);
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_1, QuantedMCU.Cs1.at(0));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_2, QuantedMCU.Cs1.at(1));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_3, QuantedMCU.Cs1.at(2));
-  BOOST_REQUIRE_EQUAL(Expected_Cs1_4, QuantedMCU.Cs1.at(3));
+  BOOST_CHECK_EQUAL(Expected_Cs1_1, QuantedMCU.Cs1.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cs1_2, QuantedMCU.Cs1.at(1));
+  BOOST_CHECK_EQUAL(Expected_Cs1_3, QuantedMCU.Cs1.at(2));
+  BOOST_CHECK_EQUAL(Expected_Cs1_4, QuantedMCU.Cs1.at(3));
 
   const auto Expected_Cb = Quanted_Cb_Table();
   BOOST_REQUIRE_EQUAL(QuantedMCU.Cs2.size(), 1);
-  BOOST_REQUIRE_EQUAL(Expected_Cb, QuantedMCU.Cs2.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cb, QuantedMCU.Cs2.at(0));
 
   const auto Expected_Cr = Quanted_Cr_Table();
   BOOST_REQUIRE_EQUAL(QuantedMCU.Cs3.size(), 1);
-  BOOST_REQUIRE_EQUAL(Expected_Cr, QuantedMCU.Cs3.at(0));
+  BOOST_CHECK_EQUAL(Expected_Cr, QuantedMCU.Cs3.at(0));
 }
 
 BOOST_AUTO_TEST_CASE(reverseDQT_Y1) {
@@ -869,7 +868,7 @@ BOOST_AUTO_TEST_CASE(convertYCbCrToRGB) {
 }
 
 BOOST_AUTO_TEST_CASE(Invoke) {
-  std::array<uint8_t, 29> const Source{
+  std::array<uint8_t, 29> const Source = {
       0x00, 0x0c, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00,
       0x3f, 0x00, 0xae, 0xe7, 0x61, 0xf2, 0x1b, 0xd5, 0x22, 0x85,
       0x5d, 0x04, 0x3c, 0x82, 0xc8, 0x48, 0xb1, 0xdc, 0xbf};

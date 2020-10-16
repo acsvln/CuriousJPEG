@@ -1,6 +1,6 @@
+#include "bit_extractor.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include "bit_extractor.hpp"
 #include "testing_utility.hpp"
 
 BOOST_AUTO_TEST_SUITE(BitExtractorTests)
@@ -8,8 +8,8 @@ BOOST_AUTO_TEST_SUITE(BitExtractorTests)
 namespace ios = boost::iostreams;
 
 BOOST_AUTO_TEST_CASE(getOneBit) {
-  std::array<uint8_t, 4> const Source{0b10101001, 0b01111011, 0b01100101,
-                                      0b00000001};
+  std::array<uint8_t, 4> const Source = {0b10101001, 0b01111011, 0b01100101,
+                                         0b00000001};
   const auto Buffer = charVectorForBuffer(Source);
 
   ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
@@ -59,8 +59,8 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
 }
 
 BOOST_AUTO_TEST_CASE(getFewBits) {
-  std::array<std::uint8_t, 4> const Source{0b10101001, 0b01111011, 0b01100101,
-                                           0b00000001};
+  std::array<std::uint8_t, 4> const Source = {0b10101001, 0b01111011,
+                                              0b01100101, 0b00000001};
 
   const auto Buffer = charVectorForBuffer(Source);
 

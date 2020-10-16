@@ -1,9 +1,6 @@
 #include "sof0_decoder.hpp"
 
-#include <iostream>
-
 #include "data_reader.hpp"
-#include "utility.hpp"
 
 SOF0Decoder::SOF0Decoder() : Decoder{"Baseline DCT"} {}
 
