@@ -30,6 +30,7 @@ auto comparsionImpl(matrix<T> const &Left, matrix<T> const &Right) -> bool {
 
   return true;
 }
+auto comparsionImpl(matrix<double> const &Left, matrix<double> const &Right) -> bool = delete;
 } // namespace
 
 bool operator==(matrix<uint16_t> const &Left, matrix<uint16_t> const &Right) {

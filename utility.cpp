@@ -1,7 +1,6 @@
 #include "utility.hpp"
 
 #include <array>
-#include <boost/assert.hpp>
 
 auto lowByte(uint8_t const Src) -> uint8_t { return Src >> 4; }
 

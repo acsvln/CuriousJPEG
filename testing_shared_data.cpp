@@ -2,7 +2,7 @@
 
 #include <boost/numeric/ublas/assignment.hpp>
 
-auto DefineQuantizationTable1() -> boost::numeric::ublas::matrix<uint16_t> {
+auto DefineQuantizationTable1() -> MatrixT<uint16_t> {
   boost::numeric::ublas::matrix<uint16_t> DQT1(8, 8);
   // clang-format off
   DQT1 <<=
@@ -18,7 +18,7 @@ auto DefineQuantizationTable1() -> boost::numeric::ublas::matrix<uint16_t> {
   return DQT1;
 }
 
-auto DefineQuantizationTable2() -> boost::numeric::ublas::matrix<uint16_t> {
+auto DefineQuantizationTable2() -> MatrixT<uint16_t> {
   boost::numeric::ublas::matrix<uint16_t> DQT2(8, 8);
   // clang-format off
   DQT2 <<=
