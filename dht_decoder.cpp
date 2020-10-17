@@ -37,8 +37,8 @@ void DHTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
   };
 
   const auto TableDescription = DataReader::readNumber<uint8_t>(Stream);
-  const auto TableClass = lowByte(TableDescription);
-  const auto TableIndex = highByte(TableDescription);
+  const auto TableClass = highByte(TableDescription);
+  const auto TableIndex = lowByte(TableDescription);
 
   auto &HuffmanVector = huffmanTableVectorForClass(TableClass);
   if (HuffmanVector.size() <= TableIndex) {

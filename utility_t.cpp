@@ -10,14 +10,14 @@
 
 BOOST_AUTO_TEST_SUITE(UtilityTests)
 
-BOOST_AUTO_TEST_CASE(LowHighBytes) {
+BOOST_AUTO_TEST_CASE(LowHighByte) {
   uint8_t const Source = 0xFA;
 
-  const auto ResultLow = lowByte(Source);
-  BOOST_CHECK_EQUAL(ResultLow, 0xA);
+  const auto ResultLow = highByte(Source);
+  BOOST_CHECK_EQUAL(ResultLow, 0xF);
 
-  const auto ResultHigh = highByte(Source);
-  BOOST_CHECK_EQUAL(ResultHigh, 0xF);
+  const auto ResultHigh = lowByte(Source);
+  BOOST_CHECK_EQUAL(ResultHigh, 0xA);
 }
 
 BOOST_AUTO_TEST_CASE(CreateZigZagMatrix_DQT) {

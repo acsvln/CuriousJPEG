@@ -2,9 +2,9 @@
 
 #include <array>
 
-auto lowByte(uint8_t const Src) -> uint8_t { return Src >> 4; }
+auto highByte(uint8_t const Src) -> uint8_t { return Src >> 4; }
 
-auto highByte(uint8_t const Src) -> uint8_t { return Src & 0xF; }
+auto lowByte(uint8_t const Src) -> uint8_t { return Src & 0xF; }
 
 template <class Type>
 auto CreateZigZagMatrixImpl(std::array<Type, 64> Source)

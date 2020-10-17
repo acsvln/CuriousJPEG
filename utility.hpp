@@ -13,8 +13,8 @@ public:
   }
 };
 
-auto lowByte(uint8_t const Src) -> uint8_t;
 auto highByte(uint8_t const Src) -> uint8_t;
+auto lowByte(uint8_t const Src) -> uint8_t;
 
 auto CreateZigZagMatrix(std::array<uint16_t, 64> Source)
     -> boost::numeric::ublas::matrix<uint16_t>;

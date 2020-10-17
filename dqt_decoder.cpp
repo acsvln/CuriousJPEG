@@ -9,12 +9,12 @@ DQTDecoder::DQTDecoder() : Decoder{"Define a Quantization Table"} {}
 void DQTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
   const auto NumBuffer = DataReader::readNumber<uint8_t>(Stream);
 
-  const auto TableElementSize = lowByte(NumBuffer);
+  const auto TableElementSize = highByte(NumBuffer);
   if (TableElementSize != 0) {
     throw NotImplementedException{};
   }
 
-  const auto TableIndex = highByte(NumBuffer);
+  const auto TableIndex = lowByte(NumBuffer);
   if (Ctx.DQT_Vector.size() <= TableIndex) {
     Ctx.DQT_Vector.resize(TableIndex + 1);
   }

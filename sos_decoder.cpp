@@ -88,7 +88,7 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     const auto Left = std::distance(Iterator, Buffer.end());
 
     // добавляем нули
-    const auto NullCount = lowByte(AC_Value);
+    const auto NullCount = highByte(AC_Value);
     if (NullCount > Left) {
       throw std::runtime_error{"Invalid JPEG Data"};
     }
@@ -96,7 +96,7 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     Iterator += NullCount;
 
     // добавляем значение
-    if (const auto ValueLength = highByte(AC_Value); 0 != ValueLength) {
+    if (const auto ValueLength = lowByte(AC_Value); 0 != ValueLength) {
       if (Buffer.end() == Iterator) {
         throw std::runtime_error{"Invalid JPEG Data"};
       }
