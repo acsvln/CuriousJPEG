@@ -33,6 +33,7 @@ SOURCES += \
     decoder.cpp \
     dqt_decoder_t.cpp \
     exceptions.cpp \
+    huffman_tree_t.cpp \
     idecoder.cpp \
     main_t.cpp \
     huffman_tree.cpp \
