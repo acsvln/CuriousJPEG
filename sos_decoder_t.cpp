@@ -10,48 +10,50 @@
 //-------------------------------------
 BOOST_AUTO_TEST_SUITE(SOSDecoderTests)
 
+namespace {
+
 namespace ios = boost::iostreams;
 
 class TestedDecoder final : public SOSDecoder {
 public:
-  ~TestedDecoder() final = default;
+    ~TestedDecoder() final = default;
 
-  using SOSDecoder::Channel;
-  using SOSDecoder::DataUnit;
-  using SOSDecoder::MinimumCodedUnit;
+    using SOSDecoder::Channel;
+    using SOSDecoder::DataUnit;
+    using SOSDecoder::MinimumCodedUnit;
 
-  using SOSDecoder::convertYCbCrToRGB;
-  using SOSDecoder::locateNodeInHuffmanTree;
-  using SOSDecoder::normalizeReversedDQT;
-  using SOSDecoder::quantMCU;
-  using SOSDecoder::readDU;
-  using SOSDecoder::readMCU;
-  using SOSDecoder::reverseDQT;
+    using SOSDecoder::convertYCbCrToRGB;
+    using SOSDecoder::locateNodeInHuffmanTree;
+    using SOSDecoder::normalizeReversedDQT;
+    using SOSDecoder::quantMCU;
+    using SOSDecoder::readDU;
+    using SOSDecoder::readMCU;
+    using SOSDecoder::reverseDQT;
 };
 
 //-------------------------------------
 auto DC_Tree_0() {
-  // clang-format off
+    // clang-format off
   return HuffmanTree::Builder{}
         .left( 0x03 )
         .right().left( 0x02 )
         .end()
     .done();
-  // clang-format on
+    // clang-format on
 }
 
 auto DC_Tree_1() {
-  // clang-format off
+    // clang-format off
   return HuffmanTree::Builder{}
         .left( 0x00 )
         .right().left( 0x01 )
         .end()
     .done();
-  // clang-format on
+    // clang-format on
 }
 
 auto AC_Tree_0() {
-  // clang-format off
+    // clang-format off
   return HuffmanTree::Builder{}
     .left( 0x01 )
     .right()
@@ -72,11 +74,11 @@ auto AC_Tree_0() {
             .end()
         .end()
     .done();
-  // clang-format on
+    // clang-format on
 }
 
 auto AC_Tree_1() {
-  // clang-format off
+    // clang-format off
   return HuffmanTree::Builder{}
         .left( 0x11 )
         .right()
@@ -85,12 +87,12 @@ auto AC_Tree_1() {
             .end()
         .end()
     .done();
-  // clang-format on
+    // clang-format on
 }
 
 auto Y1_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     2,  0,  3, 0, 0, 0, 0, 0,
     0,  1,  2, 0, 0, 0, 0, 0,
@@ -100,13 +102,13 @@ auto Y1_Table() {
     0,  0,  0, 0, 0, 0, 0, 0,
     0,  0,  0, 0, 0, 0, 0, 0,
     0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Y2_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -4,  1, 1, 1, 0, 0, 0, 0,
      0,  0, 1, 0, 0, 0, 0, 0,
@@ -116,14 +118,14 @@ auto Y2_Table() {
      0,  0, 0, 0, 0, 0, 0, 0,
      0,  0, 0, 0, 0, 0, 0, 0,
      0,  0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
+    // clang-format on
 
-  return Table;
+    return Table;
 }
 
 auto Y3_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
      5, -1,  1, 0, 0, 0, 0, 0,
     -1, -2, -1, 0, 0, 0, 0, 0,
@@ -133,13 +135,13 @@ auto Y3_Table() {
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Y4_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -4,  2,  2, 1, 0, 0, 0, 0,
     -1,  0, -1, 0, 0, 0, 0, 0,
@@ -149,13 +151,13 @@ auto Y4_Table() {
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cb_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
        -1, 0, 0, 0, 0, 0, 0, 0,
         1, 1, 0, 0, 0, 0, 0, 0,
@@ -165,13 +167,13 @@ auto Cb_Table() {
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cr_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     0,  0, 0, 0, 0, 0, 0, 0,
     1, -1, 0, 0, 0, 0, 0, 0,
@@ -181,13 +183,13 @@ auto Cr_Table() {
     0,  0, 0, 0, 0, 0, 0, 0,
     0,  0, 0, 0, 0, 0, 0, 0,
     0,  0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cs1_1_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     2,  0,  3, 0, 0, 0, 0, 0,
     0,  1,  2, 0, 0, 0, 0, 0,
@@ -197,13 +199,13 @@ auto Cs1_1_Table() {
     0,  0,  0, 0, 0, 0, 0, 0,
     0,  0,  0, 0, 0, 0, 0, 0,
     0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cs1_2_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -2,  1, 1, 1, 0, 0, 0, 0,
      0,  0, 1, 0, 0, 0, 0, 0,
@@ -213,13 +215,13 @@ auto Cs1_2_Table() {
      0,  0, 0, 0, 0, 0, 0, 0,
      0,  0, 0, 0, 0, 0, 0, 0,
      0,  0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cs1_3_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
      3, -1,  1, 0, 0, 0, 0, 0,
     -1, -2, -1, 0, 0, 0, 0, 0,
@@ -229,13 +231,13 @@ auto Cs1_3_Table() {
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Cs1_4_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -1,  2,  2, 1, 0, 0, 0, 0,
     -1,  0, -1, 0, 0, 0, 0, 0,
@@ -245,13 +247,13 @@ auto Cs1_4_Table() {
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0,
      0,  0,  0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cs1_1_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     320,    0,  300, 0, 0, 0, 0, 0,
       0,  120,  280, 0, 0, 0, 0, 0,
@@ -261,13 +263,13 @@ auto Quanted_Cs1_1_Table() {
       0,    0,    0, 0, 0, 0, 0, 0,
       0,    0,    0, 0, 0, 0, 0, 0,
       0,    0,    0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cs1_2_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -320,  110, 100, 160, 0, 0, 0, 0,
        0,    0, 140,   0, 0, 0, 0, 0,
@@ -277,13 +279,13 @@ auto Quanted_Cs1_2_Table() {
        0,    0,   0,   0, 0, 0, 0, 0,
        0,    0,   0,   0, 0, 0, 0, 0,
        0,    0,   0,   0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cs1_3_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     480, -110,  100, 0, 0, 0, 0, 0,
    -120, -240, -140, 0, 0, 0, 0, 0,
@@ -293,13 +295,13 @@ auto Quanted_Cs1_3_Table() {
       0,    0,    0, 0, 0, 0, 0, 0,
       0,    0,    0, 0, 0, 0, 0, 0,
       0,    0,    0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cs1_4_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -160,  220,  200, 160, 0, 0, 0, 0,
     -120,    0, -140,   0, 0, 0, 0, 0,
@@ -309,13 +311,13 @@ auto Quanted_Cs1_4_Table() {
        0,    0,    0,   0, 0, 0, 0, 0,
        0,    0,    0,   0, 0, 0, 0, 0,
        0,    0,    0,   0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cb_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -170,   0, 0, 0, 0, 0, 0, 0,
      180, 210, 0, 0, 0, 0, 0, 0,
@@ -325,13 +327,13 @@ auto Quanted_Cb_Table() {
        0,   0, 0, 0, 0, 0, 0, 0,
        0,   0, 0, 0, 0, 0, 0, 0,
        0,   0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Quanted_Cr_Table() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
       0,    0, 0, 0, 0, 0, 0, 0,
     180, -210, 0, 0, 0, 0, 0, 0,
@@ -341,13 +343,13 @@ auto Quanted_Cr_Table() {
       0,    0, 0, 0, 0, 0, 0, 0,
       0,    0, 0, 0, 0, 0, 0, 0,
       0,    0, 0, 0, 0, 0, 0, 0;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Y1() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     138,  92, 27, -17, -17,  28, 93, 139,
     136,  82,  5, -51, -55,  -8, 61, 111,
@@ -357,13 +359,13 @@ auto Reversed_Y1() {
      87,  72, 50,  36,  37,  55, 79,  95,
     -10,   5, 31,  56,  71,  73, 68,  62,
     -87, -50,  6,  56,  79,  72, 48,  29;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Y2() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
      21, -34, -93, -105, -70, -26,  -5,   -5,
      33, -21, -81,  -97, -68, -34, -22,  -27,
@@ -373,13 +375,13 @@ auto Reversed_Y2() {
      13, -19, -49,  -47, -28, -29, -61,  -96,
     -20, -44, -59,  -43, -15, -11, -44,  -80,
     -42, -60, -67,  -42,  -6,   0, -32,  -68;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Y3() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -103, -77, -35, 12, 55, 85, 102, 109,
      -43, -25,   6, 41, 73, 96, 110, 116,
@@ -389,13 +391,13 @@ auto Reversed_Y3() {
      107,  83,  47, 18,  8, 18,  39,  55,
      133, 105,  64, 33, 26, 44,  75,  98,
      158, 129,  86, 55, 51, 76, 113, 140;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Y4() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
     -30, -61, -86,  -78, -50, -41, -65, -94,
       8, -28, -62,  -63, -42, -36, -61, -90,
@@ -405,13 +407,13 @@ auto Reversed_Y4() {
     125,  59, -18,  -55, -43, -20, -14, -21,
      97,  29, -49,  -81, -60, -23,  -3,  -1,
      74,   6, -71, -100, -72, -25,   2,  10;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Cb() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
       60,  52,  38,  20,   0, -18, -32, -40,
       48,  41,  29,  13,  -3, -19, -31, -37,
@@ -421,13 +423,13 @@ auto Reversed_Cb() {
      -67, -63, -55, -44, -33, -22, -14, -10,
      -90, -84, -71, -56, -39, -23, -11,  -4,
     -102, -95, -81, -62, -42, -23,  -9,  -1;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto Reversed_Cr() {
-  TestedDecoder::DataUnit Table(8, 8);
-  // clang-format off
+    TestedDecoder::DataUnit Table(8, 8);
+    // clang-format off
   Table <<=
      19,  27,  41,  60,  80,  99, 113, 120,
       0,   6,  18,  34,  51,  66,  78,  85,
@@ -437,88 +439,92 @@ auto Reversed_Cr() {
      -5,  -9, -17, -28, -39, -50, -58, -62,
      32,  26,  14,  -1, -18, -34, -46, -53,
      58,  50,  36,  18,  -2, -20, -34, -42;
-  // clang-format on
-  return Table;
+    // clang-format on
+    return Table;
 }
 
 auto ComponentsForDCT() {
-  std::vector<DCTComponent> Components;
+    std::vector<DCTComponent> Components;
 
-  Components.resize(3);
+    Components.resize(3);
 
-  Components[0].Id = 1;
-  Components[0].H = 2;
-  Components[0].V = 2;
-  Components[0].DQT_Id = 0;
+    Components[0].Id = 1;
+    Components[0].H = 2;
+    Components[0].V = 2;
+    Components[0].DQT_Id = 0;
 
-  Components[1].Id = 2;
-  Components[1].H = 1;
-  Components[1].V = 1;
-  Components[1].DQT_Id = 1;
+    Components[1].Id = 2;
+    Components[1].H = 1;
+    Components[1].V = 1;
+    Components[1].DQT_Id = 1;
 
-  Components[2].Id = 3;
-  Components[2].H = 1;
-  Components[2].V = 1;
-  Components[2].DQT_Id = 1;
+    Components[2].Id = 3;
+    Components[2].H = 1;
+    Components[2].V = 1;
+    Components[2].DQT_Id = 1;
 
-  return Components;
+    return Components;
 }
 
 auto DCT_Table() {
-  DCTTable DCT;
+    DCTTable DCT;
 
-  DCT.Precision = 8;
-  DCT.Width = 16;
-  DCT.Height = 16;
-  DCT.Components = ComponentsForDCT();
+    DCT.Precision = 8;
+    DCT.Width = 16;
+    DCT.Height = 16;
+    DCT.Components = ComponentsForDCT();
 
-  return DCT;
+    return DCT;
 }
 
 auto ChannelsForMCU() {
-  std::vector<TestedDecoder::Channel> Channels;
+    std::vector<TestedDecoder::Channel> Channels;
 
-  Channels.resize(3);
+    Channels.resize(3);
 
-  Channels[0].Id = 1;
-  Channels[0].AC_Id = 0;
-  Channels[0].DC_Id = 0;
+    Channels[0].Id = 1;
+    Channels[0].AC_Id = 0;
+    Channels[0].DC_Id = 0;
 
-  Channels[1].Id = 2;
-  Channels[1].AC_Id = 1;
-  Channels[1].DC_Id = 1;
+    Channels[1].Id = 2;
+    Channels[1].AC_Id = 1;
+    Channels[1].DC_Id = 1;
 
-  Channels[2].Id = 3;
-  Channels[2].AC_Id = 1;
-  Channels[2].DC_Id = 1;
+    Channels[2].Id = 3;
+    Channels[2].AC_Id = 1;
+    Channels[2].DC_Id = 1;
 
-  return Channels;
+    return Channels;
 }
 
 void testLocateNodeInHuffmanTree(
     std::shared_ptr<HuffmanTree::Node> const &Root,
     std::array<uint8_t, 1> const &Source,
     std::shared_ptr<HuffmanTree::Node> const &Expected) {
-  const auto Buffer = charVectorForBuffer(Source);
-  ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
-  ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
+    const auto Buffer = charVectorForBuffer(Source);
+    ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
+    ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
 
-  BitExtractor Extractor{InputStream};
-  const auto Located = TestedDecoder::locateNodeInHuffmanTree(Extractor, Root);
-  BOOST_REQUIRE_EQUAL(Located, Expected);
+    BitExtractor Extractor{InputStream};
+    const auto Located = TestedDecoder::locateNodeInHuffmanTree(Extractor, Root);
+    BOOST_REQUIRE_EQUAL(Located, Expected);
 }
 
 void testLocateNodeInHuffmanTreeWithException(
     std::shared_ptr<HuffmanTree::Node> const &Root,
     std::array<uint8_t, 1> const &Source) {
-  const auto Buffer = charVectorForBuffer(Source);
-  ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
-  ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
+    const auto Buffer = charVectorForBuffer(Source);
+    ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
+    ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
 
-  BitExtractor Extractor{InputStream};
-  BOOST_CHECK_THROW(TestedDecoder::locateNodeInHuffmanTree(Extractor, Root),
-                    std::exception);
+    BitExtractor Extractor{InputStream};
+    BOOST_CHECK_THROW(TestedDecoder::locateNodeInHuffmanTree(Extractor, Root),
+                      std::exception);
 }
+
+} // namespace {
+
+
 
 BOOST_AUTO_TEST_CASE(locateNodeInHuffmanTree_DC_0) {
   const auto Root = DC_Tree_0();
@@ -567,31 +573,35 @@ BOOST_AUTO_TEST_CASE(locateNodeInHuffmanTree_ThrowException) {
   testLocateNodeInHuffmanTreeWithException(Root_AC1, {0b11100000});
 }
 
+namespace {
+
 template <class Container>
 void testReadDU(std::shared_ptr<HuffmanTree::Node> const &DC_Root,
                 std::shared_ptr<HuffmanTree::Node> const &AC_Root,
                 Container const &Source,
                 TestedDecoder::DataUnit const &Expected) {
-  const auto Buffer = charVectorForBuffer(Source);
-  ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
-  ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
-  BitExtractor Extractor{InputStream};
-  const auto DU = TestedDecoder::readDU(Extractor, DC_Root, AC_Root);
-  printMatrix(DU);
-  BOOST_REQUIRE_EQUAL(DU, Expected);
+    const auto Buffer = charVectorForBuffer(Source);
+    ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
+    ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
+    BitExtractor Extractor{InputStream};
+    const auto DU = TestedDecoder::readDU(Extractor, DC_Root, AC_Root);
+    printMatrix(DU);
+    BOOST_REQUIRE_EQUAL(DU, Expected);
 }
 
 template <class Container>
 void testReadDUWithException(std::shared_ptr<HuffmanTree::Node> const &DC_Root,
                              std::shared_ptr<HuffmanTree::Node> const &AC_Root,
                              Container const &Source) {
-  const auto Buffer = charVectorForBuffer(Source);
-  ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
-  ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
-  BitExtractor Extractor{InputStream};
-  BOOST_CHECK_THROW(TestedDecoder::readDU(Extractor, DC_Root, AC_Root),
-                    std::exception);
+    const auto Buffer = charVectorForBuffer(Source);
+    ios::basic_array_source<char> InputSource(Buffer.data(), Buffer.size());
+    ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
+    BitExtractor Extractor{InputStream};
+    BOOST_CHECK_THROW(TestedDecoder::readDU(Extractor, DC_Root, AC_Root),
+                      std::exception);
 }
+
+} // namespace {
 
 BOOST_AUTO_TEST_CASE(readDU_Y1) {
   std::array<uint8_t, 5> const Source = {0b10101110, 0b11100111, 0b01100001,

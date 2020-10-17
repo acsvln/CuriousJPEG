@@ -5,7 +5,9 @@
 
 BOOST_AUTO_TEST_SUITE(BitExtractorTests)
 
+namespace {
 namespace ios = boost::iostreams;
+} // namespace
 
 BOOST_AUTO_TEST_CASE(getOneBit) {
   std::array<uint8_t, 4> const Source = {0b10101001, 0b01111011, 0b01100101,
