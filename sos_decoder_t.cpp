@@ -32,7 +32,7 @@ public:
 //-------------------------------------
 auto DC_Tree_0() {
   // clang-format off
-  return HuffmanTree::Node::Builder{}
+  return HuffmanTree::Builder{}
         .left( 0x03 )
         .right().left( 0x02 )
         .end()
@@ -42,7 +42,7 @@ auto DC_Tree_0() {
 
 auto DC_Tree_1() {
   // clang-format off
-  return HuffmanTree::Node::Builder{}
+  return HuffmanTree::Builder{}
         .left( 0x00 )
         .right().left( 0x01 )
         .end()
@@ -52,7 +52,7 @@ auto DC_Tree_1() {
 
 auto AC_Tree_0() {
   // clang-format off
-  return HuffmanTree::Node::Builder{}
+  return HuffmanTree::Builder{}
     .left( 0x01 )
     .right()
         .left().left( 0x00 )
@@ -77,7 +77,7 @@ auto AC_Tree_0() {
 
 auto AC_Tree_1() {
   // clang-format off
-  return HuffmanTree::Node::Builder{}
+  return HuffmanTree::Builder{}
         .left( 0x11 )
         .right()
             .left( 0x00 )
@@ -636,7 +636,7 @@ BOOST_AUTO_TEST_CASE(readDU_Cr) {
 BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
   // clang-format off
   auto DC_Root =
-    HuffmanTree::Node::Builder{}
+    HuffmanTree::Builder{}
       .left( 0x10 )
       .end()
     .done();
@@ -644,7 +644,7 @@ BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
 
   // clang-format off
   auto AC_Root =
-    HuffmanTree::Node::Builder{}
+    HuffmanTree::Builder{}
       .left( 0x88 )
       .right()
         .left( 0xFF )

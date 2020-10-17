@@ -21,23 +21,6 @@ public:
     auto parent() const -> std::weak_ptr<Node>;
     auto data() const -> uint8_t;
 
-  public:
-    class Builder final {
-    public:
-      auto left() -> Builder &;
-      auto right() -> Builder &;
-
-      auto left(uint8_t const Value) -> Builder &;
-      auto right(uint8_t const Value) -> Builder &;
-
-      auto end() -> Builder &;
-      auto done() -> std::shared_ptr<Node>;
-
-    private:
-      std::shared_ptr<Node> Root = std::make_shared<Node>(nullptr);
-      std::shared_ptr<Node> NextNode = Root;
-    };
-
   private:
     std::shared_ptr<Node> Left = nullptr;
     std::shared_ptr<Node> Right = nullptr;
@@ -45,14 +28,31 @@ public:
     std::optional<uint8_t> Data = {};
   };
 
-  static auto createAndinsertNode(std::shared_ptr<Node> const &Parent,
+  static auto createAndInsertNode(std::shared_ptr<Node> const &Parent,
                                   std::size_t const Level, uint8_t const Value)
       -> std::shared_ptr<Node>;
+
+public:
+  class Builder final {
+  public:
+    auto left() -> Builder &;
+    auto right() -> Builder &;
+
+    auto left(uint8_t const Value) -> Builder &;
+    auto right(uint8_t const Value) -> Builder &;
+
+    auto end() -> Builder &;
+    auto done() -> std::shared_ptr<Node>;
+
+  private:
+    std::shared_ptr<Node> Root = std::make_shared<Node>(nullptr);
+    std::shared_ptr<Node> NextNode = Root;
+  };
 
 private:
   enum class BypassDirection { Up, Down };
 
-  static auto createAndinsertNodeImplementation(
+  static auto createAndInsertNodeImplementation(
       std::shared_ptr<Node> const &Parent, std::size_t const Level,
       uint8_t const Value, std::size_t const CurrentLevel = 0,
       BypassDirection const Direction = BypassDirection::Down)

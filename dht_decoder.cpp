@@ -60,7 +60,7 @@ void DHTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
     DataReader::readBuffer(Stream, HuffmanData);
 
     for (const auto Code : HuffmanData) {
-      HuffmanTree::createAndinsertNode(Root, Index, Code);
+      HuffmanTree::createAndInsertNode(Root, Index, Code);
     }
   }
 
