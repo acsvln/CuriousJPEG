@@ -1,13 +1,13 @@
 #ifndef SOS_DECODER_HPP
 #define SOS_DECODER_HPP
 
-#include "decoder_base.hpp"
+#include "idecoder.hpp"
 
 #include <bitset>
 
 #include "bit_extractor.hpp"
 
-class SOSDecoder : public DecoderBase {
+class SOSDecoder : public IDecoder {
 protected:
   using Matrix8u = boost::numeric::ublas::matrix<uint8_t>;
   using Matrix16u = boost::numeric::ublas::matrix<uint16_t>;
@@ -62,8 +62,10 @@ public:
   ~SOSDecoder() override = default;
   SOSDecoder();
 
+  void Invoke(std::istream &Stream, DecoderContext &Context) final;
+
 private:
-  void InvokeImpl(std::istream &Stream, DecoderContext &Context) final;
+  const std::string DecoderHeader;
 };
 
 #endif // SOS_DECODER_HPP

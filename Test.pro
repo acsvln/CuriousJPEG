@@ -67,7 +67,10 @@ HEADERS += \
     sos_decoder.hpp \
     testing_shared_data.hpp \
     testing_utility.hpp \
-    utility.hpp
+    utility.hpp \
+    dqt_decoder.hpp
 
 DISTFILES += \
-    conanfile.txt
+    conanfile.txt \
+    .gitignore \
+    README.md

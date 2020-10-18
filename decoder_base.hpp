@@ -13,6 +13,12 @@ public:
   void Invoke(std::istream &Stream, DecoderContext &Context) final;
 
 private:
+  // SOSDecoder use own section size property handling
+  friend class SOSDecoder;
+  static void echoSegmentCaption(const std::string &Header,
+                                 const uint16_t Size);
+
+private:
   virtual void InvokeImpl(std::istream &Stream, DecoderContext &Context) = 0;
 
 private:

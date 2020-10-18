@@ -657,7 +657,6 @@ void testReadDU(const std::shared_ptr<HuffmanTree::Node> &DC_Root,
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
   BitExtractor Extractor{InputStream};
   const auto DU = TestedDecoder::readDU(Extractor, DC_Root, AC_Root);
-  printMatrix(DU);
   BOOST_REQUIRE_EQUAL(DU, Expected);
 }
 

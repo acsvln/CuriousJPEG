@@ -21,4 +21,9 @@ auto CreateZigZagMatrix(std::array<uint16_t, 64> Source)
 auto CreateZigZagMatrix(std::array<int16_t, 64> source)
     -> boost::numeric::ublas::matrix<int16_t>;
 
+void saveRGBToImage(const boost::numeric::ublas::matrix<uint8_t> &R,
+                    const boost::numeric::ublas::matrix<uint8_t> &G,
+                    const boost::numeric::ublas::matrix<uint8_t> &B,
+                    const std::string &path);
+
 #endif // UTILITY_HPP

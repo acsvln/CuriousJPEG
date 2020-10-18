@@ -20,20 +20,33 @@ TEMPLATE = app
 include(conanbuildinfo.pri)
 
 SOURCES += main.cpp \
+    bit_extractor.cpp \
+    data_reader.cpp \
+    decoder_base.cpp \
+    decoder_processor.cpp \
     dht_decoder.cpp \
-    processor.cpp \
-    sof0_decoder.cpp \
     dqt_decoder.cpp \
+    exceptions.cpp \
+    huffman_tree.cpp \
+    idecoder.cpp \
+    sof0_decoder.cpp \
+    sos_decoder.cpp \
     utility.cpp
 
 HEADERS += \
-    context.hpp \
-    decoder.hpp \
-    dht_decoder.hpp \
-    processor.hpp \
-    sof0_decoder.hpp \
-    dqt_decoder.hpp \
+    bit_extractor.hpp \
+    data_reader.hpp \
+    decoder_base.hpp \
+    decoder_context.hpp \
+    decoder_processor.hpp \
     definition.hpp \
+    dht_decoder.hpp \
+    dqt_decoder.hpp \
+    exceptions.hpp \
+    huffman_tree.hpp \
+    idecoder.hpp \
+    sof0_decoder.hpp \
+    sos_decoder.hpp \
     utility.hpp
 
 DISTFILES += \

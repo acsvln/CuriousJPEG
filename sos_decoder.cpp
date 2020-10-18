@@ -7,6 +7,7 @@
 #include <map>
 
 #include "data_reader.hpp"
+#include "decoder_base.hpp"
 #include "exceptions.hpp"
 #include "testing_utility.hpp"
 
@@ -41,7 +42,8 @@ auto SOSDecoder::locateNodeInHuffmanTree(
     }
 
     if (nullptr == Node) {
-      throw InvalidJPEGDataException{"Can not locate correct Node in Huffman tree"};
+      throw InvalidJPEGDataException{
+          "Can not locate correct Node in Huffman tree"};
     }
 
   } while (!Node->isLeaf());
@@ -86,7 +88,7 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     // добавляем нули
     const auto NullCount = highByte(AC_Value);
     if (NullCount > Left) {
-        throw InvalidJPEGDataException{"Wrong count of null's in data unit"};
+      throw InvalidJPEGDataException{"Wrong count of null's in data unit"};
     }
 
     Iterator += NullCount;
@@ -94,7 +96,8 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     // добавляем значение
     if (const auto ValueLength = lowByte(AC_Value); 0 != ValueLength) {
       if (Buffer.end() == Iterator) {
-        throw InvalidJPEGDataException{"AC table in source file is incorrectly large"};
+        throw InvalidJPEGDataException{
+            "AC table in source file is incorrectly large"};
       }
 
       *Iterator = extractAndNorm(ValueLength);
@@ -244,12 +247,16 @@ auto SOSDecoder::convertYCbCrToRGB(const Matrix16 &Y, const Matrix16 &Cb,
   return {R, G, B};
 }
 
-SOSDecoder::SOSDecoder() : DecoderBase{"Start Of Scan"} {}
+SOSDecoder::SOSDecoder() : DecoderHeader{"Start Of Scan"} {}
 
-void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
+void SOSDecoder::Invoke(std::istream &Stream, DecoderContext &Context) {
+  const auto Size = DataReader::readNumber<uint16_t>(Stream);
+  DecoderBase::echoSegmentCaption(DecoderHeader, Size);
+
   const auto ChannelCount = DataReader::readNumber<uint8_t>(Stream);
   if (3 != ChannelCount) {
-    throw NotImplementedException{"Start of decoding - invalid channel's count"};
+    throw NotImplementedException{
+        "Start of decoding - invalid channel's count"};
   }
 
   std::vector<Channel> Channels;
@@ -278,9 +285,10 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
 
     MCU = quantMCU(std::move(MCU), Context.dct.Components, Context.DQT_Vector);
 
-    BOOST_ASSERT_MSG((MCU.Cs1.size() == MCU.Cs2.size()) &&
-                         (MCU.Cs2.size() == MCU.Cs3.size()),
-                     "Channel size is different");
+    BOOST_ASSERT_MSG(0 == (MCU.Cs1.size() % 4),
+                     "Fist channel must be divisible by 4");
+    BOOST_ASSERT_MSG(MCU.Cs2.size() == MCU.Cs3.size(),
+                     "Cr and Cb channels size are different");
 
     Matrix matrix(16, 16);
 
@@ -315,5 +323,4 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
       Context.Image.push_back({R, G, B});
     }
   } while (false);
-  std::cout << "while (false)" << std::endl;
 }

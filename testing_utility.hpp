@@ -77,7 +77,4 @@ void printMatrix(const MatrixT<Type> &Matrix, const bool HexMode = false) {
 
 void printVector(const std::array<int16_t, 64> &vector);
 
-void saveRGBToImage(const MatrixT<uint8_t> &R, const MatrixT<uint8_t> &G,
-                    const MatrixT<uint8_t> &B, const std::string &path);
-
 #endif // TESTING_UTILITY_HPP
