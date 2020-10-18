@@ -1,14 +1,9 @@
 ﻿#include "sos_decoder.hpp"
-#include "utility.hpp"
 
 #include <bitset>
 #include <boost/assert.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <iostream>
 #include <map>
 
 #include "data_reader.hpp"
@@ -313,10 +308,6 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
       auto RevercedY = normalizeReversedDQT(std::move(Y));
       auto RevercedCb = normalizeReversedDQT(reverseDQT(Cb));
       auto RevercedCr = normalizeReversedDQT(reverseDQT(Cr));
-
-      printMatrix(RevercedY);
-      printMatrix(RevercedCb);
-      printMatrix(RevercedCr);
 
       const auto [R, G, B] =
           convertYCbCrToRGB(RevercedY, RevercedCb, RevercedCr);
