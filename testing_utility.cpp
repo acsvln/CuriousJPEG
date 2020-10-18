@@ -9,7 +9,7 @@ namespace boost::numeric::ublas {
 
 namespace {
 template <class T>
-auto comparsionImpl(matrix<T> const &Left, matrix<T> const &Right) -> bool {
+auto comparsionImpl(const matrix<T> &Left, const matrix<T> &Right) -> bool {
   using SizeType = typename matrix<T>::size_type;
 
   if (Left.size1() != Right.size1()) {
@@ -30,27 +30,28 @@ auto comparsionImpl(matrix<T> const &Left, matrix<T> const &Right) -> bool {
 
   return true;
 }
-auto comparsionImpl(matrix<double> const &Left, matrix<double> const &Right) -> bool = delete;
+auto comparsionImpl(const matrix<double> &Left, const matrix<double> &Right)
+    -> bool = delete;
 } // namespace
 
-bool operator==(matrix<uint16_t> const &Left, matrix<uint16_t> const &Right) {
+bool operator==(const matrix<uint16_t> &Left, const matrix<uint16_t> &Right) {
   return comparsionImpl(Left, Right);
 }
-bool operator==(matrix<uint8_t> const &Left, matrix<uint8_t> const &Right) {
+bool operator==(const matrix<uint8_t> &Left, const matrix<uint8_t> &Right) {
   return comparsionImpl(Left, Right);
 }
-auto operator==(matrix<int16_t> const &Left, matrix<int16_t> const &Right)
+auto operator==(const matrix<int16_t> &Left, const matrix<int16_t> &Right)
     -> bool {
   return comparsionImpl(Left, Right);
 }
-auto operator==(matrix<int8_t> const &Left, matrix<int8_t> const &Right)
+auto operator==(const matrix<int8_t> &Left, const matrix<int8_t> &Right)
     -> bool {
   return comparsionImpl(Left, Right);
 }
 } // namespace boost::numeric::ublas
 
-void saveRGBToImage(MatrixT<uint8_t> const &R, MatrixT<uint8_t> const &G,
-                    MatrixT<uint8_t> const &B, std::string const &Path) {
+void saveRGBToImage(const MatrixT<uint8_t> &R, const MatrixT<uint8_t> &G,
+                    const MatrixT<uint8_t> &B, const std::string &Path) {
   std::unique_ptr<TIFF, std::function<void(TIFF *const)>> Image{
       TIFFOpen(Path.c_str(), "w"), [](TIFF *const Image) { TIFFClose(Image); }};
 
@@ -60,7 +61,7 @@ void saveRGBToImage(MatrixT<uint8_t> const &R, MatrixT<uint8_t> const &G,
 
   const auto RowsCount = static_cast<uint32>(R.size1());
   const auto ColsCount = static_cast<uint32>(R.size2());
-  uint32 const ChannelForPixelCount = 3;
+  const uint32 ChannelForPixelCount = 3;
 
   TIFFSetField(Image.get(), TIFFTAG_IMAGEWIDTH, ColsCount);
   TIFFSetField(Image.get(), TIFFTAG_IMAGELENGTH, RowsCount);
@@ -88,7 +89,7 @@ void saveRGBToImage(MatrixT<uint8_t> const &R, MatrixT<uint8_t> const &G,
   }
 }
 
-void printVector(std::array<int16_t, 64> const &Vector) {
+void printVector(const std::array<int16_t, 64> &Vector) {
   std::cout << Vector.size() << ':' << std::endl;
   for (const auto &Element : Vector) {
     std::cout << Element << '\t';

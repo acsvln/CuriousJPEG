@@ -7,14 +7,14 @@
 class BitExtractor final {
 public:
   explicit BitExtractor(std::istream &Stream);
-  BitExtractor(BitExtractor const &) = delete;
+  BitExtractor(const BitExtractor &) = delete;
 
-  auto nextNumber(std::size_t const BitCnt = 1) -> uint16_t;
+  auto nextNumber(const std::size_t BitCnt = 1) -> uint16_t;
 
 private:
   std::bitset<16> Bits;
-  std::size_t Counter = 0;
-  std::istream &Stream;
+  std::size_t BitCounter = 0;
+  std::istream &InputStream;
 };
 
 #endif // BITEXTRACTOR_HPP

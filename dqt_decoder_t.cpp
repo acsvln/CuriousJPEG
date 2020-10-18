@@ -11,7 +11,7 @@
 BOOST_AUTO_TEST_SUITE(DQTDecoderTests)
 
 BOOST_AUTO_TEST_CASE(Invoke_DQT1) {
-  std::array<uint8_t, 67> const Source = {
+  const std::array<uint8_t, 67> Source = {
       0x00, 0x43, 0x00, 0xA0, 0x6E, 0x78, 0x8C, 0x78, 0x64, 0xA0, 0x8C, 0x82,
       0x8C, 0xB4, 0xAA, 0xA0, 0xBE, 0xF0, 0xFF, 0xFF, 0xF0, 0xDC, 0xDC, 0xF0,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -21,15 +21,15 @@ BOOST_AUTO_TEST_CASE(Invoke_DQT1) {
 
   const auto Expected = DefineQuantizationTable1();
 
-  Context Ctx;
-  invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source);
+  DecoderContext Context;
+  invokeDecoderWithDataBuffer<DQTDecoder>(Context, Source);
 
-  BOOST_REQUIRE_EQUAL(Ctx.DQT_Vector.size(), 1);
-  BOOST_REQUIRE_EQUAL(Expected, Ctx.DQT_Vector.at(0));
+  BOOST_REQUIRE_EQUAL(Context.DQT_Vector.size(), 1);
+  BOOST_REQUIRE_EQUAL(Expected, Context.DQT_Vector.at(0));
 }
 
 BOOST_AUTO_TEST_CASE(Invoke_DQT2) {
-  std::array<uint8_t, 67> const Source = {
+  const std::array<uint8_t, 67> Source = {
       0x00, 0x43, 0x01, 0xAA, 0xB4, 0xB4, 0xF0, 0xD2, 0xF0, 0xFF, 0xFF, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -39,15 +39,15 @@ BOOST_AUTO_TEST_CASE(Invoke_DQT2) {
 
   const auto Expected = DefineQuantizationTable2();
 
-  Context Ctx;
-  invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source);
+  DecoderContext Context;
+  invokeDecoderWithDataBuffer<DQTDecoder>(Context, Source);
 
-  BOOST_REQUIRE_EQUAL(Ctx.DQT_Vector.size(), 2);
-  BOOST_REQUIRE_EQUAL(Expected, Ctx.DQT_Vector.at(1));
+  BOOST_REQUIRE_EQUAL(Context.DQT_Vector.size(), 2);
+  BOOST_REQUIRE_EQUAL(Expected, Context.DQT_Vector.at(1));
 }
 
 BOOST_AUTO_TEST_CASE(UnimplementedTableElementSize) {
-  std::array<uint8_t, 67> const Source = {
+  const std::array<uint8_t, 67> Source = {
       0x00, 0x43, 0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(UnimplementedTableElementSize) {
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-  Context Ctx;
-  BOOST_CHECK_THROW(invokeDecoderWithDataBuffer<DQTDecoder>(Ctx, Source),
+  DecoderContext Context;
+  BOOST_CHECK_THROW(invokeDecoderWithDataBuffer<DQTDecoder>(Context, Source),
                     NotImplementedException);
 }
 

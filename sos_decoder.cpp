@@ -16,8 +16,8 @@
 
 namespace {
 
-auto findComponentById(std::vector<DCTComponent> const &Components,
-                       std::size_t const Id) {
+auto findComponentById(const std::vector<DCTComponent> &Components,
+                       const std::size_t Id) {
   return std::find_if(
       std::begin(Components), std::end(Components),
       [Id](const auto &Component) { return Component.Id == Id; });
@@ -26,7 +26,7 @@ auto findComponentById(std::vector<DCTComponent> const &Components,
 } // namespace
 
 auto SOSDecoder::locateNodeInHuffmanTree(
-    BitExtractor &Extractor, std::shared_ptr<HuffmanTree::Node> const &Tree)
+    BitExtractor &Extractor, const std::shared_ptr<HuffmanTree::Node> &Tree)
     -> std::shared_ptr<HuffmanTree::Node> {
   auto Node = Tree;
 
@@ -54,12 +54,12 @@ auto SOSDecoder::locateNodeInHuffmanTree(
 }
 
 auto SOSDecoder::readDU(BitExtractor &Extractor,
-                        std::shared_ptr<HuffmanTree::Node> const &DC_Tree,
-                        std::shared_ptr<HuffmanTree::Node> const &AC_Tree)
-    -> boost::numeric::ublas::matrix<int16_t> {
+                        const std::shared_ptr<HuffmanTree::Node> &DC_Tree,
+                        const std::shared_ptr<HuffmanTree::Node> &AC_Tree)
+    -> Matrix16 {
   std::array<int16_t, 64> Buffer = {0};
 
-  const auto extractAndNorm = [&](std::size_t const BitCount) -> int16_t {
+  const auto extractAndNorm = [&](const std::size_t BitCount) -> int16_t {
     const auto RawNumber = static_cast<int16_t>(Extractor.nextNumber(BitCount));
     std::bitset<16> set{static_cast<unsigned long long>(RawNumber)};
     if (0 != set[BitCount - 1]) {
@@ -110,15 +110,15 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
 }
 
 auto SOSDecoder::readMCU(
-    BitExtractor &Extractor, DCTTable const &DCT,
-    std::vector<Channel> const &Channels,
-    std::vector<std::shared_ptr<HuffmanTree::Node>> const &AC_Tables,
-    std::vector<std::shared_ptr<HuffmanTree::Node>> const &DC_Tables)
+    BitExtractor &Extractor, const DCTTable &DCT,
+    const std::vector<Channel> &Channels,
+    const std::vector<std::shared_ptr<HuffmanTree::Node>> &AC_Tables,
+    const std::vector<std::shared_ptr<HuffmanTree::Node>> &DC_Tables)
     -> MinimumCodedUnit {
   MinimumCodedUnit Result;
 
   const auto extractDataUnitForChannel =
-      [&](Channel const &Chann) -> std::vector<DataUnit> & {
+      [&](const Channel &Chann) -> std::vector<DataUnit> & {
     switch (Chann.Id) {
     case 1:
       return Result.Cs1;
@@ -142,7 +142,7 @@ auto SOSDecoder::readMCU(
 
     auto &Data = extractDataUnitForChannel(Channel);
 
-    std::size_t const DataUnitCount = Component->H * Component->V;
+    const std::size_t DataUnitCount = Component->H * Component->V;
     Data.reserve(DataUnitCount);
     for (std::size_t t = 0; t < DataUnitCount; t++) {
       std::back_inserter(Data) = readDU(Extractor, DC_Root, AC_Root);
@@ -162,12 +162,12 @@ auto SOSDecoder::readMCU(
 }
 
 // TODO: проверить размерность матриц в QuantVector'e
-auto SOSDecoder::quantMCU(
-    MinimumCodedUnit &&MCU, std::vector<DCTComponent> const &Components,
-    std::vector<boost::numeric::ublas::matrix<uint16_t>> const &QuantVector)
+auto SOSDecoder::quantMCU(MinimumCodedUnit &&MCU,
+                          const std::vector<DCTComponent> &Components,
+                          const std::vector<Matrix16u> &QuantVector)
     -> MinimumCodedUnit {
   const auto quantChannel = [&](auto &ChannelData,
-                                std::size_t const ChannelId) {
+                                const std::size_t ChannelId) {
     const auto Component = findComponentById(Components, ChannelId);
     if (Component == std::end(Components)) {
       throw std::runtime_error{"Invalid channel"};
@@ -186,14 +186,12 @@ auto SOSDecoder::quantMCU(
   return std::move(MCU);
 }
 
-auto SOSDecoder::reverseDQT(
-    boost::numeric::ublas::matrix<int16_t> const &Matrix)
-    -> boost::numeric::ublas::matrix<int16_t> {
+auto SOSDecoder::reverseDQT(const Matrix16 &Matrix) -> Matrix16 {
   const auto Cx = [](const auto X) -> double {
     return (0 == X) ? (1. / std::sqrt(2.)) : 1.;
   };
 
-  boost::numeric::ublas::matrix<int16_t> Result(Matrix.size1(), Matrix.size2());
+  Matrix16 Result(Matrix.size1(), Matrix.size2());
   const auto pi = boost::math::constants::pi<double>();
 
   for (std::size_t Y = 0; Y < Matrix.size1(); Y++) {
@@ -215,9 +213,7 @@ auto SOSDecoder::reverseDQT(
   return Result;
 }
 
-auto SOSDecoder::normalizeReversedDQT(
-    boost::numeric::ublas::matrix<int16_t> &&Table)
-    -> boost::numeric::ublas::matrix<int16_t> {
+auto SOSDecoder::normalizeReversedDQT(Matrix16 &&Table) -> Matrix16 {
   for (std::size_t i = 0; i < Table.size1(); i++) {
     for (std::size_t j = 0; j < Table.size2(); j++) {
       Table(i, j) = std::clamp<int16_t>(Table(i, j) + 128, 0, 255);
@@ -226,14 +222,10 @@ auto SOSDecoder::normalizeReversedDQT(
   return Table;
 }
 
-auto SOSDecoder::convertYCbCrToRGB(
-    boost::numeric::ublas::matrix<int16_t> const &Y,
-    boost::numeric::ublas::matrix<int16_t> const &Cb,
-    boost::numeric::ublas::matrix<int16_t> const &Cr)
-    -> std::tuple<boost::numeric::ublas::matrix<uint8_t>,
-                  boost::numeric::ublas::matrix<uint8_t>,
-                  boost::numeric::ublas::matrix<uint8_t>> {
-  const auto normalize = [](double const Value) -> uint8_t {
+auto SOSDecoder::convertYCbCrToRGB(const Matrix16 &Y, const Matrix16 &Cb,
+                                   const Matrix16 &Cr)
+    -> std::tuple<Matrix8u, Matrix8u, Matrix8u> {
+  const auto normalize = [](const double Value) -> uint8_t {
     return static_cast<uint8_t>(std::clamp(Value, 0., 255.));
   };
 
@@ -256,9 +248,9 @@ auto SOSDecoder::convertYCbCrToRGB(
   return {R, G, B};
 }
 
-SOSDecoder::SOSDecoder() : Decoder{"Start Of Scan"} {}
+SOSDecoder::SOSDecoder() : DecoderBase{"Start Of Scan"} {}
 
-void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
   const auto ChannelCount = DataReader::readNumber<uint8_t>(Stream);
   if (3 != ChannelCount) {
     throw std::runtime_error{"Invalid channel's count"};
@@ -278,17 +270,17 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
 
   DataReader::skipChars(Stream, 3);
 
-  using Matrix = boost::numeric::ublas::matrix<uint16_t>;
+  using Matrix = Matrix16u;
   using ImageData = std::map<int, std::vector<Matrix>>;
 
   std::vector<ImageData> imageData;
   BitExtractor Extractor{Stream};
 
   do {
-    auto MCU = readMCU(Extractor, Ctx.dct, Channels, Ctx.AC_HuffmanTables,
-                       Ctx.DC_HuffmanTables);
+    auto MCU = readMCU(Extractor, Context.dct, Channels,
+                       Context.AC_HuffmanTables, Context.DC_HuffmanTables);
 
-    MCU = quantMCU(std::move(MCU), Ctx.dct.Components, Ctx.DQT_Vector);
+    MCU = quantMCU(std::move(MCU), Context.dct.Components, Context.DQT_Vector);
 
     BOOST_ASSERT_MSG((MCU.Cs1.size() == MCU.Cs2.size()) &&
                          (MCU.Cs2.size() == MCU.Cs3.size()),
@@ -328,7 +320,7 @@ void SOSDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
 
       const auto [R, G, B] =
           convertYCbCrToRGB(RevercedY, RevercedCb, RevercedCr);
-      Ctx.Image.push_back({R, G, B});
+      Context.Image.push_back({R, G, B});
     }
   } while (false);
   std::cout << "while (false)" << std::endl;

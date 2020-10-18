@@ -4,9 +4,9 @@
 #include <stdexcept>
 
 auto HuffmanTree::createAndInsertNodeImplementation(
-    std::shared_ptr<Node> const &Parent, std::size_t const Level,
-    uint8_t const Value, std::size_t const CurrentLevel,
-    BypassDirection const Direction) -> std::shared_ptr<Node> {
+    const std::shared_ptr<Node> &Parent, const std::size_t Level,
+    const uint8_t Value, const std::size_t CurrentLevel,
+    const BypassDirection Direction) -> std::shared_ptr<Node> {
   // when reach correct level - try to create leaf
   if (Level == CurrentLevel) {
     if (nullptr != Parent->Left && nullptr != Parent->Right) {
@@ -64,7 +64,7 @@ auto HuffmanTree::createAndInsertNodeImplementation(
       NewDirection = BypassDirection::Down;
     }
   } else {
-    bool const IsChecked = checkChild(Parent->Right);
+    const bool IsChecked = checkChild(Parent->Right);
     if (!IsChecked) {
       NewDirection = BypassDirection::Up;
       checkUp(Parent);
@@ -104,7 +104,7 @@ auto HuffmanTree::Node::data() const -> uint8_t {
   return Data.value();
 }
 
-auto HuffmanTree::createAndInsertNode(std::shared_ptr<Node> const &Parent,
+auto HuffmanTree::createAndInsertNode(const std::shared_ptr<Node> &Parent,
                                       std::size_t Level, uint8_t Value)
     -> std::shared_ptr<Node> {
   return createAndInsertNodeImplementation(Parent, Level, Value);

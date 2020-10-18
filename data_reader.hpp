@@ -18,8 +18,8 @@ public:
     return boost::endian::native_to_big(Buffer);
   }
 
-  template <class Struc> static auto readSruct(StreamT &Stream, Struc &struc) {
-    Stream.read(reinterpret_cast<CharT *>(&struc), sizeof(struc));
+  template <class StructT> static auto readSruct(StreamT &Stream, StructT &Struct) {
+    Stream.read(reinterpret_cast<CharT *>(&Struct), sizeof(Struct));
   }
 
   template <class BufferT>
@@ -30,7 +30,7 @@ public:
     Stream.read(reinterpret_cast<CharT *>(Buffer.data()), Buffer.size());
   }
 
-  static void skipChars(StreamT &Stream, StreamSizeT const Count);
+  static void skipChars(StreamT &Stream, const StreamSizeT Count);
 };
 
 #endif // DATAREADER_HPP

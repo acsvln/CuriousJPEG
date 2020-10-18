@@ -12,7 +12,7 @@ constexpr std::size_t HuffmanCodeCount = 16;
 constexpr uint8_t HuffmanClassDC = 0u;
 constexpr uint8_t HuffmanClassAC = 1u;
 
-auto invalidTableClassException(uint8_t const TableClass) {
+auto invalidTableClassException(const uint8_t TableClass) {
   std::stringstream SS;
   SS << "Invalid table class " << TableClass;
   return std::runtime_error{SS.str()};
@@ -20,17 +20,17 @@ auto invalidTableClassException(uint8_t const TableClass) {
 
 } // namespace
 
-DHTDecoder::DHTDecoder() : Decoder{"Define Huffman Table"} {}
+DHTDecoder::DHTDecoder() : DecoderBase{"Define Huffman Table"} {}
 
-void DHTDecoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+void DHTDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
 
-  const auto huffmanTableVectorForClass = [&](uint8_t const TableClass)
+  const auto huffmanTableVectorForClass = [&](const uint8_t TableClass)
       -> std::vector<std::shared_ptr<HuffmanTree::Node>> & {
     switch (TableClass) {
     case HuffmanClassDC:
-      return Ctx.DC_HuffmanTables;
+      return Context.DC_HuffmanTables;
     case HuffmanClassAC:
-      return Ctx.AC_HuffmanTables;
+      return Context.AC_HuffmanTables;
     }
 
     throw invalidTableClassException(TableClass);

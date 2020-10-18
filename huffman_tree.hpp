@@ -12,8 +12,8 @@ public:
     friend class Builder;
 
   public:
-    Node(std::shared_ptr<Node> const &BaseNode);
-    Node(std::shared_ptr<Node> const &BaseNode, uint8_t const Value);
+    Node(const std::shared_ptr<Node> &BaseNode);
+    Node(const std::shared_ptr<Node> &BaseNode, const uint8_t Value);
 
     auto isLeaf() const noexcept -> bool;
     auto left() const -> std::shared_ptr<Node>;
@@ -28,8 +28,8 @@ public:
     std::optional<uint8_t> Data = {};
   };
 
-  static auto createAndInsertNode(std::shared_ptr<Node> const &Parent,
-                                  std::size_t const Level, uint8_t const Value)
+  static auto createAndInsertNode(const std::shared_ptr<Node> &Parent,
+                                  const std::size_t Level, const uint8_t Value)
       -> std::shared_ptr<Node>;
 
 public:
@@ -38,8 +38,8 @@ public:
     auto left() -> Builder &;
     auto right() -> Builder &;
 
-    auto left(uint8_t const Value) -> Builder &;
-    auto right(uint8_t const Value) -> Builder &;
+    auto left(const uint8_t Value) -> Builder &;
+    auto right(const uint8_t Value) -> Builder &;
 
     auto end() -> Builder &;
     auto done() -> std::shared_ptr<Node>;
@@ -53,9 +53,9 @@ private:
   enum class BypassDirection { Up, Down };
 
   static auto createAndInsertNodeImplementation(
-      std::shared_ptr<Node> const &Parent, std::size_t const Level,
-      uint8_t const Value, std::size_t const CurrentLevel = 0,
-      BypassDirection const Direction = BypassDirection::Down)
+      const std::shared_ptr<Node> &Parent, const std::size_t Level,
+      const uint8_t Value, const std::size_t CurrentLevel = 0,
+      const BypassDirection Direction = BypassDirection::Down)
       -> std::shared_ptr<Node>;
 };
 

@@ -30,7 +30,7 @@ SOURCES += \
     bit_extractor.cpp \
     bit_extractor_t.cpp \
     data_reader.cpp \
-    decoder.cpp \
+    decoder_base.cpp \
     dqt_decoder_t.cpp \
     exceptions.cpp \
     huffman_tree_t.cpp \
@@ -57,13 +57,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     bit_extractor.hpp \
     data_reader.hpp \
-    decoder.hpp \
+    decoder_base.hpp \
+    decoder_context.hpp \
     dht_decoder.hpp \
     exceptions.hpp \
     huffman_tree.hpp \
     idecoder.hpp \
     sof0_decoder.hpp \
-    context.hpp \
     sos_decoder.hpp \
     testing_shared_data.hpp \
     testing_utility.hpp \

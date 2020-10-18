@@ -10,7 +10,7 @@ namespace ios = boost::iostreams;
 } // namespace
 
 BOOST_AUTO_TEST_CASE(getOneBit) {
-  std::array<uint8_t, 4> const Source = {0b10101001, 0b01111011, 0b01100101,
+  const std::array<uint8_t, 4> Source = {0b10101001, 0b01111011, 0b01100101,
                                          0b00000001};
   const auto Buffer = charVectorForBuffer(Source);
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
 }
 
 BOOST_AUTO_TEST_CASE(getFewBits) {
-  std::array<std::uint8_t, 4> const Source = {0b10101001, 0b01111011,
+  const std::array<std::uint8_t, 4> Source = {0b10101001, 0b01111011,
                                               0b01100101, 0b00000001};
 
   const auto Buffer = charVectorForBuffer(Source);

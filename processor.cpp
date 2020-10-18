@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "decoder.hpp"
+#include "decoderbase.hpp"
 #include "definition.hpp"
 #include "utility.hpp"
 
@@ -23,7 +23,7 @@ void Processor::Execute(const std::string& aPath)
 
     std::cout << "File with path " << aPath << " opened successfully" << std::endl;
 
-    Context context;
+    DecoderContext context;
 
     bool startOfScan = false;
 

@@ -2,15 +2,15 @@
 
 #include <array>
 
-auto highByte(uint8_t const Src) -> uint8_t { return Src >> 4; }
+auto highByte(const uint8_t Number) -> uint8_t { return Number >> 4; }
 
-auto lowByte(uint8_t const Src) -> uint8_t { return Src & 0xF; }
+auto lowByte(const uint8_t Number) -> uint8_t { return Number & 0xF; }
 
 template <class Type>
 auto CreateZigZagMatrixImpl(std::array<Type, 64> Source)
     -> boost::numeric::ublas::matrix<Type> {
   using SizeType = typename boost::numeric::ublas::matrix<Type>::size_type;
-  SizeType const Size = 8;
+  const SizeType Size = 8;
   boost::numeric::ublas::matrix<Type> Matrix(Size, Size);
 
   auto StartIterator = Source.begin();

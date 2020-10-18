@@ -2,35 +2,35 @@
 
 #include "data_reader.hpp"
 
-SOF0Decoder::SOF0Decoder() : Decoder{"Baseline DCT"} {}
+SOF0Decoder::SOF0Decoder() : DecoderBase{"Baseline DCT"} {}
 
-void SOF0Decoder::InvokeImpl(std::istream &Stream, Context &Ctx) {
+void SOF0Decoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
   const auto Precision = DataReader::readNumber<uint8_t>(Stream);
   const auto Height = DataReader::readNumber<uint16_t>(Stream);
   const auto Width = DataReader::readNumber<uint16_t>(Stream);
 
-  Ctx.dct.Precision = Precision;
-  Ctx.dct.Height = Height;
-  Ctx.dct.Width = Width;
+  Context.dct.Precision = Precision;
+  Context.dct.Height = Height;
+  Context.dct.Width = Width;
 
   const auto UnitsCount = DataReader::readNumber<uint8_t>(Stream);
-  Ctx.dct.Components.resize(UnitsCount);
+  Context.dct.Components.resize(UnitsCount);
 
   uint32_t MaxH = 0, MaxV = 0;
 
   for (std::size_t Index = 0; Index < UnitsCount; Index++) {
-    auto &component = Ctx.dct.Components[Index];
-    DataReader::readSruct(Stream, component);
+    auto &Component = Context.dct.Components[Index];
+    DataReader::readSruct(Stream, Component);
 
-    if (component.H > MaxH) {
-      MaxH = component.H;
+    if (Component.H > MaxH) {
+      MaxH = Component.H;
     }
 
-    if (component.V > MaxV) {
-      MaxV = component.V;
+    if (Component.V > MaxV) {
+      MaxV = Component.V;
     }
   }
 
-  Ctx.dct.MaxH = MaxH;
-  Ctx.dct.MaxV = MaxV;
+  Context.dct.MaxH = MaxH;
+  Context.dct.MaxV = MaxV;
 }

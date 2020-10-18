@@ -11,7 +11,7 @@
 BOOST_AUTO_TEST_SUITE(UtilityTests)
 
 BOOST_AUTO_TEST_CASE(LowHighByte) {
-  uint8_t const Source = 0xFA;
+  const uint8_t Source = 0xFA;
 
   const auto ResultLow = highByte(Source);
   BOOST_CHECK_EQUAL(ResultLow, 0xF);
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(LowHighByte) {
 }
 
 BOOST_AUTO_TEST_CASE(CreateZigZagMatrix_DQT) {
-  std::array<uint16_t, 64> const Source = {
+  const std::array<uint16_t, 64> Source = {
       0xA0, 0x6E, 0x78, 0x8c, 0x78, 0x64, 0xA0, 0x8c, 0x82, 0x8c, 0xb4,
       0xaa, 0xa0, 0xbe, 0xf0, 0xFF, 0xFF, 0xF0, 0xDC, 0xDC, 0xF0, 0xFF,
       0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(CreateZigZagMatrix_DQT) {
 }
 
 BOOST_AUTO_TEST_CASE(CreateZigZagMatrix_Sequence) {
-  std::array<uint16_t, 64> const Source = {
+  const std::array<uint16_t, 64> Source = {
       1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, 16,
       17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
       33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48,

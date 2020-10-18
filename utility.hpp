@@ -8,13 +8,13 @@
 
 template <class To> class TransformCaster {
 public:
-  template <class From> auto operator()(From const from) -> To {
+  template <class From> auto operator()(const From from) -> To {
     return static_cast<To>(from);
   }
 };
 
-auto highByte(uint8_t const Src) -> uint8_t;
-auto lowByte(uint8_t const Src) -> uint8_t;
+auto highByte(const uint8_t Number) -> uint8_t;
+auto lowByte(const uint8_t Number) -> uint8_t;
 
 auto CreateZigZagMatrix(std::array<uint16_t, 64> Source)
     -> boost::numeric::ublas::matrix<uint16_t>;
