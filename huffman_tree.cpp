@@ -42,7 +42,7 @@ auto HuffmanTree::createAndInsertNodeImplementation(
 
   const auto checkUp = [&](auto Parent) {
     if (NextLevel == 0) {
-      throw std::runtime_error("Tree is filled");
+      throw std::runtime_error("HuffmanTree: Tree is filled");
     }
 
     NodeToInsertTo = Parent->Parent.lock();

@@ -7,6 +7,7 @@
 #include <map>
 
 #include "data_reader.hpp"
+#include "exceptions.hpp"
 #include "testing_utility.hpp"
 
 namespace {
@@ -40,7 +41,7 @@ auto SOSDecoder::locateNodeInHuffmanTree(
     }
 
     if (nullptr == Node) {
-      throw std::runtime_error{"Invalid JPEG Data"};
+      throw InvalidJPEGDataException{"Can not locate correct Node in Huffman tree"};
     }
 
   } while (!Node->isLeaf());
@@ -85,7 +86,7 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     // добавляем нули
     const auto NullCount = highByte(AC_Value);
     if (NullCount > Left) {
-      throw std::runtime_error{"Invalid JPEG Data"};
+        throw InvalidJPEGDataException{"Wrong count of null's in data unit"};
     }
 
     Iterator += NullCount;
@@ -93,7 +94,7 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
     // добавляем значение
     if (const auto ValueLength = lowByte(AC_Value); 0 != ValueLength) {
       if (Buffer.end() == Iterator) {
-        throw std::runtime_error{"Invalid JPEG Data"};
+        throw InvalidJPEGDataException{"AC table in source file is incorrectly large"};
       }
 
       *Iterator = extractAndNorm(ValueLength);
@@ -122,14 +123,14 @@ auto SOSDecoder::readMCU(
     case 3:
       return Result.Cs3;
     }
-    throw std::runtime_error{"Invalid channel"};
+    throw InvalidJPEGDataException{"Wrong channel"};
   };
 
   for (const auto &Channel : Channels) {
     const auto Component = findComponentById(DCT.Components, Channel.Id);
 
     if (std::end(DCT.Components) == Component) {
-      throw std::runtime_error{"Invalid JPEG Data"};
+      throw InvalidJPEGDataException{"Wrong channel"};
     }
 
     const auto AC_Root = AC_Tables.at(Channel.AC_Id);
@@ -165,7 +166,7 @@ auto SOSDecoder::quantMCU(MinimumCodedUnit &&MCU,
                                 const std::size_t ChannelId) {
     const auto Component = findComponentById(Components, ChannelId);
     if (Component == std::end(Components)) {
-      throw std::runtime_error{"Invalid channel"};
+      throw InvalidJPEGDataException{"Wrong channel"};
     }
     for (auto &Matrix : ChannelData) {
       const auto DQT = QuantVector.at(Component->DQT_Id);
@@ -248,7 +249,7 @@ SOSDecoder::SOSDecoder() : DecoderBase{"Start Of Scan"} {}
 void SOSDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
   const auto ChannelCount = DataReader::readNumber<uint8_t>(Stream);
   if (3 != ChannelCount) {
-    throw std::runtime_error{"Invalid channel's count"};
+    throw NotImplementedException{"Start of decoding - invalid channel's count"};
   }
 
   std::vector<Channel> Channels;

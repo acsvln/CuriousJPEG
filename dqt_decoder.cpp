@@ -11,7 +11,7 @@ void DQTDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
 
   const auto TableElementSize = highByte(TableDescription);
   if (TableElementSize != 0) {
-    throw NotImplementedException{};
+      throw NotImplementedException{ "Element sizes of DQT table elementes can not be " + std::to_string(TableElementSize) };
   }
 
   const auto TableIndex = lowByte(TableDescription);

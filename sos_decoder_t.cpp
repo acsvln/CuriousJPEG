@@ -4,6 +4,7 @@
 #include <boost/numeric/ublas/assignment.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include "exceptions.hpp"
 #include "testing_shared_data.hpp"
 #include "testing_utility.hpp"
 
@@ -592,7 +593,7 @@ void testLocateNodeInHuffmanTreeWithException(
 
   BitExtractor Extractor{InputStream};
   BOOST_CHECK_THROW(TestedDecoder::locateNodeInHuffmanTree(Extractor, Root),
-                    std::exception);
+                    InvalidJPEGDataException);
 }
 
 } // namespace
@@ -669,7 +670,7 @@ void testReadDUWithException(const std::shared_ptr<HuffmanTree::Node> &DC_Root,
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
   BitExtractor Extractor{InputStream};
   BOOST_CHECK_THROW(TestedDecoder::readDU(Extractor, DC_Root, AC_Root),
-                    std::exception);
+                    InvalidJPEGDataException);
 }
 
 } // namespace
@@ -813,7 +814,7 @@ BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
     BitExtractor Extractor{InputStream};
     BOOST_CHECK_THROW(
         TestedDecoder::readMCU(Extractor, DCT, Channels, AC_Tables, DC_Tables),
-        std::exception);
+        InvalidJPEGDataException);
   };
 
   auto DCT = DCT_Table();

@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "data_reader.hpp"
+#include "exceptions.hpp"
 #include "huffman_tree.hpp"
 #include "utility.hpp"
 
@@ -11,12 +12,6 @@ namespace {
 constexpr std::size_t HuffmanCodeCount = 16;
 constexpr uint8_t HuffmanClassDC = 0u;
 constexpr uint8_t HuffmanClassAC = 1u;
-
-auto invalidTableClassException(const uint8_t TableClass) {
-  std::stringstream SS;
-  SS << "Invalid table class " << TableClass;
-  return std::runtime_error{SS.str()};
-}
 
 } // namespace
 
@@ -32,8 +27,8 @@ void DHTDecoder::InvokeImpl(std::istream &Stream, DecoderContext &Context) {
     case HuffmanClassAC:
       return Context.AC_HuffmanTables;
     }
-
-    throw invalidTableClassException(TableClass);
+    throw InvalidJPEGDataException{"Wrong Table class " +
+                                   std::to_string(TableClass)};
   };
 
   const auto TableDescription = DataReader::readNumber<uint8_t>(Stream);
