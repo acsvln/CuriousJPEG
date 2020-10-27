@@ -57,4 +57,56 @@ BOOST_AUTO_TEST_CASE(createAndInsertNode_AC_1) {
   BOOST_REQUIRE_EQUAL(Root->right()->right()->left(), Node_3_1);
 }
 
+BOOST_AUTO_TEST_CASE(createAndInsertNode_Broken) {
+    const auto Root = createRoot();
+    ////////////////////////////////////////////////////////////////////
+    const auto Node_0_1 = HuffmanTree::createAndInsertNode(Root, 1, 0x1);
+    BOOST_REQUIRE_NE(Root->left(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->left()->left(), Node_0_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->right(), nullptr);
+
+    ////////////////////////////////////////////////////////////////////
+    const auto Node_1_1 = HuffmanTree::createAndInsertNode(Root, 2, 0x0);
+    BOOST_REQUIRE_NE(Root->left(), nullptr);
+    BOOST_REQUIRE_NE(Root->left()->right(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->left()->left(), Node_0_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->left(), Node_1_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->right(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->right(), nullptr);
+
+    const auto Node_1_2 = HuffmanTree::createAndInsertNode(Root, 2, 0x2);
+    BOOST_REQUIRE_NE(Root->left(), nullptr);
+    BOOST_REQUIRE_NE(Root->left()->right(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->left()->left(), Node_0_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->left(), Node_1_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->right(), Node_1_2);
+    BOOST_REQUIRE_EQUAL(Root->right(), nullptr);
+
+    // тут что то не то (куда вставил непонятно)
+    const auto Node_1_3 = HuffmanTree::createAndInsertNode(Root, 2, 0x3);
+    BOOST_REQUIRE_NE(Root->left(), nullptr);
+    BOOST_REQUIRE_NE(Root->left()->right(), nullptr);
+    BOOST_REQUIRE_NE(Root->right(), nullptr);
+    BOOST_REQUIRE_NE(Root->right()->left(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->left()->left(), Node_0_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->left(), Node_1_1);
+    BOOST_REQUIRE_EQUAL(Root->left()->right()->right(), Node_1_2);
+    BOOST_REQUIRE_EQUAL(Root->right()->left()->left(), Node_1_3);
+    BOOST_REQUIRE_EQUAL(Root->right()->left()->right(), nullptr);
+    BOOST_REQUIRE_EQUAL(Root->right()->right(), nullptr);
+
+//    const auto Node_1_4 = HuffmanTree::createAndInsertNode(Root, 2, 0x4);
+//    BOOST_REQUIRE_EQUAL(Root->left()->left(), Node_0_1);
+//    BOOST_REQUIRE_EQUAL(Root->left()->right()->left(), Node_1_1);
+//    BOOST_REQUIRE_EQUAL(Root->left()->right()->right(), Node_1_2);
+//    BOOST_REQUIRE_EQUAL(Root->right()->left()->left(), Node_1_3);
+//    BOOST_REQUIRE_EQUAL(Root->right()->left()->right(), Node_1_4);
+//    BOOST_REQUIRE_EQUAL(Root->right()->right(), nullptr);0
+
+    ////////////////////////////////////////////////////////////////////
+    //const auto Node_2_1 = HuffmanTree::createAndInsertNode(Root, 3, 0x5);
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
