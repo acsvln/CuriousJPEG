@@ -1,12 +1,10 @@
 #include "huffman_tree.hpp"
 
 #include <boost/assert.hpp>
-#include <stdexcept>
-#include <iostream>
 
 auto HuffmanTree::createAndInsertNodeImplementation(
-    const std::shared_ptr<Node> &Parent, const LevelValue& Data, const std::size_t CurrentLevel,
-    const BypassDirection Direction) -> std::shared_ptr<Node> {
+    const std::shared_ptr<Node> &Parent, const LevelValue &Data,
+    const std::size_t CurrentLevel) -> std::shared_ptr<Node> {
   // when reach correct level - try to create leaf
   if (const auto [Level, Value] = Data; Level == CurrentLevel) {
     if (nullptr != Parent->Left && nullptr != Parent->Right) {
@@ -31,22 +29,20 @@ auto HuffmanTree::createAndInsertNodeImplementation(
   };
 
   // Walk left
-  if (BypassDirection::Up != Direction) {
-    if (const auto LeftChild = createOrResolveChild(Parent->Left);
-        nullptr != LeftChild) {
-      const auto Inserted = createAndInsertNodeImplementation(
-          LeftChild, Data, CurrentLevel + 1, BypassDirection::Down);
-      if (nullptr != Inserted) {
-        return Inserted;
-      }
+  if (const auto LeftChild = createOrResolveChild(Parent->Left);
+      nullptr != LeftChild) {
+    const auto Inserted =
+        createAndInsertNodeImplementation(LeftChild, Data, CurrentLevel + 1);
+    if (nullptr != Inserted) {
+      return Inserted;
     }
   }
 
   // Walk right
   if (const auto RightChild = createOrResolveChild(Parent->Right);
       nullptr != RightChild) {
-    const auto Inserted = createAndInsertNodeImplementation(
-        RightChild, Data, CurrentLevel + 1, BypassDirection::Down);
+    const auto Inserted =
+        createAndInsertNodeImplementation(RightChild, Data, CurrentLevel + 1);
     if (nullptr != Inserted) {
       return Inserted;
     }

@@ -50,14 +50,11 @@ public:
   };
 
 private:
-  enum class BypassDirection { Up, Down };
   using LevelValue = std::tuple<std::size_t, uint8_t>;
 
   static auto createAndInsertNodeImplementation(
-      const std::shared_ptr<Node> &Parent, const LevelValue& Data,
-          const std::size_t CurrentLevel = 0,
-      const BypassDirection Direction = BypassDirection::Down)
-      -> std::shared_ptr<Node>;
+      const std::shared_ptr<Node> &Parent, const LevelValue &Data,
+      const std::size_t CurrentLevel = 0) -> std::shared_ptr<Node>;
 };
 
 #endif // HUFFMANTREE_HPP
