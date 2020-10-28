@@ -2,19 +2,17 @@
 
 #include <boost/assert.hpp>
 #include <stdexcept>
+#include <iostream>
 
 auto HuffmanTree::createAndInsertNodeImplementation(
-    const std::shared_ptr<Node> &Parent, const std::size_t Level,
-    const uint8_t Value, const std::size_t CurrentLevel,
+    const std::shared_ptr<Node> &Parent, const LevelValue& Data, const std::size_t CurrentLevel,
     const BypassDirection Direction) -> std::shared_ptr<Node> {
   // when reach correct level - try to create leaf
-  if (Level == CurrentLevel) {
+  if (const auto [Level, Value] = Data; Level == CurrentLevel) {
     if (nullptr != Parent->Left && nullptr != Parent->Right) {
       return nullptr;
     }
-
     const auto Item = std::make_shared<Node>(Parent, Value);
-
     if (nullptr == Parent->Left) {
       Parent->Left = Item;
     } else if (nullptr == Parent->Right) {
@@ -23,66 +21,38 @@ auto HuffmanTree::createAndInsertNodeImplementation(
     return Item;
   }
 
-  std::size_t NextLevel = CurrentLevel;
-  std::shared_ptr<Node> NodeToInsertTo = nullptr;
-
-  const auto checkChild = [&](auto &Child) {
+  const auto createOrResolveChild = [&](auto &Child) -> std::shared_ptr<Node> {
     if (nullptr == Child) {
       Child = std::make_shared<Node>(Parent);
-      NodeToInsertTo = Child;
-      NextLevel = CurrentLevel + 1;
-      return true;
-    } else if (!Child->isLeaf()) {
-      NodeToInsertTo = Child;
-      NextLevel = CurrentLevel + 1;
-      return true;
+    } else if (Child->isLeaf()) {
+      return nullptr;
     }
-    return false;
+    return Child;
   };
 
-  const auto checkUp = [&](auto Parent) {
-    if (NextLevel == 0) {
-      throw std::runtime_error("HuffmanTree: Tree is filled");
-    }
-
-    NodeToInsertTo = Parent->Parent.lock();
-    NextLevel = CurrentLevel - 1;
-    return false;
-  };
-
-  auto NewDirection = BypassDirection::Down;
-
-  if (BypassDirection::Down == Direction) {
-    bool IsChecked = checkChild(Parent->Left);
-    if (!IsChecked) {
-      IsChecked = checkChild(Parent->Right);
-    }
-    if (!IsChecked) {
-      NewDirection = BypassDirection::Up;
-      checkUp(Parent);
-    } else {
-      NewDirection = BypassDirection::Down;
-    }
-  } else {
-    const bool IsChecked = checkChild(Parent->Right);
-    if (!IsChecked) {
-      NewDirection = BypassDirection::Up;
-      checkUp(Parent);
-    } else {
-      NewDirection = BypassDirection::Down;
+  // Walk left
+  if (BypassDirection::Up != Direction) {
+    if (const auto LeftChild = createOrResolveChild(Parent->Left);
+        nullptr != LeftChild) {
+      const auto Inserted = createAndInsertNodeImplementation(
+          LeftChild, Data, CurrentLevel + 1, BypassDirection::Down);
+      if (nullptr != Inserted) {
+        return Inserted;
+      }
     }
   }
 
-  const auto Inserted = createAndInsertNodeImplementation(
-      NodeToInsertTo, Level, Value, NextLevel, NewDirection);
-
-  if ((Inserted != nullptr) || (CurrentLevel == 0)) {
-    return Inserted;
+  // Walk right
+  if (const auto RightChild = createOrResolveChild(Parent->Right);
+      nullptr != RightChild) {
+    const auto Inserted = createAndInsertNodeImplementation(
+        RightChild, Data, CurrentLevel + 1, BypassDirection::Down);
+    if (nullptr != Inserted) {
+      return Inserted;
+    }
   }
 
-  NewDirection = BypassDirection::Up;
-  return createAndInsertNodeImplementation(NodeToInsertTo, Level, Value,
-                                           NextLevel, NewDirection);
+  return nullptr;
 }
 
 HuffmanTree::Node::Node(const std::shared_ptr<HuffmanTree::Node> &BaseNode)
@@ -107,7 +77,7 @@ auto HuffmanTree::Node::data() const -> uint8_t {
 auto HuffmanTree::createAndInsertNode(const std::shared_ptr<Node> &Parent,
                                       std::size_t Level, uint8_t Value)
     -> std::shared_ptr<Node> {
-  return createAndInsertNodeImplementation(Parent, Level, Value);
+  return createAndInsertNodeImplementation(Parent, {Level, Value});
 }
 
 auto HuffmanTree::Builder::left(const uint8_t Value) -> Builder & {
