@@ -719,7 +719,6 @@ BOOST_AUTO_TEST_CASE(readDU_ThrowException) {
   auto DC_Root =
     HuffmanTree::Builder{}
       .left( 0x10 )
-      .end()
     .done();
   // clang-format on
 
