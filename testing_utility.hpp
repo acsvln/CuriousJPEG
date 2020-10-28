@@ -50,8 +50,8 @@ void invokeDecoderWithDataBuffer(IDecoder &Decoder, DecoderContext &Context,
 
 template <class Decoder, class Container>
 void invokeDecoderWithDataBuffer(DecoderContext &Context, Container &Buff) {
-  Decoder Decoder;
-  invokeDecoderWithDataBuffer(Decoder, Context, Buff);
+  Decoder DecoderInstance;
+  invokeDecoderWithDataBuffer(DecoderInstance, Context, Buff);
 }
 
 template <class Type>

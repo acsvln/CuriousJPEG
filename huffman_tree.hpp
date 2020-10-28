@@ -12,6 +12,7 @@ public:
     friend class Builder;
 
   public:
+    explicit
     Node(const std::shared_ptr<Node> &BaseNode);
     Node(const std::shared_ptr<Node> &BaseNode, const uint8_t Value);
 
