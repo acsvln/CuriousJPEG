@@ -95,6 +95,65 @@ BOOST_AUTO_TEST_CASE(Invoke_Broken) {
 //    BOOST_REQUIRE_EQUAL(root->right()->right()->left()->data(), 0x01);
 }
 
+BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage_1) {
+    const std::array<uint8_t, 0x15> Source = {
+      0x00, 0x15, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07
+    };
 
+    DecoderContext Context;
+    invokeDecoderWithDataBuffer<DHTDecoder>(Context, Source);
+    BOOST_REQUIRE_EQUAL(Context.DC_HuffmanTables.size(), 1);
+    BOOST_REQUIRE_EQUAL(Context.AC_HuffmanTables.size(), 0);
+
+    const auto root = Context.DC_HuffmanTables.at(0);
+    BOOST_REQUIRE_EQUAL(root->left()->data(), 0x00);
+    BOOST_REQUIRE_EQUAL(root->right()->left()->data(), 0x07);
+
+}
+
+BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage_2) {
+    const std::array<uint8_t, 0x15> Source = {
+        0x00, 0x14, 0x10, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    DecoderContext Context;
+    invokeDecoderWithDataBuffer<DHTDecoder>(Context, Source);
+    BOOST_REQUIRE_EQUAL(Context.DC_HuffmanTables.size(), 0);
+    BOOST_REQUIRE_EQUAL(Context.AC_HuffmanTables.size(), 1);
+
+    const auto root = Context.AC_HuffmanTables.at(0);
+    BOOST_REQUIRE_EQUAL(root->left()->data(), 0x00);
+    BOOST_REQUIRE_EQUAL(root->right(), nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage_3) {
+    const std::array<uint8_t, 0x15> Source = {
+        0x00, 0x14, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    DecoderContext Context;
+    invokeDecoderWithDataBuffer<DHTDecoder>(Context, Source);
+    BOOST_REQUIRE_EQUAL(Context.DC_HuffmanTables.size(), 2);
+    BOOST_REQUIRE_EQUAL(Context.AC_HuffmanTables.size(), 0);
+
+    const auto root = Context.DC_HuffmanTables.at(1);
+    BOOST_REQUIRE_EQUAL(root->left()->data(), 0x00);
+    BOOST_REQUIRE_EQUAL(root->right(), nullptr);
+}
+
+BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage_4) {
+    const std::array<uint8_t, 0x15> Source = {
+        0x00, 0x14, 0x11, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+
+    DecoderContext Context;
+    invokeDecoderWithDataBuffer<DHTDecoder>(Context, Source);
+    BOOST_REQUIRE_EQUAL(Context.DC_HuffmanTables.size(), 0);
+    BOOST_REQUIRE_EQUAL(Context.AC_HuffmanTables.size(), 2);
+
+    const auto root = Context.AC_HuffmanTables.at(1);
+    BOOST_REQUIRE_EQUAL(root->left()->data(), 0x00);
+    BOOST_REQUIRE_EQUAL(root->right(), nullptr);
+}
 
 BOOST_AUTO_TEST_SUITE_END()
