@@ -68,10 +68,30 @@ void printMatrix(const MatrixT<Type> &Matrix, const bool HexMode = false) {
         std::cout << std::hex << std::uppercase
                   << static_cast<unsigned>(Matrix(Row, Col)) << '\t';
       } else {
-        std::cout << static_cast<signed>(Matrix(Row, Col)) << '\t';
+        std::cout << std::dec << static_cast<signed>(Matrix(Row, Col)) << '\t';
       }
     }
     std::cout << std::endl;
+  }
+}
+
+template <class Type>
+void saveMatrixToFile(const MatrixT<Type> &Matrix, const std::string& path, const bool HexMode = false) {
+  const auto RowCount = Matrix.size1();
+  const auto ColCount = Matrix.size2();
+
+  std::ofstream file(path);
+
+  for (std::size_t Row = 0; Row < RowCount; ++Row) {
+    for (std::size_t Col = 0; Col < ColCount; ++Col) {
+      if (true == HexMode) {
+        file << std::hex << std::uppercase
+                  << static_cast<unsigned>(Matrix(Row, Col)) << '\t';
+      } else {
+        file << std::dec << static_cast<signed>(Matrix(Row, Col)) << '\t';
+      }
+    }
+    file << std::endl;
   }
 }
 
