@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE(readMCU) {
   ios::stream<ios::basic_array_source<char>> InputStream(InputSource);
   BitExtractor Extractor{InputStream};
 
-  const auto Channels = ChannelsForMCU();
+  auto Channels = ChannelsForMCU();
 
   const std::vector<std::shared_ptr<HuffmanTree::Node>> AC_Tables{AC_Tree_0(),
                                                                   AC_Tree_1()};
@@ -795,7 +795,7 @@ BOOST_AUTO_TEST_CASE(readMCU) {
 }
 
 BOOST_AUTO_TEST_CASE(readMCU_ThrowException) {
-  const auto checkThrow = [](const auto &DCT, const auto &Channels) {
+  const auto checkThrow = [](const auto &DCT, auto &Channels) {
     const std::vector<std::shared_ptr<HuffmanTree::Node>> AC_Tables{
         AC_Tree_0(), AC_Tree_1()};
     const std::vector<std::shared_ptr<HuffmanTree::Node>> DC_Tables{
@@ -959,7 +959,8 @@ BOOST_AUTO_TEST_CASE(Invoke) {
   const std::array<uint8_t, 29> Source = {
       0x00, 0x0c, 0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 0x00,
       0x3f, 0x00, 0xae, 0xe7, 0x61, 0xf2, 0x1b, 0xd5, 0x22, 0x85,
-      0x5d, 0x04, 0x3c, 0x82, 0xc8, 0x48, 0xb1, 0xdc, 0xbf};
+      0x5d, 0x04, 0x3c, 0x82, 0xc8, 0x48, 0xb1, 0xdc, 0xbf
+  };
 
   DecoderContext Context;
   Context.dct = DCT_Table();
@@ -974,14 +975,22 @@ BOOST_AUTO_TEST_CASE(Invoke) {
   const auto ExpectedR = RedChannel();
   const auto ExpectedG = GreenChannel();
   const auto ExpectedB = BlueChannel();
+
+  saveRGBToImage(RGB.R, RGB.G, RGB.B, "SOSDecoderTests_Invoke.tif");
+
   BOOST_REQUIRE_EQUAL(ExpectedR, RGB.R);
   BOOST_REQUIRE_EQUAL(ExpectedG, RGB.G);
   BOOST_REQUIRE_EQUAL(ExpectedB, RGB.B);
-
-  saveRGBToImage(RGB.R, RGB.G, RGB.B, "SOSDecoderTests_Invoke.tif");
 }
 
 BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage) {
+    const auto DCT = []{
+      auto Tbl = DCT_Table();
+      Tbl.Width = 32;
+      Tbl.Height = 48;
+      return Tbl;
+    };
+
     const auto DC_0 = []{
       // clang-format off
       return HuffmanTree::Builder{}
@@ -1050,14 +1059,14 @@ BOOST_AUTO_TEST_CASE(Invoke_BlankWhiteImage) {
     };
 
     DecoderContext Context;
-    Context.dct = DCT_Table();
+    Context.dct = DCT();
     Context.AC_HuffmanTables = {AC_0(), AC_1()};
     Context.DC_HuffmanTables = {DC_0(), DC_1()};
     Context.DQT_Vector = {DQT1(), DQT2()};
 
     invokeDecoderWithDataBuffer<SOSDecoder>(Context, Source);
-    BOOST_REQUIRE_EQUAL(Context.Image.size(), 1);
-    const auto &RGB = Context.Image.at(0);
+    BOOST_REQUIRE_EQUAL(Context.Image.size(), 6);
+    const auto &RGB = Context.Image.at(4);
 
     saveRGBToImage(RGB.R, RGB.G, RGB.B, "SOSDecoderTests_BlankWhiteImage_Invoke.tif");
 }

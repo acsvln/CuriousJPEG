@@ -70,6 +70,46 @@ void DecoderProcessor::Execute(const std::string &InPath,
     }
   }
 
-  const auto &RGB = Context.Image.at(0);
-  saveRGBToImage(RGB.R, RGB.G, RGB.B, OutPath);
+  {
+    using Channel = RGBBlock::Channel;
+    const auto Width = Context.dct.Width;
+    const auto Height = Context.dct.Height;
+
+    Channel R(Height, Width), G(Height, Width), B(Height, Width);
+
+    std::size_t OffsetY = 0;
+    std::size_t OffsetX = 0;
+
+    const auto PutBlock = [&]( const auto& RGB ){
+        for (std::size_t I = 0; I < 16; ++I) {
+          for (std::size_t J = 0; J < 16; ++J) {
+              if ( OffsetY + I >= Height ) {
+                  OffsetX += 16;
+                  return;
+              }
+
+              if ( OffsetX + J >= Width ) {
+                break;
+              }
+
+              R(OffsetY + I, OffsetX + J) = RGB.R(I, J);
+              G(OffsetY + I, OffsetX + J) = RGB.G(I, J);
+              B(OffsetY + I, OffsetX + J) = RGB.B(I, J);
+          }
+        }
+
+        if ( OffsetX + 16 >= Width ) {
+          OffsetY += 16;
+          OffsetX = 0;
+        } else {
+          OffsetX += 16;
+        }
+    };
+
+    for (const auto &RGB : Context.Image) {
+        PutBlock(RGB);
+    }
+
+    saveRGBToImage(R, G, B, OutPath);
+  }
 }

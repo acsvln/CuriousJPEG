@@ -26,6 +26,7 @@ protected:
     std::size_t Id;
     std::size_t DC_Id;
     std::size_t AC_Id;
+    int16_t DC;
   };
 
   static auto
@@ -40,7 +41,7 @@ protected:
 
   static auto
   readMCU(BitExtractor &Extractor, const DCTTable &DCT,
-          const std::vector<Channel> &Channels,
+          std::vector<Channel> &Channels,
           const std::vector<std::shared_ptr<HuffmanTree::Node>> &AC_Tables,
           const std::vector<std::shared_ptr<HuffmanTree::Node>> &DC_Tables)
       -> MinimumCodedUnit;

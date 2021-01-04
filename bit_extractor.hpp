@@ -14,6 +14,7 @@ public:
 private:
   std::bitset<16> Bits;
   std::size_t BitCounter = 0;
+  std::bitset<16> PrevBits;
   std::istream &InputStream;
 };
 

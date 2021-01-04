@@ -110,11 +110,11 @@ auto SOSDecoder::readDU(BitExtractor &Extractor,
 
 auto SOSDecoder::readMCU(
     BitExtractor &Extractor, const DCTTable &DCT,
-    const std::vector<Channel> &Channels,
+    std::vector<Channel> &Channels,
     const std::vector<std::shared_ptr<HuffmanTree::Node>> &AC_Tables,
     const std::vector<std::shared_ptr<HuffmanTree::Node>> &DC_Tables)
     -> MinimumCodedUnit {
-  MinimumCodedUnit Result;
+  MinimumCodedUnit Result = {};
 
   const auto extractDataUnitForChannel =
       [&](const Channel &Chann) -> std::vector<DataUnit> & {
@@ -129,9 +129,8 @@ auto SOSDecoder::readMCU(
     throw InvalidJPEGDataException{"Wrong channel"};
   };
 
-  for (const auto &Channel : Channels) {
+  for (auto &Channel : Channels) {
     const auto Component = findComponentById(DCT.Components, Channel.Id);
-
     if (std::end(DCT.Components) == Component) {
       throw InvalidJPEGDataException{"Wrong channel"};
     }
@@ -147,13 +146,21 @@ auto SOSDecoder::readMCU(
       std::back_inserter(Data) = readDU(Extractor, DC_Root, AC_Root);
     }
 
+    BOOST_ASSERT_MSG(0 != Data.size(), "Invalid Cr channel");
+
+    auto& PrevDC = Channel.DC;
+    Data.begin()->at_element(0,0) += PrevDC;
+
     if (Data.size() > 1) {
       for (auto Next = Data.begin() + 1, Current = Data.begin();
            Current < Data.end() && Next < Data.end(); ++Current, ++Next) {
         auto &NextMatrix = *Next;
         const auto &Matrix = *Current;
         NextMatrix(0, 0) = Matrix(0, 0) + NextMatrix(0, 0);
+        PrevDC = NextMatrix(0, 0);
       }
+    } else {
+        PrevDC = Data.begin()->at_element(0,0);
     }
   }
 
@@ -268,59 +275,60 @@ void SOSDecoder::Invoke(std::istream &Stream, DecoderContext &Context) {
     Chann.Id = Id;
     Chann.AC_Id = HuffId >> 4;
     Chann.DC_Id = HuffId & 0xF;
+    Chann.DC = 0;
     Channels.push_back(Chann);
   }
 
   DataReader::skipChars(Stream, 3);
 
   using Matrix = Matrix16u;
-  using ImageData = std::map<int, std::vector<Matrix>>;
-
-  std::vector<ImageData> imageData;
   BitExtractor Extractor{Stream};
 
-  do {
+  std::size_t Index = 0;
+
+  double WidthCoeff = static_cast<double>(Context.dct.Width) / 16.;
+  double HeightCoeff = static_cast<double>(Context.dct.Height) / 16.;
+
+  std::size_t MCUCount = std::ceil(WidthCoeff) * std::ceil(HeightCoeff);
+
+  while (Index < MCUCount) {
     auto MCU = readMCU(Extractor, Context.dct, Channels,
                        Context.AC_HuffmanTables, Context.DC_HuffmanTables);
 
     MCU = quantMCU(std::move(MCU), Context.dct.Components, Context.DQT_Vector);
 
-    BOOST_ASSERT_MSG(0 == (MCU.Cs1.size() % 4),
-                     "Fist channel must be divisible by 4");
-    BOOST_ASSERT_MSG(MCU.Cs2.size() == MCU.Cs3.size(),
-                     "Cr and Cb channels size are different");
+    BOOST_ASSERT_MSG(4 == MCU.Cs1.size(), "Invalid Y channel");
+    BOOST_ASSERT_MSG(1 == MCU.Cs2.size(), "Invalid Cr channel");
+    BOOST_ASSERT_MSG(1 == MCU.Cs3.size(), "Invalid Cb channel");
 
-    Matrix matrix(16, 16);
+    auto Y1 = reverseDQT(MCU.Cs1.at(0));
+    auto Y2 = reverseDQT(MCU.Cs1.at(1));
+    auto Y3 = reverseDQT(MCU.Cs1.at(2));
+    auto Y4 = reverseDQT(MCU.Cs1.at(3));
+    auto Cb = MCU.Cs2.at(0);
+    auto Cr = MCU.Cs3.at(0);
 
-    for (std::size_t i = 0; i < MCU.Cs2.size(); i += 4) {
-      auto Y1 = reverseDQT(MCU.Cs1.at(i));
-      auto Y2 = reverseDQT(MCU.Cs1.at(i + 1));
-      auto Y3 = reverseDQT(MCU.Cs1.at(i + 2));
-      auto Y4 = reverseDQT(MCU.Cs1.at(i + 3));
-      auto Cb = MCU.Cs2.at(i);
-      auto Cr = MCU.Cs3.at(i);
+    Matrix Y(16, 16);
 
-      Matrix Y(16, 16);
+    const auto HalfRowsCount = 8;
+    const auto HalfColsCount = 8;
 
-      const auto HalfRowsCount = 8;
-      const auto HalfColsCount = 8;
-
-      for (std::size_t Row = 0; Row < HalfRowsCount; Row++) {
-        for (std::size_t Col = 0; Col < HalfColsCount; Col++) {
-          Y(Row, Col) = Y1(Row, Col);
-          Y(Row, 8 + Col) = Y2(Row, Col);
-          Y(8 + Row, Col) = Y3(Row, Col);
-          Y(8 + Row, 8 + Col) = Y4(Row, Col);
-        }
+    for (std::size_t Row = 0; Row < HalfRowsCount; Row++) {
+      for (std::size_t Col = 0; Col < HalfColsCount; Col++) {
+        Y(Row, Col) = Y1(Row, Col);
+        Y(Row, 8 + Col) = Y2(Row, Col);
+        Y(8 + Row, Col) = Y3(Row, Col);
+        Y(8 + Row, 8 + Col) = Y4(Row, Col);
       }
-
-      auto RevercedY = normalizeReversedDQT(std::move(Y));
-      auto RevercedCb = normalizeReversedDQT(reverseDQT(Cb));
-      auto RevercedCr = normalizeReversedDQT(reverseDQT(Cr));
-
-      const auto [R, G, B] =
-          convertYCbCrToRGB(RevercedY, RevercedCb, RevercedCr);
-      Context.Image.push_back({R, G, B});
     }
-  } while (false);
+
+    auto RevercedY = normalizeReversedDQT(std::move(Y));
+    auto RevercedCb = normalizeReversedDQT(reverseDQT(Cb));
+    auto RevercedCr = normalizeReversedDQT(reverseDQT(Cr));
+
+    const auto [R, G, B] = convertYCbCrToRGB(RevercedY, RevercedCb, RevercedCr);
+    Context.Image.push_back({R, G, B});
+
+    ++Index;
+  }
 }

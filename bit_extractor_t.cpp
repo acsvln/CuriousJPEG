@@ -79,4 +79,66 @@ BOOST_AUTO_TEST_CASE(getFewBits) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b0001);
 }
 
+BOOST_AUTO_TEST_CASE(getOneBit_x) {
+  const std::array<std::uint8_t, 2> Source = {
+      0b10100100, 0b10000000
+  };
+
+  const auto Buffer = charVectorForBuffer(Source);
+
+  ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
+  ios::stream<ios::basic_array_source<char>> InputStream{InputSource};
+
+  BitExtractor Extractor{InputStream};
+
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(getOneBit_y) {
+    const std::array<std::uint8_t, 2> Source = { 0xD8, 0x85 };
+
+    const auto Buffer = charVectorForBuffer(Source);
+
+    ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
+    ios::stream<ios::basic_array_source<char>> InputStream{InputSource};
+
+    BitExtractor Extractor{InputStream};
+
+    // 1101100010000101
+
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
