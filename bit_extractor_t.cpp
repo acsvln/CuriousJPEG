@@ -10,8 +10,11 @@ namespace ios = boost::iostreams;
 } // namespace
 
 BOOST_AUTO_TEST_CASE(getOneBit) {
-  const std::array<uint8_t, 4> Source = {0b10101001, 0b01111011, 0b01100101,
-                                         0b00000001};
+  // clang-format off
+  const std::array<uint8_t, 4> Source = {
+      0b10101001, 0b01111011, 0b01100101, 0b00000001
+  };
+  // clang-format on
   const auto Buffer = charVectorForBuffer(Source);
 
   ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
@@ -19,7 +22,6 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
 
   BitExtractor Extractor{InputStream};
 
-  // 0b10101001
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
@@ -29,7 +31,6 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
 
-  // 0b01111011
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
@@ -39,7 +40,6 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
 
-  // 0b01100101
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
@@ -49,7 +49,6 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
 
-  // 0b00000001
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
@@ -61,8 +60,11 @@ BOOST_AUTO_TEST_CASE(getOneBit) {
 }
 
 BOOST_AUTO_TEST_CASE(getFewBits) {
-  const std::array<std::uint8_t, 4> Source = {0b10101001, 0b01111011,
-                                              0b01100101, 0b00000001};
+  // clang-format off
+  const std::array<std::uint8_t, 4> Source = {
+      0b10101001, 0b01111011, 0b01100101, 0b00000001
+  };
+  // clang-format on
 
   const auto Buffer = charVectorForBuffer(Source);
 
@@ -79,10 +81,12 @@ BOOST_AUTO_TEST_CASE(getFewBits) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b0001);
 }
 
-BOOST_AUTO_TEST_CASE(getOneBit_x) {
-  const std::array<std::uint8_t, 2> Source = {
-      0b10100100, 0b10000000
+BOOST_AUTO_TEST_CASE(getOneBit_XXFF00YY) {
+  // clang-format off
+  const std::array<std::uint8_t, 4> Source = {
+      0b10100001, 0xFF, 0x00, 0b00010010
   };
+  // clang-format on
 
   const auto Buffer = charVectorForBuffer(Source);
 
@@ -96,49 +100,69 @@ BOOST_AUTO_TEST_CASE(getOneBit_x) {
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
 
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
   BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(getOneBit_y) {
-    const std::array<std::uint8_t, 2> Source = { 0xD8, 0x85 };
+BOOST_AUTO_TEST_CASE(getFewBits_FF00YY) {
+  // clang-format off
+  const std::array<std::uint8_t, 5> Source = {
+      0b10100001, 0b10110001, 0xFF, 0x00, 0b00010010
+  };
+  // clang-format on
 
-    const auto Buffer = charVectorForBuffer(Source);
+  const auto Buffer = charVectorForBuffer(Source);
 
-    ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
-    ios::stream<ios::basic_array_source<char>> InputStream{InputSource};
+  ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
+  ios::stream<ios::basic_array_source<char>> InputStream{InputSource};
 
-    BitExtractor Extractor{InputStream};
+  BitExtractor Extractor{InputStream};
 
-    // 1101100010000101
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b1010);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(6), 0b000110);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(8), 0b11000111);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(10), 0b1111110001);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b0010);
+}
 
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
+BOOST_AUTO_TEST_CASE(getFewBits_00FF00XX) {
+  // clang-format off
+  const std::array<std::uint8_t, 5> Source = {
+      0b10100001, 0x00, 0xFF, 0x00, 0b00010010
+  };
+  // clang-format on
 
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 0);
-    BOOST_REQUIRE_EQUAL(Extractor.nextNumber(), 1);
+  const auto Buffer = charVectorForBuffer(Source);
+
+  ios::basic_array_source<char> InputSource{Buffer.data(), Buffer.size()};
+  ios::stream<ios::basic_array_source<char>> InputStream{InputSource};
+
+  BitExtractor Extractor{InputStream};
+
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b1010);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(6), 0b000100);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(8), 0b00000011);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(10), 0b1111110001);
+  BOOST_REQUIRE_EQUAL(Extractor.nextNumber(4), 0b0010);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -17,19 +17,22 @@ auto BitExtractor::nextNumber(const std::size_t BitCnt) -> uint16_t {
 
   for (std::size_t Index = BitCnt; Index != 0; --Index) {
     if (0 == BitCounter) {
-      const auto Mask = std::bitset<16>{0x00FF};
+      std::bitset<16> const Mask_00FF{0x00FF};
+      std::bitset<16> const Mask_FF00{0xFF00};
+      const auto Size = Bits.size();
+      const auto HalfSize = Bits.size() / 2;
       const auto RawBits = DataReader::readNumber<uint16_t>(InputStream);
-      if ( 0xFF00 == RawBits ) {
-        Bits = 0xFF;
-        BitCounter = 8;
-      } else if (  Mask == ( PrevBits & Mask ) ) {
-          Bits = RawBits;
-          BitCounter = 8;
+      if (Mask_FF00 == RawBits) {
+        Bits = RawBits >> HalfSize;
+        BitCounter = HalfSize;
+      } else if (Mask_00FF == (PreviousBits & Mask_00FF)) {
+        Bits = RawBits;
+        BitCounter = HalfSize;
       } else {
         Bits = RawBits;
-        BitCounter = Bits.size();
+        BitCounter = Size;
       }
-      PrevBits = RawBits;
+      PreviousBits = RawBits;
     }
 
     BitCounter--;
