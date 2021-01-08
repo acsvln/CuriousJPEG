@@ -32,6 +32,7 @@ CppApplication {
 
     files: [
         "testing_utility.hpp",
+        "testing_shared_data.hpp",
         "bit_extractor_t.cpp",
         "dqt_decoder_t.cpp",
         "huffman_tree_t.cpp",
