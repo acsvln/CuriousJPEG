@@ -6,6 +6,7 @@ CppApplication {
     cpp.cxxLanguageVersion: "c++17"
 
     consoleApplication: true
+
     files: [
         "bit_extractor.hpp",
         "data_reader.hpp",

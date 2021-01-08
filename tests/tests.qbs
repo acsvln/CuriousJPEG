@@ -6,24 +6,31 @@ CppApplication {
 
     cpp.cxxLanguageVersion: "c++17"
 
+    consoleApplication: true
+
     cpp.includePaths: [
         "../src",
     ]
 
-    consoleApplication: true
+    Group {
+        name: "src_files"
+        files: [
+            "bit_extractor.cpp",
+            "decoder_base.cpp",
+            "dqt_decoder.cpp",
+            "huffman_tree.cpp",
+            "dht_decoder.cpp",
+            "sof0_decoder.cpp",
+            "sos_decoder.cpp",
+            "utility.cpp",
+            "idecoder.cpp",
+            "exceptions.cpp",
+            "data_reader.cpp"
+        ]
+        prefix: "../src/"
+    }
 
     files: [
-        "../src/bit_extractor.cpp",
-        "../src/decoder_base.cpp",
-        "../src/dqt_decoder.cpp",
-        "../src/huffman_tree.cpp",
-        "../src/dht_decoder.cpp",
-        "../src/sof0_decoder.cpp",
-        "../src/sos_decoder.cpp",
-        "../src/utility.cpp",
-        "../src/idecoder.cpp",
-        "../src/exceptions.cpp",
-        "../src/data_reader.cpp",
         "testing_utility.hpp",
         "bit_extractor_t.cpp",
         "dqt_decoder_t.cpp",
@@ -39,6 +46,9 @@ CppApplication {
 
     Depends {
       name: "ConanBasicSetup"
-      required: true
+    }
+
+    Depends {
+      name: "src"
     }
 }
