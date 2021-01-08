@@ -9,7 +9,7 @@
 #include "data_reader.hpp"
 #include "decoder_base.hpp"
 #include "exceptions.hpp"
-#include "testing_utility.hpp"
+#include "utility.hpp"
 
 namespace {
 
