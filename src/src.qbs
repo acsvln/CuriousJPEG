@@ -21,6 +21,7 @@ CppApplication {
         "sos_decoder.hpp",
         "utility.hpp",
         "dqt_decoder.hpp",
+        "definition.hpp",
         "bit_extractor.cpp",
         "data_reader.cpp",
         "decoder_base.cpp",
